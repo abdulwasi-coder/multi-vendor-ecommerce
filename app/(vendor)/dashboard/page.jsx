@@ -1,0 +1,1 @@
+// here we fetch these routes: getvendorFinancialStatus

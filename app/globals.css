@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
 }
 
 @theme inline {
@@ -10,6 +11,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-primary: var(--colorred);
+}
+
+@theme{
+    --color-primary:oklch(45% .15 25);
+    --color-forborder:oklch(92% .01 60);
+    --color-forbackround:oklch(98.5% .005 60);
+    --color-formuted:oklch(95.5% .01 60);
+    --text-primary:oklch(45% .15 25)
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,10 +27,4 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

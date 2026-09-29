@@ -1,0 +1,1 @@
+// we can take updatevendorProduct route but mainly it is for the createproduct route
