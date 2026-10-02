@@ -16,5 +16,6 @@ export function useProducts(params: ProductFeedParams = {}, enabled = true) {
     queryKey: productQueryKeys.list(params),
     queryFn: () => getProducts(params),
     enabled,
+    retry: 1,
   });
 }

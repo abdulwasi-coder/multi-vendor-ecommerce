@@ -1,0 +1,4 @@
+"use client";
+
+import Link from "next/link";
+export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) { return <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center px-4 py-16 text-center"><p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">Something went wrong</p><h1 className="mt-3 text-3xl font-semibold">We couldn’t load this page</h1><p className="mt-3 text-sm leading-6 text-muted-foreground">Please try again. Your cart remains saved on this device.</p><div className="mt-6 flex justify-center gap-3"><button onClick={reset} className="min-h-11 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground">Try again</button><Link href="/" className="inline-flex min-h-11 items-center rounded-md border border-border px-5 text-sm">Go home</Link></div></main>; }

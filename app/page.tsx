@@ -3,7 +3,10 @@ import Link from "next/link";
 import { ArrowDownRight, ArrowRight, Box, HeartHandshake, Leaf, Sparkles } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
-import { categories, featuredProducts, newProducts } from "@/lib/homepage-content";
+import { HomeLiveProducts } from "@/components/home-live-products";
+import { StoreHeader } from "@/components/store-header";
+import { StoreFooter } from "@/components/store-footer";
+import { categories, featuredProducts } from "@/lib/homepage-content";
 
 const benefits = [
   { icon: Sparkles, title: "A considered edit", text: "Everyday essentials alongside the unexpected." },
@@ -42,7 +45,7 @@ function SectionHeading({
 
 export default function Home() {
   return (
-    <main className="w-full min-w-0">
+    <><StoreHeader /><main className="w-full min-w-0">
       <section className="mx-auto grid w-full min-w-0 max-w-7xl gap-8 px-4 pb-14 pt-7 sm:px-6 sm:pb-20 sm:pt-10 lg:grid-cols-[0.88fr_1.12fr] lg:items-center lg:gap-12 lg:px-8 lg:pb-24 lg:pt-12">
         <div className="home-enter order-1 min-w-0 max-w-xl lg:order-1">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground sm:mb-5">The Town Market edit</p>
@@ -53,23 +56,19 @@ export default function Home() {
             A thoughtful mix of everyday essentials, little luxuries, and pieces that feel like you.
           </p>
           <div className="mt-7 flex flex-wrap gap-3 sm:mt-8">
-            <Link href="#featured" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <Link href="#featured" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground shadow-soft transition-[transform,box-shadow,opacity] hover:-translate-y-px hover:opacity-95 hover:shadow-raised active:shadow-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
               Explore the edit <ArrowRight aria-hidden="true" size={17} />
             </Link>
-            <Link href="#categories" className="inline-flex min-h-12 items-center justify-center rounded-md border border-border px-5 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Link href="#categories" className="surface-raised inline-flex min-h-12 items-center justify-center rounded-lg px-5 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               Find your thing
             </Link>
           </div>
-          <div className="mt-8 flex items-center gap-3 text-sm text-muted-foreground sm:mt-10">
-            <span className="flex -space-x-2" aria-hidden="true">
-              <span className="size-8 rounded-full border-2 border-background bg-secondary" />
-              <span className="size-8 rounded-full border-2 border-background bg-muted" />
-              <span className="size-8 rounded-full border-2 border-background bg-secondary" />
-            </span>
-            <span>A little inspiration for every day</span>
+          <div className="mt-8 flex items-center gap-2.5 text-sm text-muted-foreground sm:mt-10">
+            <Sparkles aria-hidden="true" size={17} className="text-primary" />
+            <span>Thoughtful finds for everyday life</span>
           </div>
         </div>
-        <div className="home-enter home-enter-delay relative order-2 min-h-[300px] min-w-0 overflow-hidden rounded-md bg-muted sm:min-h-[440px] lg:order-2 lg:min-h-[540px]">
+        <div className="home-enter home-enter-delay relative order-2 min-h-[300px] min-w-0 overflow-hidden rounded-2xl bg-muted shadow-soft sm:min-h-[440px] lg:order-2 lg:min-h-[540px]">
           <Image
             src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=90"
             alt="Sunlit modern boutique with a curated collection of clothing"
@@ -90,7 +89,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="categories" aria-labelledby="categories-heading" className="border-y border-border bg-muted/30 py-14 sm:py-20">
+      <section id="categories" aria-labelledby="categories-heading" className="border-y border-border/70 bg-secondary/20 py-14 sm:py-20">
         <div className="mx-auto min-w-0 max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading id="categories-heading" eyebrow="Browse the collection" title="A good place to start" />
           <div className="grid min-w-0 grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
@@ -104,7 +103,7 @@ export default function Home() {
                     priority={index === 0}
                     unoptimized
                     sizes="(max-width: 639px) 46vw, (max-width: 1023px) 45vw, 23vw"
-                    className="object-cover transition-transform duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.035]"
+                    className="object-cover transition-transform duration-300 ease-out motion-reduce:transition-none group-hover:scale-[1.02]"
                   />
                 </div>
                 <h3 className="mt-3 text-sm font-medium sm:mt-4 sm:text-base">{category.name}</h3>
@@ -124,7 +123,7 @@ export default function Home() {
       </section>
 
       <section aria-label="Seasonal selection" className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
-        <div className="relative isolate min-h-[340px] overflow-hidden rounded-md bg-muted sm:min-h-[400px]">
+        <div className="relative isolate min-h-[340px] overflow-hidden rounded-2xl bg-muted shadow-soft sm:min-h-[400px]">
           <Image
             src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1800&q=85"
             alt="A warm, welcoming shop interior with carefully arranged pieces"
@@ -145,13 +144,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="new-arrivals" aria-labelledby="new-arrivals-heading" className="border-y border-border bg-muted/30">
+      <section id="new-arrivals" aria-labelledby="new-arrivals-heading" className="border-y border-border/70 bg-muted/45">
         <div className="mx-auto min-w-0 max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
           <SectionHeading id="new-arrivals-heading" eyebrow="Just landed" title="New to the edit" />
-          <div className="grid min-w-0 grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4">
-            {newProducts.map((product) => <ProductCard key={product.id} product={product} />)}
-          </div>
-          <p className="mt-6 text-xs text-muted-foreground">Preview collection · Product details and availability are not connected yet.</p>
+          <HomeLiveProducts />
         </div>
       </section>
 
@@ -171,7 +167,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-labelledby="newsletter-heading" className="border-t border-border bg-muted/30">
+      <section aria-labelledby="newsletter-heading" className="border-t border-border/70 bg-primary/[0.035]">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-12 sm:px-6 sm:py-16 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div className="max-w-xl">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">A note from us</p>
@@ -188,6 +184,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </main>
+    </main><StoreFooter /></>
   );
 }
