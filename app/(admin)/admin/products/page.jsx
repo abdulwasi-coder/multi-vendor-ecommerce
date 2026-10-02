@@ -1,0 +1,1 @@
+// here we show the route of getproducts and delete category also we use this for creating a category too.

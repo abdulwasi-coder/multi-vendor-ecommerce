@@ -128,3 +128,29 @@
     @apply font-sans;
   }
 }
+
+@keyframes home-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-enter {
+  animation: home-enter 650ms ease-out both;
+}
+
+.home-enter-delay {
+  animation-delay: 100ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-enter,
+  .home-enter-delay {
+    animation: none;
+  }
+}
