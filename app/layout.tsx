@@ -4,6 +4,7 @@ import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { AppProvider } from "./providers/app-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -23,7 +24,9 @@ export default function RootLayout({
       className={cn("h-full", "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <AppProvider>{children}</AppProvider>
+        <TooltipProvider>
+          <AppProvider>{children}</AppProvider>
+        </TooltipProvider>
       </body>
     </html>
   );
