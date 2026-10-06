@@ -3,10 +3,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
-import { AppProvider } from "./providers/app-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryProvider } from "./provider";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,14 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={cn("h-full", "font-sans", geist.variable)}
-    >
+    <html lang="en" className={cn("h-full", "font-sans", geist.variable)}>
       <body className="min-h-full flex flex-col">
-        <TooltipProvider>
-          <AppProvider>{children}</AppProvider>
-        </TooltipProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
