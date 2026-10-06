@@ -1,4 +1,3 @@
-"use client";
 
 import {
   Activity,
@@ -7,22 +6,16 @@ import {
   BadgeCheck,
   Banknote,
   Boxes,
-  ChevronDown,
   CircleDollarSign,
   Clock3,
   CreditCard,
-  Download,
-  Ellipsis,
-  Eye,
   PackageCheck,
-  Search,
   ShoppingBag,
   Store,
   Users,
 } from "lucide-react";
 
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 
@@ -35,14 +28,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { DropdownMenuCustom, PendingOrders, PendingVendor } from "@/Otherfiles/dash_interactive";
 import { ChartAreaInteractive } from "@/components/ui/chart-area-interactive";
 import Link from "next/link";
@@ -95,64 +80,7 @@ const metrics = [
   },
 ];
 
-const monthlySales = [
-  { month: "May 1", sales: 8200 },
-  { month: "May 5", sales: 11200 },
-  { month: "May 9", sales: 9400 },
-  { month: "May 13", sales: 15800 },
-  { month: "May 17", sales: 13200 },
-  { month: "May 21", sales: 18400 },
-  { month: "May 25", sales: 16100 },
-  { month: "May 29", sales: 22400 },
-  { month: "May 31", sales: 19800 },
-];
-
-const orderDistribution = [
-  { name: "Delivered", value: 68, fill: "oklch(0.62 0.15 158)" },
-  { name: "Processing", value: 21, fill: "oklch(0.76 0.15 78)" },
-  { name: "Cancelled", value: 11, fill: "oklch(0.65 0.19 25)" },
-];
-
-const salesChartConfig = {
-  sales: { label: "Sales", color: "oklch(0.56 0.13 160)" },
-};
-const orderChartConfig = {
-  Delivered: { label: "Delivered", color: "oklch(0.62 0.15 158)" },
-  Processing: { label: "Processing", color: "oklch(0.76 0.15 78)" },
-  Cancelled: { label: "Cancelled", color: "oklch(0.65 0.19 25)" },
-};
-
-
-
-const activity = [
-  {
-    icon: Store,
-    title: "New vendor application",
-    detail: "Morrow Home submitted an application",
-    time: "12 min ago",
-  },
-  {
-    icon: CreditCard,
-    title: "Payout request received",
-    detail: "Northstar Goods · $1,240.00",
-    time: "38 min ago",
-  },
-  {
-    icon: PackageCheck,
-    title: "Order marked as delivered",
-    detail: "Order #ORD-8288 · Field & Form",
-    time: "1 hour ago",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Vendor approved",
-    detail: "Sunday Supply is now active",
-    time: "3 hours ago",
-  },
-];
 const timelines = ["1 Year", "6 Months", "1 Month"];
-
-const currency = (value:any) => `$${Number(value).toLocaleString("en-US")}`;
 
 export default function AdminDashboardPage() {
 
