@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
 
 
   return (
-    <main className="min-h-screen mx-auto max-w-400 space-y-5 w-full bg-muted/30 px-4 py-6 lg:py-3 sm:px-6  lg:px-8">
+    <main className="mx-auto min-h-screen w-full max-w-[1600px] space-y-5 bg-muted/30 px-4 py-6 sm:px-6 lg:px-8">
      
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div className="space-y-1">
@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
           {metrics.map((metric) => {
             const Icon = metric.icon;
             return (
-              <Card key={metric.label} className={`group h-full min-h-[184px] gap-4 rounded-2xl border-border/70 py-5 shadow-sm transition-all duration-300 ease-out hover:shadow-lg ${metric.cardHover}`}>
+              <Card key={metric.label} className={`group h-full min-h-[184px] gap-4 rounded-2xl border-border/70 py-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg ${metric.cardHover}`}>
                 <CardHeader className="min-h-[52px] flex-row items-center justify-between gap-2 space-y-0 px-5">
                   <CardTitle className="min-h-11 flex-1 content-center text-base font-semibold leading-snug tracking-tight text-muted-foreground">
                     {metric.label}
@@ -121,7 +121,7 @@ export default function AdminDashboardPage() {
                   <span
                     className={`flex size-12 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-300 ease-out group-hover:scale-110 ${metric.iconTone}`}
                   >
-                    <Icon className="size-6" strokeWidth={2.25} />
+                    <Icon className="size-6 transition-transform duration-300 group-hover:scale-110" strokeWidth={2.25} />
                   </span>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col justify-between gap-2 px-5">
@@ -153,7 +153,7 @@ export default function AdminDashboardPage() {
           <ChartAreaInteractive/>
         </section>
 
-        <section className="grid gap-4 xl:grid-cols-7">
+        <section className="grid gap-4 2xl:grid-cols-7">
           <PendingOrders/>
           <PendingVendor/>
         </section>
@@ -172,7 +172,7 @@ export default function AdminDashboardPage() {
                   </p>
                 </div>
               </div>
-              <Link href="/dashboard/products">
+              <Link href="/products">
                
                 <Button
                   variant="ghost"
@@ -197,7 +197,7 @@ export default function AdminDashboardPage() {
                   </p>
                 </div>
               </div>
-              <Link href="/dashboard/ledger">
+              <Link href="/vendors">
                 
                 <Button
                   variant="ghost"

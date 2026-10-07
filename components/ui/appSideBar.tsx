@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, BookOpen, Users, Settings, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, ShoppingCart, Package, WalletCards } from "lucide-react";
 
 import {
   Sidebar,
@@ -23,9 +23,10 @@ import Image from "next/image";
 const navigationItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Orders", href: "/orders", icon: ShoppingCart },
+  { title: "Products", href: "/products", icon: Package },
+  { title: "Payouts", href: "/payouts", icon: WalletCards },
   { title: "Ledger Accounts", href: "/ledger", icon: BookOpen },
   { title: "Vendors & Users", href: "/vendors", icon: Users },
-  { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -94,7 +95,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
-                const isActive = item.href === pathname;
+                const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton

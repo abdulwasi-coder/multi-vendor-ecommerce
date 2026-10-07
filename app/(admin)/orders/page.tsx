@@ -179,14 +179,14 @@ export default function AdminOrdersPage() {
           {stats.map(({ title, value, description, icon: Icon, hoverTone, iconTone }) => (
             <Card
               key={title}
-              className={`group relative h-full min-h-[184px] gap-4 rounded-2xl border-border/70 bg-card py-5 shadow-sm transition-all duration-300 ease-out hover:shadow-lg ${hoverTone}`}
+              className={`group relative h-full min-h-[184px] gap-4 rounded-2xl border-border/70 bg-card py-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg ${hoverTone}`}
             >
               <CardHeader className="min-h-[52px] flex-row items-center justify-between gap-2 pb-1">
                 <CardTitle className="min-h-11 flex-1 content-center text-base font-semibold leading-snug tracking-tight text-muted-foreground">
                   {title}
                 </CardTitle>
                 <span className={`flex size-12 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-300 ease-out group-hover:scale-110 ${iconTone}`}>
-                  <Icon className="size-6" strokeWidth={2.25} />
+                  <Icon className="size-6 transition-transform duration-300 group-hover:scale-110" strokeWidth={2.25} />
                 </span>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col justify-between gap-2">
@@ -212,7 +212,13 @@ export default function AdminOrdersPage() {
             </Badge>
           </div>
           <Separator />
-          <div className="w-full overflow-x-auto">
+          <div className="space-y-3 px-4 pb-4 xl:hidden">
+            {visibleOrders.map((order) => <article key={order.id} className="rounded-xl border bg-card p-4 shadow-sm transition-colors hover:border-indigo-300/70 hover:bg-indigo-50/30 dark:hover:border-indigo-900 dark:hover:bg-indigo-950/15">
+              <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate font-semibold">{order.vendor}</h3><p className="mt-0.5 font-mono text-xs text-muted-foreground">{order.id}</p></div><Badge variant="outline" className={statusStyle(order.status)}>{order.status}</Badge></div>
+              <div className="mt-3 grid grid-cols-2 gap-3 border-t pt-3 text-sm"><div><p className="text-xs text-muted-foreground">Date</p><p>{new Date(`${order.date}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p></div><div><p className="text-xs text-muted-foreground">Vendor earning</p><p className="font-semibold tabular-nums">{currency.format(order.vendorEarning)}</p></div><div><p className="text-xs text-muted-foreground">Platform earning</p><p className="text-muted-foreground tabular-nums">{currency.format(order.platformEarning)}</p></div></div>
+            </article>)}
+          </div>
+          <div className="hidden w-full overflow-x-auto xl:block">
             <Table className="min-w-[760px]">
               <TableHeader className="bg-muted/35">
                 <TableRow className="hover:bg-transparent">
@@ -226,10 +232,10 @@ export default function AdminOrdersPage() {
               </TableHeader>
               <TableBody>
                 {visibleOrders.map((order) => (
-                  <TableRow key={order.id} className="group">
+                  <TableRow key={order.id} className="group transition-colors duration-150 hover:bg-muted/60">
                     <TableCell className="py-4 pl-5">
                       <div className="flex items-center gap-3">
-                        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-semibold text-indigo-700 transition-all duration-200 group-hover:scale-105 group-hover:ring-4 group-hover:ring-indigo-500/10 dark:text-indigo-300">
                           {order.vendor
                             .split(/\s|&/)
                             .filter(Boolean)
