@@ -1,6 +1,6 @@
 "use client";
 
-const orders = [
+export const orders = [
   {
     id: "#ORD-8294",
     customer: "Olivia Martin",
@@ -83,7 +83,7 @@ export function DropdownMenuCustom({ data = [] }: { data?: string[] }) {
     <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-0.5 border rounded-md px-3 h-8 text-sm font-medium bg-background">
-          <span>Last {current}</span>
+          <span>{current}</span>
           <ChevronDown className="size-4 opacity-50" />
         </DropdownMenuTrigger>
 
