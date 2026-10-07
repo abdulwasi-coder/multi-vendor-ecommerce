@@ -192,6 +192,7 @@ export function ChartAreaInteractive() {
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-62.5 w-full"
+          debounce={100}
         >
           <AreaChart data={filteredData}>
             <defs>
@@ -255,6 +256,7 @@ export function ChartAreaInteractive() {
               fill="url(#fillMobile)"
               stroke="var(--color-mobile)"
               stackId="a"
+              isAnimationActive={false}
             />
             <Area
               dataKey="desktop"
@@ -262,6 +264,7 @@ export function ChartAreaInteractive() {
               fill="url(#fillDesktop)"
               stroke="var(--color-desktop)"
               stackId="a"
+              isAnimationActive={false}
             />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
