@@ -22,7 +22,7 @@ import Image from "next/image";
 
 const navigationItems = [
   { title: "Dashboard", href: "/vendor/dashboard", icon: LayoutDashboard },
-  { title: "Orders", href: "/vendor/order", icon: ShoppingCart },
+  { title: "Orders", href: "/vendor/orders", icon: ShoppingCart },
   { title: "Products", href: "/vendor/products", icon: Package },
 ];
 
