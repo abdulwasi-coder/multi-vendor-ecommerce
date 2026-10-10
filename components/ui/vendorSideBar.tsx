@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Users, ShoppingCart, Package, Component } from "lucide-react";
+import { LayoutDashboard, Users, ShoppingCart, Package, Component, PackagePlus } from "lucide-react";
 
 import {
   Sidebar,
@@ -21,14 +21,16 @@ import {
 import Image from "next/image";
 
 const navigationItems = [
-  { title: "Dashboard", href: "/", icon: LayoutDashboard },
-  { title: "Orders", href: "/orders-ledger", icon: ShoppingCart },
-  { title: "Products", href: "/products", icon: Package },
-  { title: "Vendors & Users", href: "/vendors-users", icon: Users },
+  { title: "Dashboard", href: "/vendor/dashboard", icon: LayoutDashboard },
+  { title: "Orders", href: "/vendor/order", icon: ShoppingCart },
+  { title: "Products", href: "/vendor/products", icon: Package },
 ];
 
-const creationItems = [
-  { title: "Category", href: "/category", icon:Component },
+const tasks = [
+  { title: "Processing Order", href: "/(vendors)/vendor/processing-orders", icon:Component },
+]
+const createitems = [
+  { title: "Create Product", href: "/(vendors)/vendor/create", icon: PackagePlus },
 ]
 
 export function AppSidebar() {
@@ -59,7 +61,7 @@ export function AppSidebar() {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* 1. TOP: COMPANY IMAGE */}
+
       <SidebarHeader className="border-b border-slate-800!">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -88,7 +90,7 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      {/* 2. MIDDLE: NAV LINKS (Home, Inbox, etc.) */}
+     
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
@@ -123,11 +125,42 @@ export function AppSidebar() {
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
-            Creation
+            Tasks
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {creationItems.map((item) => {
+              {tasks.map((item) => {
+                const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      className={`flex gap-1.5 items-center transition-all duration-200 ease-in-out `}
+                      isActive={isActive}
+                      render={
+                        <Link
+                          onClick={handleNavigation}
+                          href={item.href}
+                        />
+                      }
+                    >
+                      <item.icon />
+                      <div className="group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:block">
+                        <span>{item.title}</span>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
+            Create Product
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {createitems.map((item) => {
                 const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
                 return (
                   <SidebarMenuItem key={item.title}>
