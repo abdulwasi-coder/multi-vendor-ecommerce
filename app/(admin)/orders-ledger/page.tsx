@@ -127,12 +127,6 @@ export default function AdminOrdersPage() {
               Review order activity and vendor earnings across the marketplace.
             </p>
           </div>
-          <Badge
-            variant="outline"
-            className="h-8 w-fit gap-1.5 border-indigo-200 bg-indigo-50 px-3 font-medium text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-300"
-          >
-            <CircleHelp className="size-3.5" /> Mock preview
-          </Badge>
         </header>
 
         <section

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, BookOpen, Users, ShoppingCart, Package, WalletCards } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, ShoppingCart, Package, WalletCards, Component } from "lucide-react";
 
 import {
   Sidebar,
@@ -22,12 +22,14 @@ import Image from "next/image";
 
 const navigationItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Orders", href: "/orders", icon: ShoppingCart },
+  { title: "Orders", href: "/orders-ledger", icon: ShoppingCart },
   { title: "Products", href: "/products", icon: Package },
-  { title: "Payouts", href: "/payouts", icon: WalletCards },
-  { title: "Ledger Accounts", href: "/ledger", icon: BookOpen },
-  { title: "Vendors & Users", href: "/vendors", icon: Users },
+  { title: "Vendors & Users", href: "/vendors-users", icon: Users },
 ];
+
+const creationItems = [
+  { title: "Category", href: "/category", icon:Component },
+]
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -95,6 +97,37 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
+                const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      className={`flex gap-1.5 items-center transition-all duration-200 ease-in-out `}
+                      isActive={isActive}
+                      render={
+                        <Link
+                          onClick={handleNavigation}
+                          href={item.href}
+                        />
+                      }
+                    >
+                      <item.icon />
+                      <div className="group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:block">
+                        <span>{item.title}</span>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
+            Creation
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {creationItems.map((item) => {
                 const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
                 return (
                   <SidebarMenuItem key={item.title}>

@@ -150,7 +150,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             </div>
-            <Link href="/dashboard/products">
+            <Link href="/orders-ledger">
               <Button
                 variant="ghost"
                 size="icon"
@@ -174,7 +174,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             </div>
-            <Link href="/dashboard/ledger">
+            <Link href="/vendors-users">
               <Button
                 variant="ghost"
                 size="icon"
