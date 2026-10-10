@@ -125,37 +125,6 @@ export function AppSidebar() {
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
-            Tasks
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {tasks.map((item) => {
-                const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      className={`flex gap-1.5 items-center transition-all duration-200 ease-in-out `}
-                      isActive={isActive}
-                      render={
-                        <Link
-                          onClick={handleNavigation}
-                          href={item.href}
-                        />
-                      }
-                    >
-                      <item.icon />
-                      <div className="group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:block">
-                        <span>{item.title}</span>
-                      </div>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
             Create Product
           </SidebarGroupLabel>
           <SidebarGroupContent>
