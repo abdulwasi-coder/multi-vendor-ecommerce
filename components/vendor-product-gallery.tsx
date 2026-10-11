@@ -22,7 +22,7 @@ export function VendorProductGallery({ images, name, discount }: { images: strin
     const lens = lensRef.current;
     const panel = zoomPanelRef.current;
     const zoomImage = zoomImageRef.current;
-    if (!stage || !photo || !lens || !panel || !zoomImage || !photo.naturalWidth || !photo.naturalHeight) return;
+    if (!stage || !photo || !photo.naturalWidth || !photo.naturalHeight) return;
 
     const bounds = stage.getBoundingClientRect();
     const fit = Math.min(bounds.width / photo.naturalWidth, bounds.height / photo.naturalHeight);
@@ -30,8 +30,16 @@ export function VendorProductGallery({ images, name, discount }: { images: strin
     const photoHeight = photo.naturalHeight * fit;
     const photoLeft = (bounds.width - photoWidth) / 2;
     const photoTop = (bounds.height - photoHeight) / 2;
-    const imageX = Math.min(1, Math.max(0, (event.clientX - bounds.left - photoLeft) / photoWidth));
-    const imageY = Math.min(1, Math.max(0, (event.clientY - bounds.top - photoTop) / photoHeight));
+    const localX = event.clientX - bounds.left;
+    const localY = event.clientY - bounds.top;
+    if (localX < photoLeft || localX > photoLeft + photoWidth || localY < photoTop || localY > photoTop + photoHeight) {
+      setZoomOpen(false);
+      return;
+    }
+    setZoomOpen(true);
+    if (!lens || !panel || !zoomImage) return;
+    const imageX = (localX - photoLeft) / photoWidth;
+    const imageY = (localY - photoTop) / photoHeight;
 
     const availableWidth = Math.max(0, window.innerWidth - bounds.right - 28);
     const panelWidth = availableWidth;
@@ -57,7 +65,7 @@ export function VendorProductGallery({ images, name, discount }: { images: strin
         {images.length > 0 ? images.map((src, index) => <button key={`${src}-${index}`} type="button" aria-label={`Show photo ${index + 1}`} aria-pressed={index === activeImage} onMouseEnter={() => setActiveImage(index)} onFocus={() => setActiveImage(index)} onClick={() => setActiveImage(index)} className={`size-12 shrink-0 overflow-hidden rounded-md border bg-background transition ${index === activeImage ? "border-sky-600 ring-1 ring-sky-600" : "border-border hover:border-foreground/50"}`}><img src={src} alt="" className="size-full object-cover" /></button>) : <span className="text-xs text-muted-foreground">No photos</span>}
       </div>
 
-      <div ref={stageRef} className={`relative min-h-0 min-w-0 flex-1 bg-background ${zoomOpen ? "cursor-none" : "cursor-crosshair"}`} onMouseEnter={() => setZoomOpen(true)} onMouseMove={trackPointer}>
+      <div ref={stageRef} className={`relative min-h-0 min-w-0 flex-1 bg-background ${zoomOpen ? "cursor-none" : "cursor-crosshair"}`} onMouseLeave={() => setZoomOpen(false)} onMouseMove={trackPointer}>
         {image ? <img ref={imageRef} src={image} alt={name} className="size-full object-contain" /> : <div className="flex size-full items-center justify-center"><ImageIcon className="size-12 text-muted-foreground/40" /></div>}
         {discount > 0 && <Badge className="absolute left-3 top-3 z-10">-{discount}%</Badge>}
         {image && zoomOpen && <>
