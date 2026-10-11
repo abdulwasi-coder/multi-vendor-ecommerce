@@ -21,14 +21,14 @@ import {
 import Image from "next/image";
 
 const navigationItems = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Orders", href: "/orders-ledger", icon: ShoppingCart },
-  { title: "Products", href: "/products", icon: Package },
-  { title: "Vendors & Users", href: "/vendors-users", icon: Users },
+  { title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+  { title: "Orders", href: "/admin/orders-ledger", icon: ShoppingCart },
+  { title: "Products", href: "/admin/products", icon: Package },
+  { title: "Vendors & Users", href: "/admin/vendors-users", icon: Users },
 ];
 
 const creationItems = [
-  { title: "Category", href: "/category", icon:Component },
+  { title: "Category", href: "/admin/category", icon:Component },
 ]
 
 export function AppSidebar() {
@@ -66,7 +66,7 @@ export function AppSidebar() {
             <SidebarMenuButton
               className="flex gap-2 items-center"
               size="lg"
-              render={<Link href="/dashboard" onClick={handleNavigation} />}
+              render={<Link href="/admin/dashboard" onClick={handleNavigation} />}
             >
               <div className="flex size-8 items-center justify-center rounded-lg">
                 <Image

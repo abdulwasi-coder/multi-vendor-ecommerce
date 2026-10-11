@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Users, ShoppingCart, Package, Component, PackagePlus } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, PackagePlus, Truck } from "lucide-react";
 
 import {
   Sidebar,
@@ -24,11 +24,8 @@ const navigationItems = [
   { title: "Dashboard", href: "/vendor/dashboard", icon: LayoutDashboard },
   { title: "Orders", href: "/vendor/orders", icon: ShoppingCart },
   { title: "Products", href: "/vendor/products", icon: Package },
+  { title: "Logistics", href: "/vendor/logitics", icon: Truck },
 ];
-
-const tasks = [
-  { title: "Processing Order", href: "/(vendors)/vendor/processing-orders", icon:Component },
-]
 const createitems = [
   { title: "Create Product", href: "/vendor/create", icon: PackagePlus },
 ]
@@ -68,7 +65,7 @@ export function AppSidebar() {
             <SidebarMenuButton
               className="flex gap-2 items-center"
               size="lg"
-              render={<Link href="/dashboard" onClick={handleNavigation} />}
+              render={<Link href="/vendor/dashboard" onClick={handleNavigation} />}
             >
               <div className="flex size-8 items-center justify-center rounded-lg">
                 <Image
