@@ -1,5 +1,7 @@
 export type Product = {
   id: string;
+  vendorID: string;
+  vendorCompanyName: string;
   name: string;
   description: string;
   brand: string;
@@ -10,11 +12,17 @@ export type Product = {
   color: string;
   images: string[];
   attributes: string;
+  rating: number;
+  reviewCount: number;
 };
 
 export const products: Product[] = [
   {
     id: "BT-1042",
+    vendorID: "VND-1001",
+    vendorCompanyName: "Bon Ton Studio",
+    rating: 4.8,
+    reviewCount: 126,
     name: "Everyday Canvas Tote",
     description: "A sturdy, thoughtfully made carry-all for everyday errands and weekend plans.",
     brand: "Bon Ton Studio",
@@ -32,6 +40,10 @@ export const products: Product[] = [
   },
   {
     id: "BT-1038",
+    vendorID: "VND-1002",
+    vendorCompanyName: "Field House",
+    rating: 4.9,
+    reviewCount: 84,
     name: "Stoneware Pour-over Set",
     description: "Hand-finished stoneware brewer and matching cup for a slower morning ritual.",
     brand: "Field House",
@@ -48,6 +60,10 @@ export const products: Product[] = [
   },
   {
     id: "BT-1021",
+    vendorID: "VND-1003",
+    vendorCompanyName: "Sunday Linen",
+    rating: 4.6,
+    reviewCount: 57,
     name: "Linen Table Runner",
     description: "Soft washed European linen with an easy, relaxed drape.",
     brand: "Sunday Linen",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Box, Package, Pencil, Tag } from "lucide-react";
+import { ArrowLeft, Box, Package, Pencil, Star, Store, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,6 +59,11 @@ export default async function VendorProductDetailPage({ params }: PageProps<"/ve
               <CardContent className="space-y-3 px-5 pb-5">
                 <div className="flex justify-between gap-4 text-sm"><span className="text-muted-foreground">Brand</span><span className="font-medium">{product.brand}</span></div>
                 <div className="flex justify-between gap-4 text-sm"><span className="text-muted-foreground">Color</span><span className="font-medium">{product.color}</span></div>
+                <Separator />
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex min-w-0 items-start gap-2"><Store className="mt-0.5 size-4 shrink-0 text-muted-foreground" /><div className="min-w-0"><p className="text-xs text-muted-foreground">Sold by</p><p className="truncate text-sm font-medium">{product.vendorCompanyName}</p><p className="mt-0.5 text-xs text-muted-foreground">Vendor ID: {product.vendorID}</p></div></div>
+                  <div className="shrink-0 text-right"><p className="text-xs text-muted-foreground">Customer rating</p><p className="mt-1 flex items-center justify-end gap-1 text-sm font-medium"><Star className="size-4 fill-amber-400 text-amber-400" />{product.rating.toFixed(1)}<span className="font-normal text-muted-foreground">({product.reviewCount} {product.reviewCount === 1 ? "review" : "reviews"})</span></p></div>
+                </div>
                 <Separator />
                 <div className="flex items-start gap-2"><Box className="mt-0.5 size-4 shrink-0 text-muted-foreground" /><div className="min-w-0"><p className="text-sm font-medium">Specifications</p><div className="mt-1 space-y-1 text-sm text-muted-foreground">{product.attributes.split("\n").filter(Boolean).map((attribute) => <p key={attribute}>{attribute}</p>)}</div></div></div>
               </CardContent>

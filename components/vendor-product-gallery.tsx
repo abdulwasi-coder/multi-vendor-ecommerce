@@ -18,13 +18,13 @@ export function VendorProductGallery({ images, name, discount }: { images: strin
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border bg-card shadow-sm">
-      <div className="relative min-h-0 flex-1 overflow-hidden bg-muted/50" onMouseEnter={() => setZoomOpen(true)} onMouseMove={trackPointer} onMouseLeave={() => setZoomOpen(false)}>
+    <div className="relative flex h-full min-h-0 flex-col overflow-visible rounded-xl border bg-card shadow-sm" onMouseLeave={() => setZoomOpen(false)}>
+      <div className="relative min-h-0 flex-1 bg-muted/50" onMouseEnter={() => setZoomOpen(true)} onMouseMove={trackPointer}>
         {image ? <img src={image} alt={name} className="size-full object-contain" /> : <div className="flex size-full items-center justify-center"><ImageIcon className="size-12 text-muted-foreground/40" /></div>}
         {discount > 0 && <Badge className="absolute left-3 top-3 z-10">-{discount}%</Badge>}
         {image && zoomOpen && <>
           <div className="pointer-events-none absolute size-28 -translate-x-1/2 -translate-y-1/2 border border-white/90 bg-white/35 shadow-[0_0_0_1px_rgba(15,23,42,0.18)]" style={{ left: `${pointer.x}%`, top: `${pointer.y}%` }} />
-          <div className="pointer-events-none absolute right-3 top-3 hidden h-[min(72%,22rem)] w-[48%] overflow-hidden rounded-lg border border-white/80 bg-background/95 shadow-xl md:block">
+          <div className="absolute left-[calc(100%+0.75rem)] top-0 z-40 hidden h-[calc(100%-0.75rem)] w-[min(70%,22rem)] overflow-hidden rounded-xl border border-border bg-background shadow-2xl md:block">
             <div className="size-full bg-no-repeat" style={{ backgroundImage: `url("${image}")`, backgroundSize: "250%", backgroundPosition: `${pointer.x}% ${pointer.y}%` }} />
           </div>
           <span className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-background/85 px-2.5 py-1.5 text-xs text-foreground shadow-sm backdrop-blur">Move cursor to zoom</span>
