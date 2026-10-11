@@ -30,7 +30,7 @@ const tasks = [
   { title: "Processing Order", href: "/(vendors)/vendor/processing-orders", icon:Component },
 ]
 const createitems = [
-  { title: "Create Product", href: "/(vendors)/vendor/create", icon: PackagePlus },
+  { title: "Create Product", href: "/vendor/create", icon: PackagePlus },
 ]
 
 export function AppSidebar() {

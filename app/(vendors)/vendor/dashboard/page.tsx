@@ -128,7 +128,7 @@ export default function VendorDashboardPage() {
           </p>
         </div>
 
-        <Link href="/vendor/products/create" className="w-fit">
+        <Link href="/vendor/create" className="w-fit">
           {" "}
           Add a product <ArrowRight className="ml-2 size-4" />
         </Link>
