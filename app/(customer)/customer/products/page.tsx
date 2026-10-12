@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Search, Star } from "lucide-react";
+import { Check, Star } from "lucide-react";
 import { AddToCartButton } from "@/components/customer/add-to-cart-button";
 import { products } from "@/lib/vendor-products";
 
@@ -80,7 +80,7 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
   return (
     <main className="min-h-screen bg-white px-3 pb-14 pt-36 text-[#0f1111] sm:px-5 sm:pt-32 lg:px-7">
       <div className="mx-auto max-w-[1600px]">
-        <div className="grid gap-6 lg:grid-cols-[270px_minmax(0,1fr)] lg:gap-7">
+        <div className="grid gap-5 lg:grid-cols-[215px_minmax(0,1fr)] lg:gap-6">
           <aside className="h-fit border-b border-[#ddd] pb-4 lg:border-0 lg:pb-0">
             <details className="group lg:block" open>
               <summary className="cursor-pointer list-none text-lg font-bold lg:hidden">Filters</summary>
@@ -140,19 +140,10 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
           <section className="min-w-0">
             <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#ddd] pb-4">
               <div>
-                <h1 className="text-2xl font-bold">{query ? `Results for “${query}”` : "Results"}</h1>
-                <p className="mt-1 text-sm text-[#565959]">{filteredProducts.length} {filteredProducts.length === 1 ? "result" : "results"}</p>
+                <h1 className="text-xl font-bold">{query ? `Results for “${query}”` : "Results"}</h1>
+                <p className="mt-1 text-xs text-[#565959]">{filteredProducts.length} {filteredProducts.length === 1 ? "result" : "results"}</p>
               </div>
-              <div className="flex w-full flex-wrap gap-2 sm:w-auto">
-                <form action="/customer/products" className="flex h-10 min-w-[230px] flex-1 overflow-hidden rounded-md border border-[#888c8c] focus-within:ring-2 focus-within:ring-[#f3a847] sm:flex-none">
-                  {selectedCategories.map((category) => <input key={category} type="hidden" name="category" value={category} />)}
-                  {selectedBrands.map((brand) => <input key={brand} type="hidden" name="brand" value={brand} />)}
-                  {selectedPrice && <input type="hidden" name="price" value={selectedPrice} />}
-                  {minimumRating > 0 && <input type="hidden" name="rating" value={minimumRating} />}
-                  <label htmlFor="product-search" className="sr-only">Search products</label>
-                  <input id="product-search" type="search" name="q" defaultValue={query} placeholder="Search all products" className="min-w-0 flex-1 px-3 text-sm outline-none" />
-                  <button type="submit" aria-label="Search products" className="grid w-11 place-items-center bg-[#f3a847] text-[#131921] hover:bg-[#f7bd68]"><Search className="size-5" /></button>
-                </form>
+              <div>
                 <form action="/customer/products" className="flex h-10 items-center gap-2 rounded-md border border-[#d5d9d9] bg-[#f0f2f2] px-3 text-sm">
                   {Object.entries(params).filter(([key]) => key !== "sort").flatMap(([key, value]) => values(value).map((entry) => <input key={`${key}-${entry}`} type="hidden" name={key} value={entry} />))}
                   <label htmlFor="sort">Sort by:</label>
@@ -173,31 +164,31 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
                   const salePrice = product.price * (1 - product.discount / 100);
 
                   return (
-                    <article key={product.id} className="grid gap-4 rounded-lg border border-[#e7e9ec] p-3 transition-shadow hover:shadow-sm sm:grid-cols-[250px_minmax(0,1fr)] sm:gap-5 sm:p-4 lg:grid-cols-[290px_minmax(0,1fr)]">
-                      <div className="relative aspect-[1.15/1] overflow-hidden rounded-md bg-[#f5f5f5] sm:aspect-square lg:aspect-[1.12/1]">
+                    <article key={product.id} className="grid gap-3 rounded-lg border border-[#e7e9ec] p-2.5 transition-shadow hover:shadow-sm sm:grid-cols-[165px_minmax(0,1fr)] sm:gap-4 sm:p-3 lg:grid-cols-[195px_minmax(0,1fr)]">
+                      <div className="relative h-48 overflow-hidden rounded-md bg-[#f5f5f5] sm:h-auto sm:aspect-square">
                         {product.discount > 0 && <span className="absolute left-2 top-2 z-10 rounded-sm bg-[#cc0c39] px-2 py-1 text-xs font-bold text-white">-{product.discount}%</span>}
-                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 94vw, (max-width: 1023px) 250px, 290px" className="object-contain p-4 mix-blend-multiply" />
+                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 94vw, 195px" className="object-contain p-3 mix-blend-multiply" />
                       </div>
 
                       <div className="flex min-w-0 flex-col py-1">
                         <p className="text-sm font-bold text-[#565959]">{product.brand}</p>
-                        <h2 className="mt-1 text-lg leading-6 sm:text-xl">{product.name}</h2>
-                        <p className="mt-1 text-sm text-[#565959]">Color: {product.color}</p>
-                        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                        <h2 className="mt-1 text-base leading-5 sm:text-lg">{product.name}</h2>
+                        <p className="mt-1 text-xs text-[#565959]">Color: {product.color}</p>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                           <span>{product.rating.toFixed(1)}</span>
                           <span className="flex text-[#de7921]" aria-label={`${product.rating} out of 5 stars`}>
-                            {Array.from({ length: 5 }, (_, index) => <Star key={index} className={`size-4 ${index < Math.round(product.rating) ? "fill-current" : ""}`} />)}
+                            {Array.from({ length: 5 }, (_, index) => <Star key={index} className={`size-3.5 ${index < Math.round(product.rating) ? "fill-current" : ""}`} />)}
                           </span>
                           <span className="text-[#007185]">({product.reviewCount})</span>
                         </div>
-                        <p className="mt-3 line-clamp-2 text-sm leading-6 text-[#333]">{product.description}</p>
-                        <p className="mt-2 text-sm text-[#565959]">Sold by <span className="text-[#007185]">{product.vendorCompanyName}</span></p>
-                        <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                          <p className="text-2xl">{formatPrice(salePrice)}</p>
-                          {product.discount > 0 && <p className="text-sm text-[#565959]">List price: <span className="line-through">{formatPrice(product.price)}</span></p>}
+                        <p className="mt-2 line-clamp-2 text-xs leading-5 text-[#333]">{product.description}</p>
+                        <p className="mt-1.5 text-xs text-[#565959]">Sold by <span className="text-[#007185]">{product.vendorCompanyName}</span></p>
+                        <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                          <p className="text-xl">{formatPrice(salePrice)}</p>
+                          {product.discount > 0 && <p className="text-xs text-[#565959]">List price: <span className="line-through">{formatPrice(product.price)}</span></p>}
                         </div>
                         <p className={`mt-1 text-sm ${product.stock > 0 ? "text-[#007600]" : "text-[#b12704]"}`}>{product.stock > 0 ? "In stock" : "Currently unavailable"}</p>
-                        <div className="mt-auto max-w-xs pt-3"><AddToCartButton productId={product.id} productName={product.name} stock={product.stock} /></div>
+                        <div className="mt-auto max-w-[230px] pt-2 [&>button]:mt-0 [&>button]:h-9"><AddToCartButton productId={product.id} productName={product.name} stock={product.stock} /></div>
                       </div>
                     </article>
                   );
