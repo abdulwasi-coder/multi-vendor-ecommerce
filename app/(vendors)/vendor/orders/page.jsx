@@ -5,6 +5,13 @@ import { CalendarDays, ChevronLeft, ChevronRight, Download, MapPin, Package, Sea
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Table,
   TableBody,
   TableCell,
@@ -193,20 +200,21 @@ export default function VendorOrdersPage() {
           </p>
         </header>
 
-        <section aria-label="Orders" className="space-y-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold tracking-tight">All orders</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Search by order ID, item, SKU, or shipping address.
+        <section aria-label="Orders">
+          <Card className="overflow-hidden rounded-xl border-border/70 shadow-sm">
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <CardTitle>All orders</CardTitle>
+                <CardDescription>
+                  Search by order ID, item, SKU, or shipping address.
+                </CardDescription>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {filteredOrders.length} {filteredOrders.length === 1 ? "order" : "orders"}
               </p>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {filteredOrders.length} {filteredOrders.length === 1 ? "order" : "orders"}
-            </p>
-          </div>
+            </CardHeader>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div className="relative w-full sm:max-w-sm">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -245,9 +253,62 @@ export default function VendorOrdersPage() {
                 <Download /> Export
               </Button>
             </div>
-          </div>
+            </div>
 
-          <div className="overflow-hidden border-y border-border/70">
+            <CardContent className="space-y-3 px-4 pb-0 sm:px-6">
+              {visibleOrders.map((order) => (
+                <article key={order.id} className="space-y-4 rounded-lg border bg-background p-4 2xl:hidden">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold">#{order.id}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Created {order.createdAt}</p>
+                    </div>
+                    <Badge variant="outline" className={statusStyles[order.status]}>
+                      {order.status}
+                    </Badge>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="flex gap-2.5">
+                      <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                      <div className="min-w-0 space-y-0.5">
+                        <p className="text-sm font-medium">{order.shippingAddress.name}</p>
+                        <p className="text-xs leading-5 text-muted-foreground">
+                          {order.shippingAddress.street}<br />
+                          {order.shippingAddress.city}<br />
+                          {order.shippingAddress.country}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      {order.items.map((item) => (
+                        <div key={item.sku} className="flex gap-2.5">
+                          <Package className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium">{item.name}</p>
+                            <p className="text-xs leading-5 text-muted-foreground">
+                              SKU {item.sku} · Qty {item.quantity} · {currency.format(item.price)} each
+                            </p>
+                            <p className="text-xs text-muted-foreground">Subtotal {currency.format(item.subtotal)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 border-t pt-3 text-sm sm:grid-cols-4">
+                    <div><p className="text-xs text-muted-foreground">Suborder total</p><p className="mt-1 font-medium">{currency.format(order.suborderTotal)}</p></div>
+                    <div><p className="text-xs text-muted-foreground">Net earned</p><p className="mt-1 font-medium text-emerald-700">{currency.format(order.vendorNetEarned)}</p></div>
+                    <div><p className="text-xs text-muted-foreground">Payout release</p><p className="mt-1">{order.payoutReleaseDate}</p></div>
+                  </div>
+                </article>
+              ))}
+              {visibleOrders.length === 0 && (
+                <div className="py-10 text-center text-sm text-muted-foreground 2xl:hidden">
+                  No orders match your search.
+                </div>
+              )}
+            </CardContent>
+
+            <div className="hidden w-full min-w-0 border-y border-border/70 2xl:block">
             <Table className="min-w-[1180px]">
               <TableHeader>
                 <TableRow className="bg-muted/40 hover:bg-muted/40">
@@ -328,9 +389,9 @@ export default function VendorOrdersPage() {
                 )}
               </TableBody>
             </Table>
-          </div>
+            </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p className="text-sm text-muted-foreground" aria-live="polite">
               {filteredOrders.length === 0
                 ? "No orders found"
@@ -358,6 +419,7 @@ export default function VendorOrdersPage() {
               </Button>
             </div>
           </div>
+          </Card>
         </section>
       </div>
     </main>
