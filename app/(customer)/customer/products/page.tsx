@@ -78,13 +78,40 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
   if (sort === "rating") filteredProducts.sort((left, right) => right.rating - left.rating);
 
   return (
-    <main className="min-h-screen bg-white px-3 pb-14 pt-36 text-[#0f1111] sm:px-5 sm:pt-32 lg:px-7">
+    <main className="min-h-screen bg-white px-3 pb-14 pt-40 text-[#0f1111] sm:px-5 sm:pt-32 lg:px-7">
       <div className="mx-auto max-w-[1600px]">
+        <div className="-mx-3 mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[#d5d9d9] px-3 py-3 sm:-mx-5 sm:px-5 lg:-mx-7 lg:px-7">
+          <p className="text-sm">
+            {filteredProducts.length ? `1-${filteredProducts.length} of ${filteredProducts.length} results` : "No results"}
+            {query && <> for <span className="font-semibold text-[#c45500]">&quot;{query}&quot;</span></>}
+          </p>
+          <form action="/customer/products" className="flex h-9 items-center gap-2 rounded-lg border border-[#d5d9d9] bg-[#f0f2f2] px-3 text-sm shadow-sm">
+            {Object.entries(params).filter(([key]) => key !== "sort").flatMap(([key, value]) => values(value).map((entry) => <input key={`${key}-${entry}`} type="hidden" name={key} value={entry} />))}
+            <label htmlFor="sort">Sort by:</label>
+            <select id="sort" name="sort" defaultValue={sort} className="max-w-40 bg-transparent font-medium outline-none">
+              <option value="featured">Featured</option>
+              <option value="rating">Avg. customer review</option>
+              <option value="price-low">Price: low to high</option>
+              <option value="price-high">Price: high to low</option>
+            </select>
+            <button type="submit" className="text-xs font-semibold text-[#007185] hover:underline">Apply</button>
+          </form>
+        </div>
+
         <div className="grid gap-5 lg:grid-cols-[215px_minmax(0,1fr)] lg:gap-6">
           <aside className="h-fit border-b border-[#ddd] pb-4 lg:border-0 lg:pb-0">
             <details className="group lg:block" open>
               <summary className="cursor-pointer list-none text-lg font-bold lg:hidden">Filters</summary>
               <div className="mt-4 grid gap-x-5 gap-y-6 sm:grid-cols-2 lg:mt-0 lg:grid-cols-1">
+                <section>
+                  <h2 className="text-base font-bold">Popular shopping ideas</h2>
+                  <div className="mt-2 space-y-0.5">
+                    {categories.map((category) => (
+                      <Link key={category} href={filterHref(params, "category", category)} className="block py-1 text-sm leading-5 hover:text-[#c45500] hover:underline">{category}</Link>
+                    ))}
+                  </div>
+                </section>
+
                 <section>
                   <h2 className="text-base font-bold">Department</h2>
                   <div className="mt-2 space-y-0.5">
@@ -138,25 +165,7 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
           </aside>
 
           <section className="min-w-0">
-            <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#ddd] pb-4">
-              <div>
-                <h1 className="text-xl font-bold">{query ? `Results for “${query}”` : "Results"}</h1>
-                <p className="mt-1 text-xs text-[#565959]">{filteredProducts.length} {filteredProducts.length === 1 ? "result" : "results"}</p>
-              </div>
-              <div>
-                <form action="/customer/products" className="flex h-10 items-center gap-2 rounded-md border border-[#d5d9d9] bg-[#f0f2f2] px-3 text-sm">
-                  {Object.entries(params).filter(([key]) => key !== "sort").flatMap(([key, value]) => values(value).map((entry) => <input key={`${key}-${entry}`} type="hidden" name={key} value={entry} />))}
-                  <label htmlFor="sort">Sort by:</label>
-                  <select id="sort" name="sort" defaultValue={sort} className="max-w-40 bg-transparent font-medium outline-none">
-                    <option value="featured">Featured</option>
-                    <option value="rating">Avg. customer review</option>
-                    <option value="price-low">Price: low to high</option>
-                    <option value="price-high">Price: high to low</option>
-                  </select>
-                  <button type="submit" className="text-xs font-semibold text-[#007185] hover:underline">Apply</button>
-                </form>
-              </div>
-            </div>
+            <h1 className="mb-3 text-xl font-bold">Results</h1>
 
             {filteredProducts.length ? (
               <div className="mt-4 space-y-3">
@@ -164,10 +173,10 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
                   const salePrice = product.price * (1 - product.discount / 100);
 
                   return (
-                    <article key={product.id} className="grid gap-3 rounded-lg border border-[#e7e9ec] p-2.5 transition-shadow hover:shadow-sm sm:grid-cols-[165px_minmax(0,1fr)] sm:gap-4 sm:p-3 lg:grid-cols-[195px_minmax(0,1fr)]">
-                      <div className="relative h-48 overflow-hidden rounded-md bg-[#f5f5f5] sm:h-auto sm:aspect-square">
+                    <article key={product.id} className="grid gap-3 rounded-lg border border-[#e7e9ec] p-2.5 transition-shadow hover:shadow-sm sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-3 sm:p-3 lg:grid-cols-[220px_minmax(0,1fr)]">
+                      <div className="relative h-36 overflow-hidden rounded-md bg-[#f5f5f5] sm:h-auto sm:aspect-square">
                         {product.discount > 0 && <span className="absolute left-2 top-2 z-10 rounded-sm bg-[#cc0c39] px-2 py-1 text-xs font-bold text-white">-{product.discount}%</span>}
-                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 94vw, 195px" className="object-contain p-3 mix-blend-multiply" />
+                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 94vw, (max-width: 1023px) 150px, 220px" className="object-contain p-2.5 mix-blend-multiply" />
                       </div>
 
                       <div className="flex min-w-0 flex-col py-1">
