@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { VendorProductGallery } from "@/components/vendor-product-gallery";
+import { VendorProductGallery } from "@/components/ui/vendor-product-gallery";
 import { products } from "@/lib/vendor-products";
 
 interface paramprop {

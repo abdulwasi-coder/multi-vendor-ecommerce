@@ -1,4 +1,4 @@
-import { ProductForm } from "@/components/vendor-product-form";
+import { ProductForm } from "@/components/ui/vendor-product-form";
 import { products } from "@/lib/vendor-products";
 
 export default async function CreateProductPage({ searchParams }: PageProps<"/vendor/create">) {
