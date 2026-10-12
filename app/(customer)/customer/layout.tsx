@@ -43,7 +43,7 @@ const footerGroups = [
 
 function CustomerHeader() {
   return (
-    <header className="sticky top-0 z-40 text-white shadow-sm">
+    <header className="absolute top-0 right-0 left-0 z-40 text-white shadow-sm">
       <div className="bg-[#131921]">
         <div className="mx-auto flex min-h-[68px] max-w-[1600px] flex-wrap items-center gap-2 px-3 py-2 sm:flex-nowrap sm:gap-3 sm:px-5 lg:px-7">
           <Link href="/customer" className="flex shrink-0 items-center gap-2 rounded-sm border border-transparent px-2 py-1.5 hover:border-white" aria-label="Marketly home">
@@ -141,7 +141,7 @@ function CustomerFooter() {
 export default function CustomerLayout({ children }: { children: ReactNode }) {
   return (
     <div id="top" className="flex min-h-screen flex-col bg-white">
-      <CartHydration />
+      {/* <CartHydration /> */}
       <CustomerHeader />
       <main className="w-full flex-1">{children}</main>
       <CustomerFooter />

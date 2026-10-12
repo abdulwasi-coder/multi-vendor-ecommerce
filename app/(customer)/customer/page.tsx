@@ -122,10 +122,9 @@ function imageUrl(fileName: string) {
 
 export default function CustomerHomePage() {
   return (
-    <main className="min-h-screen bg-[#eaeded] px-3 py-5 text-[#0f1111] sm:px-5 lg:px-8">
+    <main className="min-h-screen bg-[#eaeded] px-3 pt-50 sm:pt-35 py-5 text-[#0f1111] sm:px-5 lg:px-8">
       <div className="mx-auto max-w-[1500px]">
-        <h1 className="sr-only">Shop by category</h1>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {categories.map((category) => (
             <section key={category.name} className="bg-white p-5 shadow-sm sm:p-6">
               <div className="mb-4 flex items-center gap-3">
