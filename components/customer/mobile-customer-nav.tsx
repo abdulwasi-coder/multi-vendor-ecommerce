@@ -17,7 +17,7 @@ import {
 const links = [
   { label: "Home", href: "/customer", icon: Store },
   { label: "Products", href: "/customer/products", icon: ShoppingBag },
-  { label: "Sell", href: "/vendor/create", icon: Store },
+  { label: "Sell", href: "/customer/sell", icon: Store },
   { label: "Top discounts", href: "/customer/top-discounts", icon: Tag },
   { label: "Top rated", href: "/customer/top-rated", icon: TrendingUp },
   { label: "Orders", href: "/customer/orders", icon: UserRound },

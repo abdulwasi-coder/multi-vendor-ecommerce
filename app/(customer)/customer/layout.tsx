@@ -8,7 +8,7 @@ import { CartHydration } from "@/components/customer/cart-hydration";
 const navigation = [
   { label: "Home", href: "/customer" },
   { label: "Products", href: "/customer/products" },
-  { label: "Sell", href: "/vendor/create" },
+  { label: "Sell", href: "/customer/sell" },
   { label: "Top Discounts", href: "/customer/top-discounts" },
   { label: "Top Rated", href: "/customer/top-rated" },
   { label: "Orders", href: "/customer/orders" },
@@ -34,9 +34,9 @@ const footerGroups = [
   {
     title: "For sellers",
     links: [
-      ["Start selling", "/vendor/create"],
+      ["Start selling", "/customer/sell"],
       ["Seller dashboard", "/vendor/dashboard"],
-      ["Seller information", "/vendor/about"],
+      ["Seller information", "/customer/sell"],
     ],
   },
 ];
@@ -129,7 +129,7 @@ function CustomerFooter() {
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-white/60">
             <Link href="/customer/profile" className="hover:text-white">Your account</Link>
             <Link href="/customer/orders" className="hover:text-white">Help &amp; orders</Link>
-            <Link href="/vendor/create" className="hover:text-white">Sell on Marketly</Link>
+            <Link href="/customer/sell" className="hover:text-white">Sell on Marketly</Link>
           </div>
           <p className="text-xs text-white/50">© {new Date().getFullYear()} Marketly</p>
         </div>
