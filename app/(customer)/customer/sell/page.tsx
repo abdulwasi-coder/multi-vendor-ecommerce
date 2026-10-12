@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Box, ChartNoAxesCombined, CircleQuestionMark, PackagePlus, ShoppingBag, Store, Truck } from "lucide-react";
-import { products } from "@/lib/vendor-products";
 
 const sellerBenefits = [
   {
@@ -61,23 +60,18 @@ export default function SellOnMarketlyPage() {
             <p className="mt-4 text-xs text-[#565959]">Start by creating a product listing. Already a seller? <Link href="/vendor/dashboard" className="text-[#007185] hover:underline">Go to your dashboard</Link>.</p>
           </div>
 
-          <div className="relative min-h-[300px] overflow-hidden rounded-2xl bg-[#f3f5f5] p-4 sm:min-h-[380px] sm:p-6">
-            <div className="absolute left-6 top-6 z-10 max-w-[190px] rounded-xl border border-[#e3e6e6] bg-white p-4 shadow-md sm:left-8 sm:top-8">
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#565959]">Your seller workspace</p>
-              <p className="mt-1 text-lg font-bold">Ready to grow?</p>
-              <p className="mt-2 text-xs leading-5 text-[#565959]">Products, orders, and store activity in one place.</p>
-            </div>
-            {products.slice(0, 3).map((product, index) => (
-              <div key={product.id} className={`absolute overflow-hidden rounded-xl border border-white bg-white shadow-lg ${index === 0 ? "bottom-5 right-[37%] h-44 w-32 rotate-[-7deg] sm:bottom-8 sm:h-56 sm:w-40" : index === 1 ? "bottom-8 right-5 h-52 w-36 rotate-[7deg] sm:bottom-10 sm:right-8 sm:h-64 sm:w-44" : "bottom-7 left-5 h-36 w-28 rotate-[-15deg] sm:bottom-10 sm:left-8 sm:h-44 sm:w-36"}`}>
-                <div className="relative h-[72%] bg-[#f7f7f7]">
-                  <Image src={product.images[0]} alt={product.name} fill sizes="176px" className="object-contain p-2 mix-blend-multiply" />
-                </div>
-                <div className="p-2.5">
-                  <p className="line-clamp-1 text-[11px] font-semibold">{product.name}</p>
-                  <p className="mt-1 text-xs text-[#565959]">{product.brand}</p>
-                </div>
-              </div>
-            ))}
+          <div className="relative min-h-[300px] overflow-hidden rounded-2xl bg-[#f3f5f5] sm:min-h-[380px]">
+            <Image
+              src="/seller-owner.jpg"
+              alt="Two business partners shaking hands after a meeting"
+              fill
+              priority
+              sizes="(max-width: 1023px) 100vw, 45vw"
+              className="object-cover object-center"
+            />
+            <a href="https://unsplash.com/photos/two-businessmen-shaking-hands-across-a-table-lZXX-QVdyXY" target="_blank" rel="noreferrer" className="absolute bottom-3 right-3 rounded bg-black/55 px-2 py-1 text-[11px] text-white/90 hover:bg-black/70">
+              Photo by Vitaly Gariev / Unsplash
+            </a>
           </div>
         </section>
 
@@ -155,9 +149,23 @@ export default function SellOnMarketlyPage() {
           </div>
         </section>
 
-        <section className="flex flex-col items-start justify-between gap-5 rounded-xl bg-[#232f3e] px-6 py-8 text-white sm:flex-row sm:items-center sm:px-9">
-          <div><h2 className="text-2xl font-bold">Ready to start selling?</h2><p className="mt-2 text-sm text-white/70">Add your first product and start building your Marketly catalog.</p></div>
-          <Link href="/vendor/create" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-[#f3a847] px-6 text-sm font-bold text-[#131921] hover:bg-[#f7bd68]">Start selling <ArrowRight className="size-4" /></Link>
+        <section className="grid overflow-hidden rounded-xl bg-[#232f3e] text-white sm:grid-cols-[220px_minmax(0,1fr)] sm:items-center">
+          <div className="relative h-48 sm:h-full sm:min-h-48">
+            <Image
+              src="/seller-orders.jpg"
+              alt="Brown gift boxes tied with red and white twine"
+              fill
+              sizes="(max-width: 639px) 100vw, 220px"
+              className="object-cover object-center"
+            />
+            <a href="https://unsplash.com/photos/brown-gift-boxes-tied-with-red-and-white-twine-kZdXeTKZFaY" target="_blank" rel="noreferrer" className="absolute bottom-2 right-2 rounded bg-black/55 px-2 py-1 text-[10px] text-white/90 hover:bg-black/70">
+              Photo by Raymond Petrik / Unsplash
+            </a>
+          </div>
+          <div className="flex flex-col items-start gap-5 px-6 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+            <div><h2 className="text-2xl font-bold">Ready to start selling?</h2><p className="mt-2 text-sm text-white/70">Add your first product and start building your Marketly catalog.</p></div>
+            <Link href="/vendor/create" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-[#f3a847] px-6 text-sm font-bold text-[#131921] hover:bg-[#f7bd68]">Start selling <ArrowRight className="size-4" /></Link>
+          </div>
         </section>
       </div>
     </main>
