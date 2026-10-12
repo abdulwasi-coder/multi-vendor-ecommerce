@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ArrowDownToLine,
   ArrowRight,
+  ArrowUpRight,
   Boxes,
   CircleAlert,
   PackageCheck,
@@ -13,6 +14,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -71,7 +73,7 @@ export default function VendorLogisticsPage() {
   ];
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-400 space-y-7 bg-muted/20 px-4 py-7 sm:px-7 lg:px-10">
+    <main className="mx-auto min-h-screen w-full max-w-400 space-y-5 bg-muted/20 px-4 py-7 sm:px-7 lg:px-10">
       <header className="flex flex-col justify-between gap-5 border-b pb-6 sm:flex-row sm:items-end">
         <div className="space-y-2">
           <p className="text-sm font-medium text-muted-foreground">Store management / Inventory</p>
@@ -85,21 +87,29 @@ export default function VendorLogisticsPage() {
         </Button>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Inventory summary">
+      <section
+        aria-label="Marketplace overview"
+        className="grid gap-4 xl:gap-2 sm:grid-cols-3 lg:grid-cols-4"
+      >
         {metrics.map((metric) => {
           const Icon = metric.icon;
           return (
-            <Card key={metric.label} className="rounded-2xl border-border/70 shadow-sm">
-              <CardHeader className="flex flex-row items-start justify-between space-y-0">
-                <div className="space-y-2">
-                  <CardDescription>{metric.label}</CardDescription>
-                  <CardTitle className="text-3xl font-semibold tracking-tight">{metric.value}</CardTitle>
-                </div>
-                <span className={`rounded-xl p-2.5 ${metric.iconStyle}`}>
-                  <Icon className="size-5" />
-                </span>
+            <Card key={metric.label} className=" grid grid-rows-[30_30_40]">
+              <CardHeader>
+                <CardTitle className="flex flex-row items-center justify-between text-sm font-medium text-muted-foreground">
+                  {metric.label}
+
+                  <Icon className="size-4" />
+                </CardTitle>
               </CardHeader>
-              <CardContent className="text-xs text-muted-foreground">{metric.detail}</CardContent>
+              <CardContent className="space-y-2 text-2xl font-semibold tracking-tight px-5">
+                {metric.value}
+              </CardContent>
+              <CardFooter
+                className={`border-0 bg-background text-xs pr-1 overflow-visible font-medium flex gap-0.5`}
+              >
+                {metric.detail}
+              </CardFooter>
             </Card>
           );
         })}

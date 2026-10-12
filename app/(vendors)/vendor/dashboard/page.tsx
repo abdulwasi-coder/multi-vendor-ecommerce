@@ -4,7 +4,6 @@ import {
   ArrowUpRight,
   CircleDollarSign,
   ClipboardList,
-  Clock3,
   PackageCheck,
   ShoppingBag,
 } from "lucide-react";
