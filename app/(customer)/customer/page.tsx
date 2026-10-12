@@ -122,11 +122,11 @@ function imageUrl(fileName: string) {
 
 export default function CustomerHomePage() {
   return (
-    <main className="min-h-screen bg-[#eaeded] px-3 pt-50 sm:pt-35 py-5 text-[#0f1111] sm:px-5 lg:px-8">
+    <main className="min-h-screen bg-[#fafafa] px-3 pt-50 sm:pt-35 py-5 text-[#0f1111] sm:px-5 lg:px-8">
       <div className="mx-auto max-w-[1500px]">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {categories.map((category) => (
-            <section key={category.name} className="bg-white p-5 shadow-sm sm:p-6">
+            <section key={category.name} className="bg-white p-5 border rounded-2xl  sm:p-6">
               <div className="mb-4 flex items-center gap-3">
                 <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#f3f6f6] text-[#007185]">
                   <category.icon className="size-6" aria-hidden="true" />
@@ -146,19 +146,13 @@ export default function CustomerHomePage() {
                         alt={name}
                         fill
                         sizes="(max-width: 639px) 44vw, (max-width: 1279px) 22vw, 14vw"
-                        className="object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+                        className="object-cover rounded-lg transition-transform duration-200 group-hover:scale-[1.03]"
                       />
                     </div>
                     <span className="mt-2 block leading-5">{name}</span>
                   </Link>
                 ))}
               </div>
-              <Link
-                href="/customer/products"
-                className="mt-5 inline-block text-sm font-medium text-[#007185] hover:text-[#c45500] hover:underline"
-              >
-                Shop all {category.name.toLowerCase()}
-              </Link>
             </section>
           ))}
         </div>
