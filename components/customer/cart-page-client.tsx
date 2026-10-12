@@ -76,14 +76,14 @@ export function CartPageClient() {
 
               return (
                 <article key={product.id} className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:gap-5">
-                  <Link href={`/customer/product/${product.id}`} className="relative block size-24 shrink-0 overflow-hidden rounded-xl bg-[#f1f0eb] sm:size-28">
+                  <div className="relative block size-24 shrink-0 overflow-hidden rounded-xl bg-[#f1f0eb] sm:size-28">
                     <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 90vw, 112px" className="object-cover" />
-                  </Link>
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-zinc-500">{product.vendorCompanyName}</p>
-                    <Link href={`/customer/product/${product.id}`} className="mt-1 block text-lg font-semibold text-zinc-900 hover:text-[#176b5b]">
+                    <p className="mt-1 text-lg font-semibold text-zinc-900">
                       {product.name}
-                    </Link>
+                    </p>
                     <p className="mt-1 text-sm text-zinc-500">{product.color}</p>
                     <div className="mt-4 flex flex-wrap items-center gap-3">
                       <div className="inline-flex h-10 items-center rounded-full border border-zinc-200">
