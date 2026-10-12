@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Check, Star } from "lucide-react";
 import { AddToCartButton } from "@/components/customer/add-to-cart-button";
 import { products } from "@/lib/vendor-products";
+import { Button } from "@/components/ui/button";
 
 type SearchValue = string | string[] | undefined;
 type SearchParams = Record<string, SearchValue>;
@@ -168,18 +169,18 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
             <h1 className="mb-3 text-xl font-bold">Results</h1>
 
             {filteredProducts.length ? (
-              <div className="mt-4 space-y-3">
+              <div className="mt-4 space-y-2">
                 {filteredProducts.map((product) => {
                   const salePrice = product.price * (1 - product.discount / 100);
 
                   return (
-                    <article key={product.id} className="grid gap-3 rounded-lg border border-[#e7e9ec] p-2.5 transition-shadow hover:shadow-sm sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-3 sm:p-3 lg:grid-cols-[220px_minmax(0,1fr)]">
+                    <article key={product.id} className="grid gap-3 rounded-lg border border-[#e7e9ec]/60 p-2.5 hover:shadow-xs sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-3 sm:p-3 lg:grid-cols-[220px_minmax(0,1fr)]">
                       <div className="relative h-36 overflow-hidden rounded-md bg-[#f5f5f5] sm:h-auto sm:aspect-square">
                         {product.discount > 0 && <span className="absolute left-2 top-2 z-10 rounded-sm bg-[#cc0c39] px-2 py-1 text-xs font-bold text-white">-{product.discount}%</span>}
-                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 94vw, (max-width: 1023px) 150px, 220px" className="object-contain p-2.5 mix-blend-multiply" />
+                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 94vw, (max-width: 1023px) 150px, 220px" className="object-cover p-2.5 mix-blend-multiply" />
                       </div>
 
-                      <div className="flex min-w-0 flex-col py-1">
+                      <div className="flex min-w-0 flex-col ">
                         <p className="text-sm font-bold text-[#565959]">{product.brand}</p>
                         <h2 className="mt-1 text-base leading-5 sm:text-lg">{product.name}</h2>
                         <p className="mt-1 text-xs text-[#565959]">Color: {product.color}</p>
@@ -190,14 +191,11 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
                           </span>
                           <span className="text-[#007185]">({product.reviewCount})</span>
                         </div>
-                        <p className="mt-2 line-clamp-2 text-xs leading-5 text-[#333]">{product.description}</p>
-                        <p className="mt-1.5 text-xs text-[#565959]">Sold by <span className="text-[#007185]">{product.vendorCompanyName}</span></p>
                         <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                           <p className="text-xl">{formatPrice(salePrice)}</p>
                           {product.discount > 0 && <p className="text-xs text-[#565959]">List price: <span className="line-through">{formatPrice(product.price)}</span></p>}
                         </div>
-                        <p className={`mt-1 text-sm ${product.stock > 0 ? "text-[#007600]" : "text-[#b12704]"}`}>{product.stock > 0 ? "In stock" : "Currently unavailable"}</p>
-                        <div className="mt-auto max-w-[230px] pt-2 [&>button]:mt-0 [&>button]:h-9"><AddToCartButton productId={product.id} productName={product.name} stock={product.stock} /></div>
+                        <div className="max-w-[230px] pt-2 [&>button]:mt-0 [&>button]:h-9">{product.stock > 0 ? <AddToCartButton productId={product.id} productName={product.name} stock={product.stock} />: <Button>Remind Me</Button>}</div>
                       </div>
                     </article>
                   );
