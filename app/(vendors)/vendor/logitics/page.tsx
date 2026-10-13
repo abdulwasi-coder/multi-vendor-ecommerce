@@ -82,9 +82,9 @@ export default function VendorLogisticsPage() {
             Monitor product availability and spot items that need a restock.
           </p>
         </div>
-        <Button render={<Link href="/vendor/products" />} variant="outline">
+        <Link href="/vendor/products">
           Manage products <ArrowRight className="ml-2 size-4" />
-        </Button>
+        </Link>
       </header>
 
       <section

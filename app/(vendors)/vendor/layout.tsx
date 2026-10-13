@@ -1,5 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/ui/vendorSideBar";
+import { AppSidebar } from "@/components/ui/vendor/vendorSideBar";
 
 export default function VendorLayout({
   children,
