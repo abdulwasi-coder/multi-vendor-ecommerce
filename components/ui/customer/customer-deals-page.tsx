@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Check, ChevronRight, Flame, Star } from "lucide-react";
+import { Check, ChevronRight, Star } from "lucide-react";
 import { AddToCartButton } from "@/components/ui/customer/add-to-cart-button";
 import { products } from "@/lib/vendor-products";
 
@@ -34,6 +34,7 @@ export default async function CustomerDealsPage({
   return (
     <main className="min-h-screen bg-white pb-14 pt-40 text-[#0f1111] sm:pt-32">
       <div className="mx-auto max-w-[1600px]">
+        <h1 className="sr-only">Today&apos;s Deals</h1>
         <nav aria-label="Deal departments" className="flex gap-2 overflow-x-auto border-b border-[#d5d9d9] px-4 py-4 sm:px-6 lg:px-8">
           {categories.map((category) => {
             const selected = selectedCategory === category.value;
@@ -45,12 +46,6 @@ export default async function CustomerDealsPage({
             );
           })}
         </nav>
-
-        <header className="border-b border-[#d5d9d9] px-4 pb-4 pt-5 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 text-sm font-medium text-[#c45500]"><Flame className="size-4" />Limited-time savings</div>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Today&apos;s Deals</h1>
-          <p className="mt-1 text-sm text-[#565959]">Explore offers across the departments you love.</p>
-        </header>
 
         <div className="grid gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[225px_minmax(0,1fr)] lg:px-8 lg:py-7">
           <aside className="h-fit border-b border-[#d5d9d9] pb-4 lg:border-0 lg:pb-0">
