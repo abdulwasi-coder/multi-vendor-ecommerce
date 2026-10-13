@@ -9,7 +9,7 @@ const navigation = [
   { label: "Home", href: "/customer" },
   { label: "Products", href: "/customer/products" },
   { label: "Sell", href: "/customer/sell" },
-  { label: "Top Discounts", href: "/customer/top-discounts" },
+  { label: "Today's Deals", href: "/customer/top-discounts" },
   { label: "Top Rated", href: "/customer/top-rated" },
   { label: "Orders", href: "/customer/orders" },
 ];
@@ -19,7 +19,7 @@ const footerGroups = [
     title: "Discover",
     links: [
       ["All products", "/customer/products"],
-      ["Top discounts", "/customer/top-discounts"],
+      ["Today’s deals", "/customer/top-discounts"],
       ["Top rated", "/customer/top-rated"],
     ],
   },
