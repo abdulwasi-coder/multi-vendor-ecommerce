@@ -88,7 +88,7 @@ export default async function CustomerDealsPage({
           </aside>
 
           <section className="min-w-0">
-            <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[#d5d9d9] pb-3">
+            <div className="flex flex-wrap items-end justify-between gap-2 pb-3">
               <div>
                 <h2 className="text-xl font-bold">Deals in {categories.find((category) => category.value === selectedCategory)?.label}</h2>
                 <p className="mt-1 text-sm text-[#565959]">Showing {deals.length} deals with more than 15% off</p>
@@ -97,24 +97,24 @@ export default async function CustomerDealsPage({
             </div>
 
             {deals.length ? (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-2 lg:grid-cols-4 xl:grid-cols-5">
                 {deals.map((product) => {
                   const dealPrice = product.price * (1 - product.discount / 100);
                   return (
-                    <article key={product.id} className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-[#d5d9d9] bg-white p-3 transition hover:shadow-md sm:p-4">
+                    <article key={product.id} className="flex min-w-0 flex-col border border-[#f4f4f4] overflow-hidden rounded-lg bg-white p-3 transition hover:shadow-md sm:p-2">
                       <Link href={`/customer/products?q=${encodeURIComponent(product.name)}`} className="relative block aspect-square w-full overflow-hidden rounded-md bg-[#f7f8f8]">
-                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 90vw, 220px" className="object-contain p-4 mix-blend-multiply" />
+                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 90vw, 220px" className="object-cover p-1 mix-blend-multiply" />
                         <span className="absolute bottom-2 right-2 grid size-9 place-items-center rounded-full bg-[#ffd814] text-xl font-medium shadow-sm" aria-label="Deal item">+</span>
                       </Link>
-                      <div className="flex min-w-0 flex-1 flex-col items-start pt-3">
+                      <div className="flex min-w-0 flex-1 flex-col items-start">
                         <p className="truncate text-xs font-semibold text-[#565959]">{product.brand}</p>
-                        <Link href={`/customer/products?q=${encodeURIComponent(product.name)}`} className="mt-1 line-clamp-2 min-h-10 text-sm leading-5 text-[#0f1111] hover:text-[#c45500] hover:underline">{product.name}</Link>
-                        <div className="mt-2 flex items-center gap-1.5 text-xs">
+                        <Link href={`/customer/products?q=${encodeURIComponent(product.name)}`} className="mt-1 line-clamp-2 py-1 text-sm leading-5 text-[#0f1111] hover:text-[#c45500] hover:underline">{product.name}</Link>
+                        <div className=" flex items-center gap-1.5 text-xs">
                           <span>{product.rating.toFixed(1)}</span>
                           <span className="flex text-[#de7921]" aria-label={`${product.rating} out of 5 stars`}>{Array.from({ length: 5 }, (_, index) => <Star key={index} className={`size-3.5 ${index < Math.round(product.rating) ? "fill-current" : ""}`} />)}</span>
                           <span className="text-[#007185]">{product.reviewCount}</span>
                         </div>
-                        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
                           <span className="rounded-sm bg-[#cc0c39] px-2 py-1 text-xs font-bold text-white">{product.discount}% off</span>
                           <span className="text-xs font-semibold text-[#cc0c39]">Limited time deal</span>
                         </div>
@@ -123,7 +123,7 @@ export default async function CustomerDealsPage({
                           <span className="text-xs text-[#565959]">List: <span className="line-through">{currency.format(product.price)}</span></span>
                         </div>
                         <p className="mt-1 line-clamp-1 text-xs text-[#565959]">Save {currency.format(product.price - dealPrice)} · {product.color}</p>
-                        <div className="mt-auto w-full pt-4 [&>button]:h-9 [&>button]:px-2 [&>button]:text-xs"><AddToCartButton productId={product.id} productName={product.name} stock={product.stock} /></div>
+                        <div className="mt-auto w-full  [&>button]:h-9 [&>button]:px-2 [&>button]:text-xs"><AddToCartButton productId={product.id} productName={product.name} stock={product.stock} /></div>
                       </div>
                     </article>
                   );
