@@ -48,10 +48,10 @@ export function VendorSignupForm() {
 
   return (
     <main className="min-h-[calc(100dvh-2rem)] bg-[#fbf8f3]">
-      <div className="w-full px-3 py-6 sm:px-5 lg:px-7 lg:py-8">
+      <div className="w-full px-3 pb-6 pt-44 sm:px-5 sm:pb-8 sm:pt-32 lg:px-7 lg:pt-32">
         <div className="w-full">
           <header className="mb-8">
-            <div className="mb-5 flex items-center justify-between gap-4">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
               <div className="flex items-center gap-3">
                 <div className="flex size-11 items-center justify-center rounded-2xl bg-amber-700 text-white shadow-sm shadow-amber-900/15"><Store className="size-5" /></div>
                 <div>
@@ -62,20 +62,11 @@ export function VendorSignupForm() {
               <Badge variant="outline" className="gap-1.5 rounded-full bg-background px-3 py-1 text-muted-foreground"><LockKeyhole className="size-3" /> Secure signup</Badge>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-end">
-              <div>
-                <p className="mb-2 text-sm font-medium text-amber-800">A great store starts here</p>
-                <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Set up your vendor profile</h1>
-                <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">Add your details and store information. You can update your profile anytime.</p>
-              </div>
-              <div className="flex items-center gap-2 sm:pb-1">
-                <span className="flex size-8 items-center justify-center rounded-full bg-amber-700 text-xs font-semibold text-white">1</span>
-                <span className="h-px w-8 bg-border" />
-                <span className="flex size-8 items-center justify-center rounded-full border bg-background text-xs font-medium text-muted-foreground">2</span>
-                <span className="ml-1 text-xs text-muted-foreground">Profile <span className="mx-1">·</span> Store</span>
-              </div>
+            <div>
+              <p className="mb-2 text-sm font-medium text-amber-800">A great store starts here</p>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Set up your vendor profile</h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">Add your details and store information. You can update your profile anytime.</p>
             </div>
-            <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-amber-100"><div className="h-full w-1/2 rounded-full bg-amber-700" /></div>
           </header>
 
           <form onSubmit={handleSubmit} encType="multipart/form-data">
