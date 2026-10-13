@@ -10,7 +10,7 @@ import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export function VendorSignupForm({ userId }: { userId: string }) {
+export function VendorSignupForm() {
   const [imagePreview, setImagePreview] = useState("");
   const [imageName, setImageName] = useState("");
   const [storeSlug, setStoreSlug] = useState("");
@@ -79,7 +79,7 @@ export function VendorSignupForm({ userId }: { userId: string }) {
           </header>
 
           <form onSubmit={handleSubmit} encType="multipart/form-data">
-            <input type="hidden" name="userId" value={userId} />
+            <input type="hidden" name="userId"  />
             <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
               <div className="space-y-5">
                 <Card className="rounded-2xl border-border/70 shadow-sm">
@@ -172,7 +172,7 @@ export function VendorSignupForm({ userId }: { userId: string }) {
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2 font-medium"><ShieldCheck className="size-4 text-amber-800" />Your information is protected</div>
                     <p className="mt-2 text-sm leading-5 text-muted-foreground">Your details are used to set up and manage your vendor account.</p>
-                    <div className="mt-4 flex items-center gap-2 border-t border-amber-200 pt-3 text-xs text-muted-foreground"><Check className="size-3.5 text-amber-800" />Account ID <span className="truncate font-mono">{userId}</span></div>
+                    <div className="mt-4 flex items-center gap-2 border-t border-amber-200 pt-3 text-xs text-muted-foreground"><Check className="size-3.5 text-amber-800" />Account ID <span className="truncate font-mono"></span></div>
                   </CardContent>
                 </Card>
               </aside>
