@@ -66,7 +66,7 @@ function CustomerHeader() {
             </button>
           </form>
 
-          <Link href="/customer/profile" className="hidden shrink-0 rounded-sm border border-transparent px-2 py-1 hover:border-white sm:block">
+          <Link href="/customer/login" className="hidden shrink-0 rounded-sm border border-transparent px-2 py-1 hover:border-white sm:block">
             <span className="block text-[11px] text-white/70">Hello, sign in</span>
             <span className="block text-sm font-bold">Account</span>
           </Link>
