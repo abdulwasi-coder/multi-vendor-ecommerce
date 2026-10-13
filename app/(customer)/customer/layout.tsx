@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { LayoutGrid, Search, Store } from "lucide-react";
 import type { ReactNode } from "react";
-import { MobileCustomerNav } from "@/components/customer/mobile-customer-nav";
-import { CartHeaderLink } from "@/components/customer/cart-header-link";
-import { CartHydration } from "@/components/customer/cart-hydration";
+import { MobileCustomerNav } from "@/components/ui/customer/mobile-customer-nav";
+import { CartHeaderLink } from "@/components/ui/customer/cart-header-link";
+import { CartHydration } from "@/components/ui/customer/cart-hydration";
 
 const navigation = [
   { label: "Home", href: "/customer" },

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Check, Star } from "lucide-react";
-import { AddToCartButton } from "@/components/customer/add-to-cart-button";
+import { AddToCartButton } from "@/components/ui/customer/add-to-cart-button";
 import { products } from "@/lib/vendor-products";
 import { Button } from "@/components/ui/button";
 
