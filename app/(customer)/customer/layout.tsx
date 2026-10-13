@@ -141,7 +141,7 @@ function CustomerFooter() {
 export default function CustomerLayout({ children }: { children: ReactNode }) {
   return (
     <div id="top" className="flex min-h-screen flex-col bg-white">
-      {/* <CartHydration /> */}
+      <CartHydration />
       <CustomerHeader />
       <main className="w-full flex-1">{children}</main>
       <CustomerFooter />

@@ -11,7 +11,7 @@ export function CartHeaderLink() {
 
   return (
     <Link
-      href="/customer/basket"
+      href="/customer/cart"
       aria-label={`Cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
       className="flex shrink-0 items-center gap-1 rounded-sm border border-transparent px-2 py-1.5 hover:border-white"
     >
