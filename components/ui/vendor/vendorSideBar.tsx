@@ -160,7 +160,7 @@ export function AppSidebar() {
             <SidebarMenuButton
               className="flex  gap-2 items-center "
               size="lg"
-              render={<Link href="/" onClick={handleNavigation} />}
+              render={<Link href="/vendor/profile" onClick={handleNavigation} />}
             >
               <div className="flex size-8 items-center justify-center rounded-lg">
                 <Image

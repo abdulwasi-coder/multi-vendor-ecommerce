@@ -39,8 +39,8 @@ export function VendorSignupForm() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    toast.success("Your vendor profile is ready", {
-      description: `Signup details for user ${formData.get("userId")} were captured. Connect this form to the vendor API to save them.`,
+    toast.success("Your vendor profile details are ready", {
+      description: `Signup details for user ${formData.get("userId")} were captured. Connect the vendor API to save them.`,
     });
   }
 
