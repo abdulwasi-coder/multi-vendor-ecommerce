@@ -120,6 +120,7 @@ export const VendorBodySchema = z.object({
     .string()
     .trim()
     .regex(/^\+?[1-9]\d{7,14}$/, "Please enter a valid mobile number"),
+  phoneCode:z.string().min(1,"please select your country"),
   image: z.preprocess(
     (val) => (val === null || val === "" ? undefined : val),
     z.instanceof(File, {message:"please upload your store log/artwork"})

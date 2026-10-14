@@ -1,10 +1,10 @@
-
 "use client";
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   ArrowRight,
   Check,
+  ChevronsUpDown,
   ImagePlus,
   LockKeyhole,
   MapPin,
@@ -15,7 +15,11 @@ import {
 } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { VendorBodySchema, VendorSignupInput } from "@/Otherfiles/ZOD";
+import {
+  ALLOWED_COUNTRIES,
+  VendorBodySchema,
+  VendorSignupInput,
+} from "@/Otherfiles/ZOD";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,20 +30,43 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../command";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../select";
 
 export function VendorSignupForm() {
   const [imagePreview, setImagePreview] = useState("");
   const [imageName, setImageName] = useState("");
   const [storeslug, setStoreSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [countryOpen, setCountryOpen] = useState(false);
 
   const {
     control,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(VendorBodySchema),
@@ -49,12 +76,22 @@ export function VendorSignupForm() {
       storeDescription: "",
       companyName: "",
       lastName: "",
+      phoneCode: "+44",
       mobilenumber: "",
       image: undefined,
-      country:""
+      country: "",
     },
   });
-  console.log(VendorSignupForm)
+  const watchCountry = watch("country");
+
+  useEffect(() => {
+    if (watchCountry) {
+      const matched = ALLOWED_COUNTRIES.find((c) => c.value === watchCountry);
+      if (matched) {
+        setValue("phoneCode", matched.phoneCode);
+      }
+    }
+  }, [watchCountry, setValue]);
 
   useEffect(() => {
     return () => {
@@ -87,8 +124,13 @@ export function VendorSignupForm() {
       multipartPayload.append("storeDescription", data.storeDescription);
       multipartPayload.append("companyName", data.companyName);
       multipartPayload.append("lastName", data.lastName);
-      multipartPayload.append("mobilenumber", data.mobilenumber);
+      multipartPayload.append("country", data.country);
+      multipartPayload.append(
+        "mobilenumber",
+        `${data.phoneCode}${data.mobilenumber}`,
+      );
       multipartPayload.append("iamge", data.image);
+
 
       toast.success("Your vendor profile details are ready", {
         description: `data is successfully saved.`,
@@ -100,6 +142,10 @@ export function VendorSignupForm() {
 
   const inputClassName =
     "h-11 rounded-xl border-border/80 bg-background px-3.5 shadow-none transition focus-visible:ring-2 focus-visible:ring-primary/20";
+
+  function cn(arg0: string, arg1: string): string | undefined {
+    return [arg0, arg1].filter(Boolean).join(" ") || undefined;
+  }
 
   return (
     <main className="min-h-[calc(100dvh-2rem)] bg-[#fbf8f3]">
@@ -143,7 +189,6 @@ export function VendorSignupForm() {
           </header>
 
           <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
-            <input type="hidden" name="userId" />
             <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
               <div className="space-y-5">
                 <Card className="rounded-2xl border-border/70 shadow-sm">
@@ -167,55 +212,156 @@ export function VendorSignupForm() {
                       <FieldLabel htmlFor="first-name">
                         First name <span className="text-destructive">*</span>
                       </FieldLabel>
-                      <Input
-                        id="first-name"
+                      <Controller
+                        control={control}
                         name="name"
-                        autoComplete="given-name"
-                        required
-                        placeholder="e.g. Alex"
-                        className={inputClassName}
-                      />
+                        render={({ field }) => (
+                          <Input
+                            className={inputClassName}
+                            placeholder="e.g. Alex"
+                            {...field}
+                          />
+                        )}
+                      ></Controller>
+                      <FieldError>{errors.name?.message}</FieldError>
                     </Field>
                     <Field>
                       <FieldLabel htmlFor="last-name">
                         Last name <span className="text-destructive">*</span>
                       </FieldLabel>
-                      <Input
-                        id="last-name"
+                      <Controller
+                        control={control}
                         name="lastName"
-                        autoComplete="family-name"
-                        required
-                        placeholder="e.g. Morgan"
-                        className={inputClassName}
-                      />
+                        render={({ field }) => (
+                          <Input
+                            className={inputClassName}
+                            placeholder="e.g. Morgan"
+                            {...field}
+                          />
+                        )}
+                      ></Controller>
+                      <FieldError>{errors.lastName?.message}</FieldError>
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor="country">
-                        Country <span className="text-destructive">*</span>
-                      </FieldLabel>
-                      <Input
-                        id="country"
+                      <FieldLabel>Country</FieldLabel>
+                      <Controller
+                        control={control}
                         name="country"
-                        autoComplete="country-name"
-                        required
-                        placeholder="Your country"
-                        className={inputClassName}
+                        render={({ field }) => (
+                          <Popover
+                            open={countryOpen}
+                            onOpenChange={setCountryOpen}
+                          >
+                            <PopoverTrigger
+                              render={
+                                <Button
+                                  variant="outline"
+                                  className="w-full h-11 rounded-xl justify-between font-normal"
+                                >
+                                  {field.value
+                                    ? ALLOWED_COUNTRIES.find(
+                                        (c) => c.value === field.value,
+                                      )?.label
+                                    : "Select your country..."}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              }
+                            />
+                            <PopoverContent
+                              className="w-[300px] p-0 max-h-[250px]"
+                              align="start"
+                            >
+                              <Command>
+                                <CommandInput placeholder="Search country..." />
+                                <CommandList>
+                                  <CommandEmpty>No country found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {ALLOWED_COUNTRIES.map((item) => (
+                                      <CommandItem
+                                        key={item.value}
+                                        value={item.label} // Enables searching by name text string
+                                        onSelect={() => {
+                                          setValue("country", item.value, {
+                                            shouldValidate: true,
+                                          }); // Saves 2-letter ISO code
+                                          setCountryOpen(false);
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            field.value === item.value
+                                              ? "opacity-100"
+                                              : "opacity-0",
+                                          )}
+                                        />
+                                        {item.label}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        )}
                       />
+                      <FieldError>{errors.country?.message}</FieldError>
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor="mobile-number">
-                        Mobile number{" "}
-                        <span className="text-destructive">*</span>
-                      </FieldLabel>
-                      <Input
-                        id="mobile-number"
-                        name="mobilenumber"
-                        type="tel"
-                        autoComplete="tel"
-                        required
-                        placeholder="+1 555 010 1234"
-                        className={inputClassName}
-                      />
+                      <FieldLabel>Mobile Number</FieldLabel>
+                      <div className="flex items-center gap-1">
+                        <div className="w-fit">
+                          <Controller
+                            control={control}
+                            name="phoneCode"
+                            render={({ field }) => (
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <SelectTrigger className="py-5.25 ">
+                                  <SelectValue placeholder="+44" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {ALLOWED_COUNTRIES.map((c) => (
+                                    <SelectItem
+                                      key={c.value}
+                                      value={c.phoneCode}
+                                    >
+                                      <span className="font-mono text-xs">
+                                        {c.phoneCode}
+                                      </span>
+                                      <span className="text-muted-foreground text-xs ml-1">
+                                        ({c.value})
+                                      </span>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <Controller
+                            control={control}
+                            name="mobilenumber"
+                            render={({ field }) => (
+                              <Input
+                                type="tel"
+                                inputMode="numeric"
+                                className="h-11 border-border/80 bg-background px-3.5 shadow-none transition focus-visible:ring-2 focus-visible:ring-primary/20"
+                                placeholder="712345678"
+                                {...field}
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      <FieldError>
+                        {errors.mobilenumber?.message ||
+                          errors.phoneCode?.message}
+                      </FieldError>
                     </Field>
                   </CardContent>
                 </Card>
@@ -243,29 +389,46 @@ export function VendorSignupForm() {
                         <span className="flex h-full items-center border-r bg-muted/50 px-3 text-sm text-muted-foreground">
                           store/
                         </span>
-                        <Input
-                          id="store-slug"
+                        <Controller
+                          control={control}
                           name="storeSlug"
-                          value={storeslug}
-                          onChange={(event) =>
-                            setStoreSlug(
-                              event.target.value
-                                .toLowerCase()
-                                .replace(/[^a-z0-9-]/g, "")
-                                .replace(/-{2,}/g, "-"),
-                            )
-                          }
-                          required
-                          pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-                          title="Use lowercase letters, numbers, and single hyphens."
-                          placeholder="your-store-name"
-                          className="h-full border-0 bg-transparent px-3 shadow-none focus-visible:ring-0"
+                          render={({ field }) => (
+                            <Input
+                              className={inputClassName}
+                              placeholder="your-store-name"
+                              value={field.value ?? storeslug}
+                              onChange={(event) => {
+                                const nextValue = event.target.value;
+                                setStoreSlug(nextValue);
+                                field.onChange(nextValue);
+                              }}
+                            />
+                          )}
                         />
                       </div>
+                      <FieldError>{errors.storeSlug?.message}</FieldError>
                       <FieldDescription>
                         Your unique store address. Lowercase letters, numbers,
                         and hyphens only.
                       </FieldDescription>
+                    </Field>
+
+                                        <Field>
+                      <FieldLabel htmlFor="first-name">
+                       Company Name <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <Controller
+                        control={control}
+                        name="companyName"
+                        render={({ field }) => (
+                          <Input
+                            className={inputClassName}
+                            placeholder="Alex Tech Selling Company"
+                            {...field}
+                          />
+                        )}
+                      ></Controller>
+                      <FieldError>{errors.companyName?.message}</FieldError>
                     </Field>
 
                     <Field>
@@ -273,53 +436,68 @@ export function VendorSignupForm() {
                         Store description{" "}
                         <span className="text-destructive">*</span>
                       </FieldLabel>
-                      <Textarea
-                        id="store-description"
-                        name="storedescription"
-                        value={description}
-                        onChange={(event) => setDescription(event.target.value)}
-                        required
-                        maxLength={500}
-                        placeholder="Tell customers what makes your store special..."
-                        className="min-h-32 resize-y rounded-xl border-border/80 bg-background px-3.5 py-3 shadow-none focus-visible:ring-2 focus-visible:ring-amber-700/20"
-                      />
+                      <Controller
+                        control={control}
+                        name="storeDescription"
+                        render={({ field }) => (
+                          <Textarea
+                            className={inputClassName}
+                            placeholder="your-store-name"
+                            maxLength={5000}
+                            value={String(field.value ?? "")}
+                            name={field.name}
+                            onBlur={field.onBlur}
+                            ref={field.ref}
+                            onChange={(event) => {
+                              const nextValue = event.target.value;
+                              field.onChange(nextValue);
+                              setDescription(nextValue);
+                            }}
+                          />
+                        )}
+                      ></Controller>
+                      <FieldError>
+                        {errors.storeDescription?.message}
+                      </FieldError>
                       <FieldDescription className="text-right">
                         {description.length}/5000 characters
                       </FieldDescription>
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor="store-image">Store image</FieldLabel>
-                      <label
-                        htmlFor="store-image"
-                        className="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-amber-300 bg-amber-50/60 px-5 py-7 text-center transition hover:border-amber-600 hover:bg-amber-50"
-                      >
-                        {imagePreview ? (
-                          <img
-                            src={imagePreview}
-                            alt="Store image preview"
-                            className="mb-3 size-20 rounded-2xl border bg-background object-cover shadow-sm"
-                          />
-                        ) : (
-                          <span className="mb-3 flex size-12 items-center justify-center rounded-2xl border border-amber-200 bg-white text-amber-800 shadow-sm transition group-hover:bg-amber-100">
-                            <Upload className="size-5" />
-                          </span>
+                      <Controller
+                        control={control}
+                        name="image"
+                        render={({ field }) => (
+                          <div className="relative border-2 border-dashed border-zinc-200 rounded-xl p-4 text-center cursor-pointer bg-zinc-50/50">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                              onChange={handleImageChange}
+                            />
+                            <div className="flex flex-col items-center justify-center space-y-2">
+                              {imagePreview ? (
+                                <div className="size-20 rounded-lg overflow-hidden border bg-white">
+                                  <img
+                                    src={imagePreview}
+                                    alt="Logo preview"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ) : (
+                                <ImagePlus className="size-8 text-zinc-400" />
+                              )}
+                              <p className="text-xs font-medium text-zinc-600 truncate max-w-full px-2">
+                                {imageName
+                                  ? imageName
+                                  : "Choose or drag store logo"}
+                              </p>
+                            </div>
+                          </div>
                         )}
-                        <span className="text-sm font-medium">
-                          {imageName || "Click to upload your store image"}
-                        </span>
-                        <span className="mt-1 text-xs text-muted-foreground">
-                          PNG, JPG, or WEBP · up to 5 MB
-                        </span>
-                        <Input
-                          id="store-image"
-                          name="image"
-                          type="file"
-                          accept="image/png,image/jpeg,image/webp"
-                          onChange={handleImageChange}
-                          className="sr-only"
-                        />
-                      </label>
+                      />
+                      <FieldError>{errors.image?.message}</FieldError>
                     </Field>
                   </CardContent>
                 </Card>
@@ -334,7 +512,15 @@ export function VendorSignupForm() {
                     size="lg"
                     className="h-11 rounded-xl bg-amber-700 px-6 text-white shadow-sm shadow-amber-900/15 hover:bg-amber-800"
                   >
-                    Create vendor profile <ArrowRight className="size-4" />
+                    {isSubmitting ? (
+                      <>
+                        Create vendor profile <ArrowRight className="size-4" />
+                      </>
+                    ) : (
+                      <>
+                        <span>Complete Setup</span> <ArrowRight />{" "}
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
