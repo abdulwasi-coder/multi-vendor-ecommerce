@@ -131,7 +131,6 @@ export function VendorSignupForm() {
       );
       multipartPayload.append("iamge", data.image);
 
-
       toast.success("Your vendor profile details are ready", {
         description: `data is successfully saved.`,
       });
@@ -413,9 +412,9 @@ export function VendorSignupForm() {
                       </FieldDescription>
                     </Field>
 
-                                        <Field>
+                    <Field>
                       <FieldLabel htmlFor="first-name">
-                       Company Name <span className="text-destructive">*</span>
+                        Company Name <span className="text-destructive">*</span>
                       </FieldLabel>
                       <Controller
                         control={control}
