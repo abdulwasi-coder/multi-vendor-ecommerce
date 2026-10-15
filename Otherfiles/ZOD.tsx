@@ -82,28 +82,32 @@ export const productBodySchema = z.object({
   brand: z.string().optional().nullable(),
   categoryID: z.string().min(8, "A valid Category is required"),
   stock: z.number().int().nonnegative("Stock must be 0 or greater"),
+  status: z.enum(["active", "inactive", "archived"]).default("active"),
   price: z.number().positive("Price must be greater than 0"),
   discount: z
     .number()
     .nonnegative("Discount cannot be negative")
     .max(100, "Discount cannot exceed 100%")
     .default(0),
-  color: z.array(z.string()).min(1, "Select at least one color option"),
+  colors: z.array(z.string()).min(1, "Select at least one color option"),
   images: z
-    .array(
-      z
-        .instanceof(File)
-        .refine(
-          (file) => file.size <= MAX_FILE_SIZE,
-          "Each image file must be less than 5MB.",
-        )
-        .refine(
-          (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-          "Only .jpg, .jpeg, .png, and .webp formats are allowed.",
-        ),
+    .custom<FileList>(
+      (val) => val instanceof FileList,
+      "Please select at least one image"
     )
-    .min(1, "Please upload at least one image file from your computer"),
-
+    .refine((files) => files.length > 0, "At least one image is required")
+    .refine((files) => files.length <= 5, "You can upload a maximum of 5 images")
+    .refine(
+      (files) => Array.from(files).every((file) => file.size <= MAX_FILE_SIZE),
+      "Each file must be less than 5MB."
+    )
+    .refine(
+      (files) =>
+        Array.from(files).every((file) =>
+          ACCEPTED_IMAGE_TYPES.includes(file.type)
+        ),
+      "Only .jpg, .jpeg, .png and .webp formats are supported."
+    ),
   attributes: z.array(attributeItemSchema).optional().default([]),
 });
 
@@ -120,18 +124,21 @@ export const VendorBodySchema = z.object({
     .string()
     .trim()
     .regex(/^\+?[1-9]\d{7,14}$/, "Please enter a valid mobile number"),
-  phoneCode:z.string().min(1,"please select your country"),
+  phoneCode: z.string().min(1, "please select your country"),
   image: z.preprocess(
     (val) => (val === null || val === "" ? undefined : val),
-    z.instanceof(File, {message:"please upload your store log/artwork"})
-        .refine(
-          (file) => file.size <= MAX_FILE_SIZE,
-          "Each image file must be less than 5MB.",
-        )
-        .refine(
-          (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-          "Only .jpg, .jpeg, .png, and .webp formats are allowed."),
-    )
+    z
+      .instanceof(File, { message: "please upload your store log/artwork" })
+      .refine(
+        (file) => file.size <= MAX_FILE_SIZE,
+        "Each image file must be less than 5MB."
+      )
+      .refine(
+        (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+        "Only .jpg, .jpeg, .png, and .webp formats are allowed."
+      )
+  ),
 });
 
-export type VendorSignupInput = z.infer<typeof VendorBodySchema>
+export type VendorSignupInput = z.infer<typeof VendorBodySchema>;
+export type ProductInput = z.infer<typeof productBodySchema>;
