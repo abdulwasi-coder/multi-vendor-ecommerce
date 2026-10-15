@@ -238,8 +238,7 @@ export function ProductForm({ product }: { product?: ProductInput }) {
             </h1>
           </div>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Fill in the product details below. Fields marked with
-            <span className="text-destructive">*</span> are required.
+            Fill in the needed product details below.
           </p>
         </header>
 
@@ -512,11 +511,10 @@ export function ProductForm({ product }: { product?: ProductInput }) {
             >
               Cancel
             </Link>
-            <Button
+            <button
               type="submit"
               disabled={isSubmitting}
-              size="lg"
-              className=" rounded-xl  px-6 text-white shadow-sm shadow-amber-900/15 hover:bg-amber-800"
+              className=" rounded-xl py-2 text-sm px-6 text-white bg-black flex items-center gap-0.5 shadow-sm"
             >
               {isSubmitting ? (
                 <>
@@ -524,10 +522,10 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                 </>
               ) : (
                 <>
-                  <Save /> Save Product
+                  <Save className="size-4" /> Save Product
                 </>
               )}
-            </Button>
+            </button>
           </div>
         </form>
       </div>
