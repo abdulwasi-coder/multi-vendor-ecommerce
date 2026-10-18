@@ -45,14 +45,16 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axios.post("/api/refresh-token", {}, { withCredentials: true });
+        await api.post("/api/refresh-token", {}, { withCredentials: true });
         processQueue(null);
         isRefreshing = false;
         return api(originalRequest);
       } catch (error) {
         processQueue(error);
         isRefreshing = false;
-        window.location.href = "/login";
+        if(typeof window !== "undefined"){
+          window.location.href = "/login";
+        }
         return Promise.reject(error);
       }
     }
