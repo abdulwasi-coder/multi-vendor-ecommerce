@@ -2,6 +2,6 @@ import CustomerTopRatedPage from "@/components/ui/customer/customer-top-rated-pa
 
 export default function TopRatedRoute({
   searchParams,
-}: PageProps<"/customer/top-rated">) {
+}: PageProps<"/top-rated">) {
   return <CustomerTopRatedPage searchParams={searchParams} />;
 }

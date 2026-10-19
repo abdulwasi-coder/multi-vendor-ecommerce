@@ -41,7 +41,7 @@ function filterHref(params: SearchParams, key: string, value: string) {
 function FilterOption({ href, label, selected }: { href: string; label: string; selected: boolean }) {
   return (
     <Link href={href} aria-current={selected ? "true" : undefined} className="flex items-center gap-2 py-1 text-sm leading-5 hover:text-[#c45500]">
-      <span className={`grid size-[17px] shrink-0 place-items-center rounded-[3px] border ${selected ? "border-[#007185] bg-[#007185] text-white" : "border-[#888c8c] bg-white"}`}>
+      <span className={`grid size-4.25 shrink-0 place-items-center rounded-[3px] border ${selected ? "border-[#007185] bg-[#007185] text-white" : "border-[#888c8c] bg-white"}`}>
         {selected && <Check className="size-3.5" aria-hidden="true" />}
       </span>
       {label}
@@ -49,7 +49,7 @@ function FilterOption({ href, label, selected }: { href: string; label: string; 
   );
 }
 
-export default async function ProductsPage({ searchParams }: PageProps<"/customer/products">) {
+export default async function ProductsPage({ searchParams }: PageProps<"/products">) {
   const params = await searchParams;
   const query = values(params.q)[0]?.trim() ?? "";
   const selectedCategories = values(params.category);
@@ -80,7 +80,7 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
 
   return (
     <main className="min-h-screen bg-white px-3 pb-14 pt-40 text-[#0f1111] sm:px-5 sm:pt-32 lg:px-7">
-      <div className="mx-auto max-w-[1600px]">
+      <div className="mx-auto max-w-400">
         <div className="-mx-3 mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[#d5d9d9] px-3 py-3 sm:-mx-5 sm:px-5 lg:-mx-7 lg:px-7">
           <p className="text-sm">
             {filteredProducts.length ? `1-${filteredProducts.length} of ${filteredProducts.length} results` : "No results"}
@@ -195,7 +195,7 @@ export default async function ProductsPage({ searchParams }: PageProps<"/custome
                           <p className="text-xl">{formatPrice(salePrice)}</p>
                           {product.discount > 0 && <p className="text-xs text-[#565959]">List price: <span className="line-through">{formatPrice(product.price)}</span></p>}
                         </div>
-                        <div className="max-w-[230px] pt-2 [&>button]:mt-0 [&>button]:h-9">{product.stock > 0 ? <AddToCartButton productId={product.id} productName={product.name} stock={product.stock} />: <Button>Remind Me</Button>}</div>
+                        <div className="max-w-57.5 pt-2 [&>button]:mt-0 [&>button]:h-9">{product.stock > 0 ? <AddToCartButton productId={product.id} productName={product.name} stock={product.stock} />: <Button>Remind Me</Button>}</div>
                       </div>
                     </article>
                   );
