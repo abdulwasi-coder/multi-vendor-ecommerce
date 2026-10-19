@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, ShoppingCart, Package, PackagePlus, Truck } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, PackagePlus, Truck, Info } from "lucide-react";
 
 import {
   Sidebar,
@@ -25,6 +25,7 @@ const navigationItems = [
   { title: "Orders", href: "/vendor/orders", icon: ShoppingCart },
   { title: "Products", href: "/vendor/products", icon: Package },
   { title: "Logistics", href: "/vendor/logitics", icon: Truck },
+  { title: "About", href: "/vendor/about", icon: Info },
 ];
 const createitems = [
   { title: "Create Product", href: "/vendor/create", icon: PackagePlus },
