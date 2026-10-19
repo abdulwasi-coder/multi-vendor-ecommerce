@@ -44,7 +44,7 @@ export default function OTPValidator({ email }: { email: string }) {
       const result = response?.data ?? response;
 
       if (result?.success) {
-        router.push("/customer");
+        router.push("/");
         return;
       }
 

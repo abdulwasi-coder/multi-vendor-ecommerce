@@ -74,7 +74,7 @@ const metrics = [
 
 const timelines = ["1 Year", "6 Months", "1 Month"];
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
   return (
     <main className="min-h-screen mx-auto max-w-400 space-y-5 w-full bg-muted/30 px-4 py-6 lg:py-3 sm:px-6  lg:px-8">
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -110,17 +110,18 @@ export default function AdminDashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-2xl font-semibold tracking-tight px-5">
-                  {metric.value}
+                {metric.value}
               </CardContent>
-              <CardFooter className={`border-0 bg-background text-xs font-medium flex gap-0.5 ${metric.positive ? "text-emerald-700 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}>
-
-                  {metric.positive ? (
-                    <ArrowUpRight className="size-3.5 text-emerald-500" />
-                  ) : (
-                    <Clock3 className="size-3.5 text-muted-foreground" />
-                  )}
-                  {metric.change}{" "}
-                  <span className="text-muted-foreground">{metric.detail}</span>
+              <CardFooter
+                className={`border-0 bg-background text-xs font-medium flex gap-0.5 ${metric.positive ? "text-emerald-700 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}
+              >
+                {metric.positive ? (
+                  <ArrowUpRight className="size-3.5 text-emerald-500" />
+                ) : (
+                  <Clock3 className="size-3.5 text-muted-foreground" />
+                )}
+                {metric.change}{" "}
+                <span className="text-muted-foreground">{metric.detail}</span>
               </CardFooter>
             </Card>
           );

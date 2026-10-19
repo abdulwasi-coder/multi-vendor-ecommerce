@@ -40,10 +40,13 @@ export default function LoginFunction() {
 
   async function onSubmit(values: FormValues) {
     try {
-      const response = await api.post("/authentication/login", {
-        email: values.email,
-        password: values.password,
-      }, {withCredentials:true});
+      const response = await api.post(
+        "/authentication/login",
+        {
+          email: values.email,
+          password: values.password,
+        }
+      );
 
       if (response.data.success && response.data.Role == "vendor") {
         router.push("/vendor/dashboard");
@@ -54,11 +57,11 @@ export default function LoginFunction() {
         return;
       }
       if (response.data.success) {
-        router.push("/customer");
+        router.push("/");
         return;
       }
-      if(response.data.success === false){
-        setError(response.data.message)
+      if (response.data.success === false) {
+        setError(response.data.message);
       }
     } catch (error) {
       toast.info("Error Signing in", {

@@ -123,7 +123,7 @@ function imageUrl(fileName: string) {
 export default function CustomerHomePage() {
   return (
     <main className="min-h-screen bg-[#fafafa] px-3 pt-50 sm:pt-35 py-5 text-[#0f1111] sm:px-5 lg:px-8">
-      <div className="mx-auto max-w-[1500px]">
+      <div className="mx-auto max-w-375">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-4">
           {categories.map((category) => (
             <section key={category.name} className="bg-white p-5 border rounded-2xl sm:p-6">

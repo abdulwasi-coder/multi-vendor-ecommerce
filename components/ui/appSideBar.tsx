@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Users, ShoppingCart, Package, Component } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  ShoppingCart,
+  Package,
+  Component,
+} from "lucide-react";
+import { useUser } from "@/Otherfiles/tanstack/admin";
 
 import {
   Sidebar,
@@ -28,8 +35,8 @@ const navigationItems = [
 ];
 
 const creationItems = [
-  { title: "Category", href: "/admin/category", icon:Component },
-]
+  { title: "Category", href: "/admin/category", icon: Component },
+];
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -50,7 +57,7 @@ export function AppSidebar() {
     setOpenMobile(false);
     setHoverExpanded(false);
   };
-
+  const { data: user, isLoading, error } = useUser();
   return (
     <Sidebar
       collapsible="icon"
@@ -66,7 +73,9 @@ export function AppSidebar() {
             <SidebarMenuButton
               className="flex gap-2 items-center"
               size="lg"
-              render={<Link href="/admin/dashboard" onClick={handleNavigation} />}
+              render={
+                <Link href="/admin/dashboard" onClick={handleNavigation} />
+              }
             >
               <div className="flex size-8 items-center justify-center rounded-lg">
                 <Image
@@ -80,7 +89,8 @@ export function AppSidebar() {
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:grid">
                 <span className="truncate  font-semibold tracking-wider">
-                  Bon Ton
+                  user
+                  
                 </span>
               </div>
             </SidebarMenuButton>
@@ -97,17 +107,16 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
-                const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
+                const isActive =
+                  item.href === pathname ||
+                  pathname.startsWith(`${item.href}/`);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       className={`flex gap-1.5 items-center transition-all duration-200 ease-in-out `}
                       isActive={isActive}
                       render={
-                        <Link
-                          onClick={handleNavigation}
-                          href={item.href}
-                        />
+                        <Link onClick={handleNavigation} href={item.href} />
                       }
                     >
                       <item.icon />
@@ -128,17 +137,16 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {creationItems.map((item) => {
-                const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
+                const isActive =
+                  item.href === pathname ||
+                  pathname.startsWith(`${item.href}/`);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       className={`flex gap-1.5 items-center transition-all duration-200 ease-in-out `}
                       isActive={isActive}
                       render={
-                        <Link
-                          onClick={handleNavigation}
-                          href={item.href}
-                        />
+                        <Link onClick={handleNavigation} href={item.href} />
                       }
                     >
                       <item.icon />
