@@ -48,11 +48,11 @@ export default function LoginFunction() {
         }
       );
 
-      if (response.data.success && response.data.Role == "vendor") {
+      if (response.data.success && response.data.Role === "vendor") {
         router.push("/vendor/dashboard");
         return;
       }
-      if (response.data.success && response.data.Role == "admin") {
+      if (response.data.success && response.data.Role === "admin") {
         router.push("/admin/dashboard");
         return;
       }
@@ -60,16 +60,11 @@ export default function LoginFunction() {
         router.push("/");
         return;
       }
-      if (response.data.success === false) {
-        setError(response.data.message);
+    } catch (error:any) {
+      console.log(error)
+      if(error.reponse){
+        setError(error.response.data.message)
       }
-    } catch (error) {
-      toast.info("Error Signing in", {
-        description:
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred.",
-      });
     }
   }
 
