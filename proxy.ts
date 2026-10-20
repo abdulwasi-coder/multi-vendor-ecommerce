@@ -24,7 +24,7 @@ interface TokenData {
   vendorId?: string; 
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const shortTermToken = request.cookies.get('accessToken')?.value;
   const hasLongTermSession = request.cookies.has('refreshToken');
