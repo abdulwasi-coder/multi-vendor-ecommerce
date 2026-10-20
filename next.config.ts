@@ -4,9 +4,12 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   async rewrites() {
-    return [{ source: "/vendorsignup", destination: "/customer/signup" }];
+    const backendUrl = process.env.NEXT_PUBLIC_Base_Url;
+    if (!backendUrl) {
+      throw new Error("NEXT_PUBLIC_Base_Url must be configured to enable backend rewrites.");
+    }
+    return [{ source: "/proxy-backend/:path*", destination: backendUrl }];
   },
-
   images:{
     remotePatterns:[
       {

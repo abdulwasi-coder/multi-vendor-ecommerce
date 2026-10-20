@@ -5,7 +5,7 @@ type FailedRequest = {
   reject: (reason?: unknown) => void;
 };
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_Base_Url,
+  baseURL: "/proxy-backend",
   withCredentials: true,
 });
 
@@ -52,7 +52,7 @@ api.interceptors.response.use(
       } catch (error) {
         processQueue(error);
         isRefreshing = false;
-        if(typeof window !== "undefined"){
+        if (typeof window !== "undefined") {
           window.location.href = "/login";
         }
         return Promise.reject(error);
