@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_Base_Url;
+    const backendUrl = process.env.Base_Url;
     if (!backendUrl) {
       throw new Error("NEXT_PUBLIC_Base_Url must be configured to enable backend rewrites.");
     }
