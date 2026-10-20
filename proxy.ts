@@ -24,9 +24,10 @@ interface TokenData {
 }
 
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
 
   if (
+    searchParams.has("_rsc") ||
     pathname.startsWith("/_next") ||
     pathname.includes("/api/") ||
     pathname.includes(".")
