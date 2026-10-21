@@ -28,6 +28,15 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    if(originalRequest.url?.includes("refreshtoken")){
+      isRefreshing= false;
+      failedQueue:[];
+      if(typeof window !== "undefined"){
+        window.location.replace("/login");
+      }
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -45,7 +54,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await api.post("/api/refresh-token", {}, { withCredentials: true });
+        await api.get("/api/refresh-token", { withCredentials: true });
         processQueue(null);
         isRefreshing = false;
         return api(originalRequest);
