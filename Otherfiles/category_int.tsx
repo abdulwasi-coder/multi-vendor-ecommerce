@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ArrowRight, ImagePlus, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -15,12 +15,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import api from "@/lib/axios";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Category = {
   id: string;
   name: string;
   parentCategory: string;
   imageName: string;
+};
+
+type ParentCategoryOption = {
+  id: string;
+  name: string;
 };
 
 export function CategoryTable() {
@@ -31,6 +43,37 @@ export function CategoryTable() {
   const [image, setImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [parentCategories, setParentCategories] = useState<ParentCategoryOption[]>([]);
+
+  useEffect(() => {
+    async function loadParentCategories() {
+      try {
+        const response = await api.get("/admin/getAllCategories");
+        const result = response.data;
+        const list = Array.isArray(result)
+          ? result
+          : Array.isArray(result?.categories)
+            ? result.categories
+            : Array.isArray(result?.data)
+              ? result.data
+              : [];
+
+        setParentCategories(
+          list
+            .map((category: Record<string, unknown>) => ({
+              id: String(category.id ?? category._id ?? category.name ?? ""),
+              name: String(category.name ?? ""),
+            }))
+            .filter((category: ParentCategoryOption) => category.name),
+        );
+      } catch (error) {
+        console.log(error)
+        toast.error("Could not load parent categories.");
+      }
+    }
+
+    void loadParentCategories();
+  }, []);
 
   const filteredCategories = categories.filter((category) =>
     `${category.name} ${category.parentCategory}`
@@ -55,7 +98,7 @@ export function CategoryTable() {
 
     setIsSubmitting(true);
     try {
-      const response = await api.post("/category", formData);
+      const response = await api.post("/admin/createCategory", formData);
       setCategories((current) => [
         ...current,
         {
@@ -111,7 +154,22 @@ export function CategoryTable() {
             </div>
             <div className="space-y-2">
               <label htmlFor="category-parent" className="text-sm font-medium">Parent category <span className="text-destructive">*</span></label>
-              <Input id="category-parent" value={parentCategory} onChange={(event) => setParentCategory(event.target.value)} placeholder="Enter the parent category" required />
+              <Select value={parentCategory} onValueChange={(value) => setParentCategory(value ?? "")}>
+                <SelectTrigger id="category-parent" className="w-full" aria-label="Choose a parent category" aria-required="true">
+                  <SelectValue placeholder="Choose a parent category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {parentCategories.length ? (
+                    parentCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="__no_categories__" disabled>No categories available</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground">A parent category is required before this category can be created.</p>
             </div>
             <div className="space-y-2 sm:col-span-2">
@@ -120,7 +178,7 @@ export function CategoryTable() {
               <p className="flex items-center gap-1 text-xs text-muted-foreground"><ImagePlus className="size-3.5" />Choose one image for this category.</p>
             </div>
             <div className="sm:col-span-2">
-              <Button type="submit" disabled={isSubmitting || !name.trim() || !parentCategory.trim() || !image}>
+              <Button type="submit" disabled={isSubmitting || !name.trim() || !image}>
                 {isSubmitting ? "Creating..." : "Create category"}
               </Button>
             </div>
