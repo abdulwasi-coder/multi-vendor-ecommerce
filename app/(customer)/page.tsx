@@ -134,7 +134,7 @@ export default function CustomerHomePage() {
                 {category.items.map(([name, fileName]) => (
                   <Link
                     key={name}
-                    href="/customer/products"
+                    href={`/products?category=${name}`}
                     className="group min-w-0 text-sm text-[#0f1111] hover:text-[#c45500]"
                   >
                     <div className="relative aspect-[1.28/1] overflow-hidden bg-[#f4f4f4]">
