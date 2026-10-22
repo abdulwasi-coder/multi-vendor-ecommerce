@@ -1,20 +1,28 @@
-import axios from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
+
+type RetryableRequest = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+};
 
 type FailedRequest = {
-  resolve: (value?: unknown) => void;
+  resolve: () => void;
   reject: (reason?: unknown) => void;
 };
-const api = axios.create({
+
+const axiosConfig = {
   baseURL: "/proxy-backend",
   withCredentials: true,
-});
+};
+
+const api = axios.create(axiosConfig);
+const refreshApi = axios.create(axiosConfig);
 
 let isRefreshing = false;
 let failedQueue: FailedRequest[] = [];
 
 const processQueue = (error?: unknown) => {
   failedQueue.forEach((promise) => {
-    if (error) {
+    if (error !== undefined) {
       promise.reject(error);
     } else {
       promise.resolve();
@@ -27,46 +35,49 @@ const processQueue = (error?: unknown) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as RetryableRequest | undefined;
+    const requestUrl = originalRequest?.url ?? "";
+    const isRefreshRequest = /refresh[-_]?token/i.test(requestUrl);
+    const isAuthenticationRequest = /(?:^|\/)authentication(?:\/|$)/i.test(
+      requestUrl,
+    );
 
-    // The browser attaches the HttpOnly refresh cookie automatically. Do not
-    // attempt another refresh when the refresh endpoint itself returns 401.
-    if (/refresh[-_]?token/i.test(originalRequest?.url ?? "")) {
+    if (
+      isRefreshRequest ||
+      isAuthenticationRequest ||
+      error.response?.status !== 401 ||
+      !originalRequest ||
+      originalRequest._retry
+    ) {
       return Promise.reject(error);
     }
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then(() => {
-            return api(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
+    originalRequest._retry = true;
 
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        await api.get("/api/refresh-token", { withCredentials: true });
-        processQueue(null);
-        isRefreshing = false;
-        return api(originalRequest);
-      } catch (error) {
-        processQueue(error);
-        isRefreshing = false;
-        if (typeof window !== "undefined") {
-          window.location.replace("/login");
-        }
-        return Promise.reject(error);
-      }
+    if (isRefreshing) {
+      return new Promise<void>((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      }).then(() => api(originalRequest));
     }
 
-    return Promise.reject(error);
+    isRefreshing = true;
+
+    try {
+      await refreshApi.get("/api/refresh_token");
+      processQueue();
+      return api(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError);
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/login"
+      ) {
+        window.location.replace("/login");
+      }
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   },
 );
 
