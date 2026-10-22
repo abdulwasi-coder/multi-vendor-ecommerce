@@ -29,15 +29,13 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if(originalRequest.url?.includes("refreshtoken")){
-      isRefreshing= false;
-      failedQueue:[];
-      if(typeof window !== "undefined"){
-        window.location.replace("/login");
-      }
+    // The browser attaches the HttpOnly refresh cookie automatically. Do not
+    // attempt another refresh when the refresh endpoint itself returns 401.
+    if (/refresh[-_]?token/i.test(originalRequest?.url ?? "")) {
+      return Promise.reject(error);
     }
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -62,7 +60,7 @@ api.interceptors.response.use(
         processQueue(error);
         isRefreshing = false;
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          window.location.replace("/login");
         }
         return Promise.reject(error);
       }
