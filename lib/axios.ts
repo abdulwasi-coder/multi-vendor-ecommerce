@@ -73,7 +73,7 @@ api.interceptors.response.use(
         typeof window !== "undefined" &&
         window.location.pathname !== "/login"
       ) {
-       
+       window.location.replace("/login");
       }
       return Promise.reject(refreshError);
     } finally {
