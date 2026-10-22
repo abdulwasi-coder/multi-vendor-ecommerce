@@ -67,6 +67,7 @@ api.interceptors.response.use(
       processQueue();
       return api(originalRequest);
     } catch (refreshError) {
+      console.log(refreshError)
       processQueue(refreshError);
       if (
         typeof window !== "undefined" &&
