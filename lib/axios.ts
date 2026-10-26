@@ -10,7 +10,10 @@ type FailedRequest = {
 };
 
 const axiosConfig = {
-  baseURL: "/proxy-backend",
+  baseURL:
+    typeof window === "undefined"
+      ? process.env.Base_Url
+      : "/proxy-backend",
   withCredentials: true,
 };
 
@@ -43,6 +46,7 @@ api.interceptors.response.use(
     );
 
     if (
+      typeof window === "undefined" ||
       isRefreshRequest ||
       isAuthenticationRequest ||
       error.response?.status !== 401 ||

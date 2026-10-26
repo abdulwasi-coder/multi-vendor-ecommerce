@@ -1,63 +1,87 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-function parseJwt(token: string) {
+const ACCESS_TOKEN_COOKIE = "accesstoken";
+const REFRESH_TOKEN_COOKIE = "refreshtoken";
+const REFRESH_EARLY_SECONDS = 60;
+
+function isAccessTokenExpiring(token?: string) {
+  if (!token) return true;
+
   try {
-    const parts = token.split(".");
-    if (parts.length < 2) return null;
-    const base64Url = parts[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = Buffer.from(base64, "base64").toString("utf8");
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    console.error("JWT Parsing crashed:", e);
-    return null;
+    const payload = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64url").toString("utf8"),
+    ) as { exp?: unknown };
+
+    return (
+      typeof payload.exp !== "number" ||
+      payload.exp <= Math.floor(Date.now() / 1000) + REFRESH_EARLY_SECONDS
+    );
+  } catch {
+    return true;
   }
 }
-interface TokenData {
-  id: string;
-  role: "admin" | "vendor" | "customer";
-  vendorId?: string;
+
+function redirectToLogin(request: NextRequest) {
+  return NextResponse.redirect(new URL("/login", request.url));
 }
 
-export function proxy(request: NextRequest) {
-//   const { pathname } = request.nextUrl;
-//   let response = NextResponse.next();
-//   const shortTermToken = request.cookies.get("accessToken")?.value;
-//   const hasLongTermSession = request.cookies.has("refreshToken");
+export async function proxy(request: NextRequest) {
+  const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
+  if (!isAccessTokenExpiring(accessToken)) {
+    return NextResponse.next();
+  }
 
-//   const isAdminPath = pathname.startsWith("/admin");
-//   const isVendorPath = pathname.startsWith("/vendor");
+  const backendUrl = process.env.Base_Url;
+  const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
+  if (!refreshToken) {
+    return redirectToLogin(request);
+  }
+  if (!backendUrl) {
+    return NextResponse.next();
+  }
 
-//   if ((isAdminPath || isVendorPath) && !hasLongTermSession && !shortTermToken) {
-//     return NextResponse.redirect(new URL("/signup", request.url));
-//   }
+  try {
+    const refreshResponse = await fetch(
+      new URL("/api/refresh_token", backendUrl),
+      {
+        headers: { cookie: request.headers.get("cookie") ?? "" },
+        cache: "no-store",
+      },
+    );
 
-//   if (shortTermToken) {
-//     const userData = parseJwt(shortTermToken) as TokenData | null;
+    if (refreshResponse.status === 401 || refreshResponse.status === 403) {
+      return redirectToLogin(request);
+    }
+    if (!refreshResponse.ok) {
+      return NextResponse.next();
+    }
 
-//     if (userData) {
-//       response.cookies.set("debug_proxy_jwt", JSON.stringify(userData), {
-//         path: "/",
-//       });
+    const setCookieHeader = refreshResponse.headers.get("set-cookie");
+    const newAccessToken = setCookieHeader
+      ?.match(/^accesstoken=([^;]+)/i)?.[1];
+    if (!setCookieHeader || !newAccessToken) {
+      return redirectToLogin(request);
+    }
 
-//       if (isAdminPath && userData.role !== "admin") {
-//         const fallback = userData.role === "vendor" ? "/vendor/dashboard" : "/";
-//         return NextResponse.redirect(new URL(fallback, request.url));
-//       }
+    const requestCookies = request.cookies
+      .getAll()
+      .filter((cookie) => cookie.name !== ACCESS_TOKEN_COOKIE)
+      .map((cookie) => `${cookie.name}=${cookie.value}`);
+    requestCookies.push(`${ACCESS_TOKEN_COOKIE}=${newAccessToken}`);
 
-//       if (isVendorPath && userData.role !== "vendor") {
-//         const fallback = userData.role === "admin" ? "/admin/dashboard" : "/";
-//         return NextResponse.redirect(new URL(fallback, request.url));
-//       }
-//     } else {
-//       response.cookies.set("debug_proxy_jwt", "Parsing Failed Null", {
-//         path: "/",
-//       });
-//     }
-//   }
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("cookie", requestCookies.join("; "));
 
-  return NextResponse.next();
+    const response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+    response.headers.append("set-cookie", setCookieHeader);
+    return response;
+  } catch {
+    return NextResponse.next();
+  }
+
 }
 
 export const config = {

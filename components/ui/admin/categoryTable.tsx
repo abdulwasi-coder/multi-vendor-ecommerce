@@ -25,6 +25,7 @@ import type { DataTableFeatures } from "@/components/ui/admin/data_table_feature
 interface DataTableProps {
   columns: ColumnDef<DataTableFeatures, Category, any>[];
   data: Category[];
+  onDataChange?: () => void;
 }
 
 declare module "@tanstack/table-core" {
@@ -37,8 +38,7 @@ declare module "@tanstack/table-core" {
   }
 }
 
-export function DataTable({ columns, data }: DataTableProps) {
-  const router = useRouter();
+export function DataTable({ columns, data, onDataChange }: DataTableProps) {
   const [isPending, startTransition] = useTransition();
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -64,7 +64,7 @@ export function DataTable({ columns, data }: DataTableProps) {
       try {
         const response = await api.delete(`/deleteCategory/${idToDelete}`);
         if (response.status === 200 || response.status === 204) {
-          router.refresh(); 
+          onDataChange?.();
           toast.success("Category deleted successfully.");
         }
       } catch (error: any) {
