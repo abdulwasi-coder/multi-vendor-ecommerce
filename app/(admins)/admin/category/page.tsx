@@ -1,6 +1,15 @@
-import { CategoryTable } from "@/Otherfiles/category_int";
+import { DataTable } from "@/components/ui/admin/categoryTable";
+import { Categorycolumns, type Category } from "@/components/ui/admin/columns";
+import api from "@/lib/axios";
+import { cookies } from "next/headers";
+export const dynamic = "force-dynamic";
 
-export default function CategoryPage() {
+export default async function CategoryPage() {
+  const cookieHeader = (await cookies()).toString();
+  const response = await api.get<Category[]>("/admin/getAllCategories", {
+    headers: { Cookie: cookieHeader },
+  });
+  const data = response.data;
   return (
     <main className="min-h-screen w-full bg-muted/30 px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-400 space-y-6">
@@ -17,8 +26,7 @@ export default function CategoryPage() {
             </p>
           </div>
         </header>
-
-        <CategoryTable />
+        <DataTable columns={Categorycolumns} data={data} />
       </div>
     </main>
   );
