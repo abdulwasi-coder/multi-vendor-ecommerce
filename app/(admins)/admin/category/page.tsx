@@ -2,7 +2,7 @@ import { isAxiosError } from "axios";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { DataTable } from "@/components/ui/admin/categoryTable";
-import { Categorycolumns, type Category } from "@/components/ui/admin/columns";
+import type { Category } from "@/components/ui/admin/columns";
 import api from "@/lib/axios";
 
 export default async function CategoryPage() {
@@ -43,7 +43,7 @@ export default async function CategoryPage() {
             Could not load categories. Please reload the page to try again.
           </p>
         ) : (
-          <DataTable columns={Categorycolumns} data={data} />
+          <DataTable data={data} />
         )}
       </div>
     </main>

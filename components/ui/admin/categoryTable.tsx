@@ -18,12 +18,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import api from "@/lib/axios";
 import { toast } from "sonner";
-import { Category } from "@/components/ui/admin/columns";
+import { Categorycolumns, type Category } from "@/components/ui/admin/columns";
 import { features } from "@/components/ui/admin/data_table_feature";
 import type { DataTableFeatures } from "@/components/ui/admin/data_table_feature";
 
 interface DataTableProps {
-  columns: ColumnDef<DataTableFeatures, Category, any>[];
   data: Category[];
   onDataChange?: () => void;
 }
@@ -38,7 +37,7 @@ declare module "@tanstack/table-core" {
   }
 }
 
-export function DataTable({ columns, data, onDataChange }: DataTableProps) {
+export function DataTable({ data, onDataChange }: DataTableProps) {
   const [isPending, startTransition] = useTransition();
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -78,7 +77,7 @@ export function DataTable({ columns, data, onDataChange }: DataTableProps) {
 
   const table = useTable<DataTableFeatures, Category>({
     data,
-    columns,
+    columns: Categorycolumns as ColumnDef<DataTableFeatures, Category, any>[],
     features,
     meta: {
       onEdit: handleEdit,
@@ -115,7 +114,7 @@ export function DataTable({ columns, data, onDataChange }: DataTableProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center text-slate-400">
+              <TableCell colSpan={Categorycolumns.length} className="h-24 text-center text-slate-400">
                 No categories found.
               </TableCell>
             </TableRow>
