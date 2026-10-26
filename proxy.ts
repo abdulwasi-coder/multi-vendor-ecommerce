@@ -5,9 +5,9 @@ const ACCESS_TOKEN_COOKIE = "accesstoken";
 const REFRESH_TOKEN_COOKIE = "refreshtoken";
 
 type AccessTokenClaims = {
-  id:string,
-  vendorID?:string,
-  Role?: "admin" | "user" | "vendor";
+  id?: string;
+  vendorID?: string;
+  role?: unknown;
 };
 
 function getAccessTokenClaims(token: string) {
@@ -115,7 +115,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  const role = claims?.Role;
+  const role = claims?.role;
   if (typeof role !== "string" || role.toLowerCase() !== getRequiredRole(request.nextUrl.pathname)) {
     const unauthorizedResponse = redirectTo(request, "/unauthorized");
     for (const setCookie of refreshedCookies) {
