@@ -16,7 +16,7 @@ export const Categorycolumns = [
   columnHelper.accessor("Image", {
     header: "Image",
     cell: ({ row }) => {
-      const url = row.original.Image?.publicId;
+      const url = row.original.Image?.cloudinaryId;
       return url ? (
         <Image
           src={url}
