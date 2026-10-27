@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { isAxiosError } from "axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,17 +24,33 @@ import api from "@/lib/axios";
 
 type ParentCategoryOption = Pick<Category, "_id" | "name">;
 
+const categoryImageSchema = z
+  .custom<File>(
+    (value) => typeof File !== "undefined" && value instanceof File,
+    "Choose a category image.",
+  )
+  .refine((file) => file.type.startsWith("image/"), "Choose a valid image file.");
+
+const categoryCreateSchema = z.object({
+  name: z.string().trim().min(1, "Enter a category name.").max(100, "Category name must be 100 characters or fewer."),
+  parentCategory: z.string().min(1, "Choose a parent category from the matches."),
+  image: categoryImageSchema,
+});
+
+type CategoryCreateValues = z.infer<typeof categoryCreateSchema>;
+
 export function CategoryCreateButton() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const formRef = useRef<HTMLFormElement>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [parentCategory, setParentCategory] = useState("");
   const [parentSearch, setParentSearch] = useState("");
   const [debouncedParentSearch, setDebouncedParentSearch] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm<CategoryCreateValues>({
+    resolver: zodResolver(categoryCreateSchema),
+    defaultValues: { name: "", parentCategory: "", image: undefined },
+    mode: "onChange",
+  });
+  const parentCategory = useWatch({ control: form.control, name: "parentCategory" });
 
   useEffect(() => {
     const timeoutId = window.setTimeout(
@@ -68,18 +87,12 @@ export function CategoryCreateButton() {
       : "Could not search categories."
     : "";
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const cleanName = name.trim();
-    if (!cleanName || !parentCategory || !image) return;
-
+  async function handleSubmit(values: CategoryCreateValues) {
     const formData = new FormData();
-    formData.append("name", cleanName);
-    formData.append("parentCategory", parentCategory);
-    formData.append("image", image);
+    formData.append("name", values.name);
+    formData.append("parentCategory", values.parentCategory);
+    formData.append("image", values.image);
 
-    setIsSubmitting(true);
     try {
       const response = await api.post("/admin/createCategory", formData);
       if (response.data?.success === false) {
@@ -87,11 +100,8 @@ export function CategoryCreateButton() {
       }
 
       toast.success("Category created.");
-      setName("");
-      setParentCategory("");
+      form.reset();
       setParentSearch("");
-      setImage(null);
-      formRef.current?.reset();
       setIsOpen(false);
       await queryClient.invalidateQueries({
         queryKey: ["admin-categories", "parent-search"],
@@ -108,8 +118,6 @@ export function CategoryCreateButton() {
           ? message
           : "Could not create the category. Please try again.",
       );
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -126,22 +134,23 @@ export function CategoryCreateButton() {
             Add a marketplace category and choose an image for it.
           </DialogDescription>
         </DialogHeader>
-        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4" noValidate>
           <div className="space-y-2">
             <label htmlFor="category-name" className="text-sm font-medium">
               Category name
             </label>
             <Input
               id="category-name"
-              name="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
+              {...form.register("name")}
               placeholder="e.g. Home and living"
               autoComplete="off"
-              required
               maxLength={100}
-              disabled={isSubmitting}
+              disabled={form.formState.isSubmitting}
+              aria-invalid={Boolean(form.formState.errors.name)}
             />
+            {form.formState.errors.name && (
+              <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -156,15 +165,18 @@ export function CategoryCreateButton() {
                 aria-expanded={!parentCategory && parentOptions.length > 0}
                 aria-controls="category-parent-options"
                 aria-describedby="category-parent-help"
+                aria-invalid={Boolean(form.formState.errors.parentCategory)}
                 value={parentSearch}
                 onChange={(event) => {
                   setParentSearch(event.target.value);
-                  setParentCategory("");
+                  form.setValue("parentCategory", "", {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
                 }}
                 placeholder="Type at least 2 characters to search"
                 autoComplete="off"
-                required
-                disabled={isSubmitting}
+                disabled={form.formState.isSubmitting}
               />
               {!parentCategory && parentOptions.length > 0 && (
                 <ul
@@ -178,7 +190,10 @@ export function CategoryCreateButton() {
                         type="button"
                         className="w-full rounded-sm px-3 py-2 text-left text-sm hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
                         onClick={() => {
-                          setParentCategory(option._id);
+                          form.setValue("parentCategory", option._id, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
                           setParentSearch(option.name);
                         }}
                       >
@@ -189,6 +204,9 @@ export function CategoryCreateButton() {
                 </ul>
               )}
             </div>
+            {form.formState.errors.parentCategory && (
+              <p className="text-sm text-destructive">{form.formState.errors.parentCategory.message}</p>
+            )}
             <p id="category-parent-help" className="text-xs text-muted-foreground" role="status">
               {parentSearchError || (isDebouncingParentSearch || parentQuery.isFetching
                 ? "Searching categories..."
@@ -206,15 +224,26 @@ export function CategoryCreateButton() {
             <label htmlFor="category-image" className="text-sm font-medium">
               Category image
             </label>
-            <Input
-              id="category-image"
+            <Controller
+              control={form.control}
               name="image"
-              type="file"
-              accept="image/*"
-              onChange={(event) => setImage(event.target.files?.[0] ?? null)}
-              required
-              disabled={isSubmitting}
+              render={({ field }) => (
+                <Input
+                  id="category-image"
+                  name={field.name}
+                  ref={field.ref}
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => field.onChange(event.target.files?.[0])}
+                  onBlur={field.onBlur}
+                  disabled={form.formState.isSubmitting}
+                  aria-invalid={Boolean(form.formState.errors.image)}
+                />
+              )}
             />
+            {form.formState.errors.image && (
+              <p className="text-sm text-destructive">{form.formState.errors.image.message}</p>
+            )}
           </div>
 
           <DialogFooter>
@@ -222,12 +251,12 @@ export function CategoryCreateButton() {
               type="button"
               variant="outline"
               onClick={() => setIsOpen(false)}
-              disabled={isSubmitting}
+              disabled={form.formState.isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !name.trim() || !parentCategory || !image}>
-              {isSubmitting ? "Creating..." : "Create category"}
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Creating..." : "Create category"}
             </Button>
           </DialogFooter>
         </form>
