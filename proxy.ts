@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-// import type { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 // const ACCESS_TOKEN_COOKIE = "accesstoken";
 // const REFRESH_TOKEN_COOKIE = "refreshtoken";
@@ -132,6 +132,6 @@ import { NextResponse } from "next/server";
 // };
 
 
-export function proxy(request){
+export function proxy(request:NextRequest){
   return NextResponse.next()
 }
