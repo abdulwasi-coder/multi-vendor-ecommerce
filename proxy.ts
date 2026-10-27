@@ -24,11 +24,11 @@ function redirectTo(request: NextRequest, path: string) {
   return NextResponse.redirect(new URL(path, request.url));
 }
 
-// function getRequiredRole(pathname: string) {
-//   return pathname.startsWith("/admin/") || pathname === "/admin"
-//     ? "admin"
-//     : "vendor";
-// }
+function getRequiredRole(pathname: string) {
+  return pathname.startsWith("/admin/") || pathname === "/admin"
+    ? "admin"
+    : "vendor";
+}
 
 function getSetCookieValue(setCookieHeaders: string[], cookieName: string) {
   const prefix = `${cookieName}=`;
@@ -54,7 +54,10 @@ async function refreshAccessToken(request: NextRequest) {
   if (!refreshResponse.ok) return null;
 
   const setCookieHeaders = refreshResponse.headers.getSetCookie();
-  const accessToken = getSetCookieValue(setCookieHeaders, ACCESS_TOKEN_COOKIE);
+  const accessToken = getSetCookieValue(
+    setCookieHeaders,
+    ACCESS_TOKEN_COOKIE,
+  );
   if (!accessToken) return null;
 
   const cookies = new Map(
@@ -87,47 +90,6 @@ async function refreshAccessToken(request: NextRequest) {
   return { accessToken, response, setCookieHeaders };
 }
 
-// export async function proxy(request: NextRequest) {
-// const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
-// if (!refreshToken) {
-//   return redirectTo(request, "/login");
-// }
-
-// let accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
-// let claims = accessToken ? getAccessTokenClaims(accessToken) : null;
-// let response: NextResponse | null = null;
-// let refreshedCookies: string[] = [];
-
-//   if (!claims) {
-//     try {
-//       const refreshed = await refreshAccessToken(request);
-//       if (!refreshed) return redirectTo(request, "/login");
-
-//       accessToken = refreshed.accessToken;
-//       claims = getAccessTokenClaims(accessToken);
-//       response = refreshed.response;
-//       refreshedCookies = refreshed.setCookieHeaders;
-//     } catch {
-//       return redirectTo(request, "/login");
-//     }
-//   }
-
-//   const role = claims?.role;
-//   if (typeof role !== "string" || role.toLowerCase() !== getRequiredRole(request.nextUrl.pathname)) {
-//     const unauthorizedResponse = redirectTo(request, "/unauthorized");
-//     for (const setCookie of refreshedCookies) {
-//       unauthorizedResponse.headers.append("set-cookie", setCookie);
-//     }
-//     return unauthorizedResponse;
-//   }
-
-//   return response ?? NextResponse.next();
-// }
-
-// export const config = {
-//   matcher: ["/admin/:path*", "/vendor/:path*"],
-// };
-
 export async function proxy(request: NextRequest) {
   const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
   if (!refreshToken) {
@@ -138,6 +100,7 @@ export async function proxy(request: NextRequest) {
   let claims = accessToken ? getAccessTokenClaims(accessToken) : null;
   let response: NextResponse | null = null;
   let refreshedCookies: string[] = [];
+
   if (!claims) {
     try {
       const refreshed = await refreshAccessToken(request);
@@ -152,5 +115,18 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  const role = claims?.role;
+  if (typeof role !== "string" || role.toLowerCase() !== getRequiredRole(request.nextUrl.pathname)) {
+    const unauthorizedResponse = redirectTo(request, "/unauthorized");
+    for (const setCookie of refreshedCookies) {
+      unauthorizedResponse.headers.append("set-cookie", setCookie);
+    }
+    return unauthorizedResponse;
+  }
+
+  return response ?? NextResponse.next();
 }
+
+export const config = {
+  matcher: ["/admin/:path*", "/vendor/:path*"],
+};
