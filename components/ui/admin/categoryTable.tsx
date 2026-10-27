@@ -1,10 +1,20 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { flexRender, useTable } from "@tanstack/react-table";
 import type { ColumnDef, RowData, TableFeatures } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 import {
   AlertDialog,
@@ -18,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import api from "@/lib/axios";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 import { Categorycolumns, type Category } from "@/components/ui/admin/columns";
 import { features } from "@/components/ui/admin/data_table_feature";
 import type { DataTableFeatures } from "@/components/ui/admin/data_table_feature";
@@ -38,16 +49,21 @@ declare module "@tanstack/table-core" {
 }
 
 export function DataTable({ data, onDataChange }: DataTableProps) {
-  const [isPending, startTransition] = useTransition();
-  
+  const router = useRouter();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<Category | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editImage, setEditImage] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleEdit = (item: Category) => {
     setActiveItem(item);
+    setEditName(item.name);
+    setEditImage(null);
     setIsEditModalOpen(true);
   };
 
@@ -57,22 +73,69 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
   };
 
   const handleConfirmDelete = async () => {
-    if (!idToDelete) return;
+    if (!idToDelete || isDeleting) return;
 
-    startTransition(async () => {
-      try {
-        const response = await api.delete(`/deleteCategory/${idToDelete}`);
-        if (response.status === 200 || response.status === 204) {
-          onDataChange?.();
-          toast.success("Category deleted successfully.");
-        }
-      } catch (error: any) {
-        console.error("Express Deletion Error via Axios:", error);
-        toast.error(error.response?.data?.message || "Deletion failed on your Express server backend.");
-      } finally {
-        setIdToDelete(null); 
-      }
-    });
+    setIsDeleting(true);
+    try {
+      await api.delete(`/admin/deleteCategory/${idToDelete}`);
+      toast.success("Category deleted successfully.");
+      setIsDeleteAlertOpen(false);
+      onDataChange?.();
+      router.refresh();
+    } catch (error) {
+      const message = isAxiosError(error)
+        ? error.response?.data?.message
+        : error instanceof Error
+          ? error.message
+          : undefined;
+      toast.error(
+        typeof message === "string" && message.trim()
+          ? message
+          : "Could not delete the category. Please try again.",
+      );
+    } finally {
+      setIsDeleting(false);
+      setIdToDelete(null);
+    }
+  };
+
+  const handleUpdate = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!activeItem || !editName.trim() || isSaving) return;
+
+    const formData = new FormData();
+    formData.append("name", editName.trim());
+    const parentCategory = activeItem.parentCategory;
+    const parentCategoryId =
+      typeof parentCategory === "string"
+        ? parentCategory
+        : parentCategory?._id;
+    if (parentCategoryId) formData.append("ParentCategory", parentCategoryId);
+    if (editImage) formData.append("image", editImage);
+
+    setIsSaving(true);
+    try {
+      await api.put(`/admin/updateCategory/${activeItem._id}`, formData);
+      toast.success("Category updated successfully.");
+      setIsEditModalOpen(false);
+      setActiveItem(null);
+      setEditImage(null);
+      onDataChange?.();
+      router.refresh();
+    } catch (error) {
+      const message = isAxiosError(error)
+        ? error.response?.data?.message
+        : error instanceof Error
+          ? error.message
+          : undefined;
+      toast.error(
+        typeof message === "string" && message.trim()
+          ? message
+          : "Could not update the category. Please try again.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const table = useTable<DataTableFeatures, Category>({
@@ -86,13 +149,14 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
   });
 
   return (
-    <div className={`rounded-md border bg-white ${isPending ? "opacity-60 pointer-events-none" : ""}`}>
+    <div className="overflow-hidden rounded-lg border bg-background shadow-sm">
+      <div className="overflow-x-auto">
       <Table>
-        <TableHeader className="bg-slate-50">
+        <TableHeader className="bg-muted/50">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="font-semibold text-slate-600">
+                <TableHead key={header.id} className="h-11 whitespace-nowrap font-semibold text-muted-foreground">
                   {header.isPlaceholder
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())}
@@ -104,7 +168,7 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow key={row.id} className="transition-colors hover:bg-muted/30">
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="py-3">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -114,44 +178,95 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={Categorycolumns.length} className="h-24 text-center text-slate-400">
-                No categories found.
+              <TableCell colSpan={Categorycolumns.length} className="h-28 text-center text-muted-foreground">
+                No categories to display.
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
+      </div>
 
       <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Delete this category?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the category node from your MongoDB database and remove its active routing targets.
+              This action cannot be undone. Categories assigned to products or used as a parent cannot be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setIdToDelete(null)}>
-              Cancel
+              Keep category
             </AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {isDeleting ? "Deleting..." : "Delete category"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {isEditModalOpen && activeItem && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded border shadow-lg">
-            <h2 className="font-bold">Edit Layout: {activeItem.name}</h2>
-            <button className="mt-4 px-3 py-1 bg-slate-200 rounded" onClick={() => setIsEditModalOpen(false)}>Close</button>
-          </div>
-        </div>
-      )}
+      <Dialog
+        open={isEditModalOpen}
+        onOpenChange={(open) => {
+          setIsEditModalOpen(open);
+          if (!open) setActiveItem(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit category</DialogTitle>
+            <DialogDescription>
+              Update the category name or replace its image.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdate} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="edit-category-name" className="text-sm font-medium">
+                Category name
+              </label>
+              <Input
+                id="edit-category-name"
+                value={editName}
+                onChange={(event) => setEditName(event.target.value)}
+                maxLength={100}
+                required
+                disabled={isSaving}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="edit-category-image" className="text-sm font-medium">
+                Replace image <span className="text-muted-foreground">(optional)</span>
+              </label>
+              <Input
+                id="edit-category-image"
+                type="file"
+                accept="image/*"
+                onChange={(event) => setEditImage(event.target.files?.[0] ?? null)}
+                disabled={isSaving}
+              />
+              <p className="text-xs text-muted-foreground">Leave empty to keep the current image.</p>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditModalOpen(false)}
+                disabled={isSaving}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSaving || !editName.trim()}>
+                {isSaving ? "Saving..." : "Save changes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
