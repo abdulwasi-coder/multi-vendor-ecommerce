@@ -9,12 +9,11 @@ export interface Category {
   name: string;
   parentCategory?: { _id: string; name: string } | string | null;
   Image?: { cloudinaryId?: string; publicId?: string };
-  imageUrl?: string;
 }
 
 const columnHelper = createColumnHelper<DataTableFeatures, Category>();
 export const Categorycolumns = [
-  columnHelper.accessor("imageUrl", {
+  columnHelper.accessor("Image", {
     header: "Image",
     cell: ({ row }) => {
       const url = row.original.Image?.publicId;
