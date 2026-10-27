@@ -55,11 +55,11 @@ const categoryImageSchema = z
 
 const categoryUpdateSchema = z.object({
   name: z.string().trim().min(1, "Enter a category name.").max(100, "Category name must be 100 characters or fewer."),
-  parentCategory: z.string(),
-  parentSearch: z.string(),
+  parentCategory: z.string().optional(),
+  parentSearch: z.string().optional(),
   image: categoryImageSchema.nullable(),
 }).superRefine(({ parentCategory, parentSearch }, context) => {
-  if (parentSearch.trim() && !parentCategory) {
+  if (parentSearch?.trim() && !parentCategory) {
     context.addIssue({
       code: "custom",
       path: ["parentCategory"],
@@ -96,6 +96,7 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
     defaultValues: { name: "", parentCategory: "", parentSearch: "", image: null },
     mode: "onChange",
   });
+  const { handleSubmit } = editForm;
   const parentCategory = useWatch({
     control: editForm.control,
     name: "parentCategory",
@@ -192,12 +193,12 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
     }
   };
 
-  const handleUpdate = async (values: CategoryUpdateValues) => {
+  const onSubmit = async (values: CategoryUpdateValues) => {
     if (!activeItem) return;
 
     const formData = new FormData();
     formData.append("name", values.name);
-    formData.append("ParentCategory", values.parentCategory);
+    formData.append("ParentCategory", values.parentCategory ?? "");
     if (values.image) formData.append("image", values.image);
 
     try {
@@ -327,7 +328,7 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
             </DialogDescription>
           </DialogHeader>
           <form
-            onSubmit={editForm.handleSubmit(handleUpdate)}
+            onSubmit={handleSubmit(onSubmit)}
             className="space-y-4"
             noValidate
           >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { isAxiosError } from "axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
@@ -31,26 +31,25 @@ const categoryImageSchema = z
   )
   .refine((file) => file.type.startsWith("image/"), "Choose a valid image file.");
 
-const categoryCreateSchema = z.object({
-  name: z.string().trim().min(1, "Enter a category name.").max(100, "Category name must be 100 characters or fewer."),
-  parentCategory: z.string().min(1, "Choose a parent category from the matches."),
-  image: categoryImageSchema,
-});
+function createCategorySchema(availableParentIds: ReadonlySet<string>) {
+  return z.object({
+    name: z.string().trim().min(1, "Enter a category name.").max(100, "Category name must be 100 characters or fewer."),
+    parentCategory: z.string().refine(
+      (id) => !id || availableParentIds.has(id),
+      "Choose a parent category from the available matches.",
+    ),
+    image: categoryImageSchema,
+  });
+}
 
-type CategoryCreateValues = z.infer<typeof categoryCreateSchema>;
+type CategoryCreateValues = z.infer<ReturnType<typeof createCategorySchema>>;
 
 export function CategoryCreateButton() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [parentSearch, setParentSearch] = useState("");
   const [debouncedParentSearch, setDebouncedParentSearch] = useState("");
-  const form = useForm<CategoryCreateValues>({
-    resolver: zodResolver(categoryCreateSchema),
-    defaultValues: { name: "", parentCategory: "", image: undefined },
-    mode: "onChange",
-  });
-  const parentCategory = useWatch({ control: form.control, name: "parentCategory" });
+  const [parentSearch, setParentSearch] = useState("");
 
   useEffect(() => {
     const timeoutId = window.setTimeout(
@@ -69,14 +68,23 @@ export function CategoryCreateButton() {
       );
       return response.data.categories ?? [];
     },
-    enabled:
-      isOpen && !parentCategory && debouncedParentSearch.length >= 2,
+    enabled: isOpen && debouncedParentSearch.length >= 2,
     staleTime: 60_000,
   });
   const parentOptions =
     parentSearch.trim() === debouncedParentSearch
       ? parentQuery.data ?? []
       : [];
+  const categorySchema = useMemo(
+    () => createCategorySchema(new Set(parentOptions.map((option) => option._id))),
+    [parentOptions],
+  );
+  const form = useForm<CategoryCreateValues>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: { name: "", parentCategory: "", image: undefined },
+    mode: "onChange",
+  });
+  const parentCategory = useWatch({ control: form.control, name: "parentCategory" });
   const isDebouncingParentSearch =
     parentSearch.trim().length >= 2 &&
     parentSearch.trim() !== debouncedParentSearch;
@@ -90,7 +98,9 @@ export function CategoryCreateButton() {
   async function handleSubmit(values: CategoryCreateValues) {
     const formData = new FormData();
     formData.append("name", values.name);
-    formData.append("parentCategory", values.parentCategory);
+    if (values.parentCategory) {
+      formData.append("parentCategory", values.parentCategory);
+    }
     formData.append("image", values.image);
 
     try {
@@ -213,7 +223,7 @@ export function CategoryCreateButton() {
                 : parentCategory
                   ? "Parent category selected."
                   : parentSearch.trim().length < 2
-                    ? "Enter at least 2 characters to search."
+                    ? "Optional. Choose a parent category, or leave empty."
                     : parentOptions.length === 0
                       ? "No matching categories found."
                       : "Choose a category from the matches.")}
