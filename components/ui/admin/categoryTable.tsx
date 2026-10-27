@@ -147,7 +147,6 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
       onDelete: handleDeleteTrigger,
     },
   });
-
   return (
     <div className="overflow-hidden rounded-lg border bg-background shadow-sm">
       <div className="overflow-x-auto">
