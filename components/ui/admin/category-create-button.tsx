@@ -34,7 +34,7 @@ const categoryImageSchema = z
 function createCategorySchema(availableParentIds: ReadonlySet<string>) {
   return z.object({
     name: z.string().trim().min(1, "Enter a category name.").max(100, "Category name must be 100 characters or fewer."),
-    parentCategory: z.string().refine(
+    parentCategory: z.string().optional().refine(
       (id) => !id || availableParentIds.has(id),
       "Choose a parent category from the available matches.",
     ),
@@ -81,8 +81,9 @@ export function CategoryCreateButton() {
   );
   const form = useForm<CategoryCreateValues>({
     resolver: zodResolver(categorySchema),
-    defaultValues: { name: "", parentCategory: "", image: undefined },
-    mode: "onChange",
+    defaultValues: { name: "", parentCategory: undefined, image: undefined },
+    mode: "onSubmit",
+    reValidateMode: "onChange",
   });
   const parentCategory = useWatch({ control: form.control, name: "parentCategory" });
   const isDebouncingParentSearch =
