@@ -10,6 +10,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const FormValidator = z
   .object({
@@ -39,6 +41,8 @@ type SignupFormValues = z.infer<typeof FormValidator>;
 
 export default function CustomerSignupPage() {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -156,19 +160,34 @@ export default function CustomerSignupPage() {
             >
               Password
             </label>
-            <Input
-              id="signup-password"
-              type="password"
-              autoComplete="new-password"
-              aria-invalid={!!errors.password}
-              aria-describedby={
-                errors.password
-                  ? "signup-password-error"
-                  : "signup-password-hint"
-              }
-              {...register("password")}
-              className="h-11 rounded-md border-[#888c8c] focus-visible:border-[#e77600] focus-visible:ring-2 focus-visible:ring-[#e77600]/35"
-            />
+            <div className="relative">
+              <Input
+                id="signup-password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                aria-invalid={!!errors.password}
+                aria-describedby={
+                  errors.password
+                    ? "signup-password-error"
+                    : "signup-password-hint"
+                }
+                {...register("password")}
+                className="h-11 rounded-md border-[#888c8c] pr-11 focus-visible:border-[#e77600] focus-visible:ring-2 focus-visible:ring-[#e77600]/35"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e77600]"
+              >
+                {showPassword ? (
+                  <EyeOff aria-hidden="true" size={18} />
+                ) : (
+                  <Eye aria-hidden="true" size={18} />
+                )}
+              </button>
+            </div>
             <p className="mt-1 text-xs text-[#565959]">
               Passwords must be at least 8 characters.
             </p>
@@ -189,19 +208,36 @@ export default function CustomerSignupPage() {
             >
               Re-enter password
             </label>
-            <Input
-              id="signup-confirm-password"
-              type="password"
-              autoComplete="new-password"
-              aria-invalid={!!errors.confirmPassword}
-              aria-describedby={
-                errors.confirmPassword
-                  ? "signup-confirm-password-error"
-                  : undefined
-              }
-              {...register("confirmPassword")}
-              className="h-11 rounded-md border-[#888c8c] focus-visible:border-[#e77600] focus-visible:ring-2 focus-visible:ring-[#e77600]/35"
-            />
+            <div className="relative">
+              <Input
+                id="signup-confirm-password"
+                type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={
+                  errors.confirmPassword
+                    ? "signup-confirm-password-error"
+                    : undefined
+                }
+                {...register("confirmPassword")}
+                className="h-11 rounded-md border-[#888c8c] pr-11 focus-visible:border-[#e77600] focus-visible:ring-2 focus-visible:ring-[#e77600]/35"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((visible) => !visible)}
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
+                aria-pressed={showConfirmPassword}
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e77600]"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff aria-hidden="true" size={18} />
+                ) : (
+                  <Eye aria-hidden="true" size={18} />
+                )}
+              </button>
+            </div>
             {errors.confirmPassword && (
               <p
                 id="signup-confirm-password-error"

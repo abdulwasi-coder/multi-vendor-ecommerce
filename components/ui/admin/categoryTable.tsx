@@ -29,6 +29,7 @@ import api from "@/lib/axios";
 import { toast } from "sonner";
 import { Categorycolumns, type Category } from "@/components/ui/admin/columns";
 import { CategoryEditDialog } from "@/components/ui/admin/category-edit-dialog";
+import { CategoryViewDialog } from "@/components/ui/admin/category-view-dialog";
 import { features } from "@/components/ui/admin/data_table_feature";
 import type { DataTableFeatures } from "@/components/ui/admin/data_table_feature";
 import { useCategoryNameSearch } from "@/hooks/use-category-name-search";
@@ -43,6 +44,7 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
   const queryClient = useQueryClient();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<Category | null>(null);
+  const [viewItem, setViewItem] = useState<Category | null>(null);
   const [categorySearch, setCategorySearch] = useState("");
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState<string | null>(null);
@@ -105,6 +107,7 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
     features,
     meta: {
       onEdit: handleEdit,
+      onView: setViewItem,
       onDelete: handleDeleteTrigger,
     },
   });
@@ -231,6 +234,13 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
           if (!open) setActiveItem(null);
         }}
         onSaved={handleEditSaved}
+      />
+      <CategoryViewDialog
+        category={viewItem}
+        open={Boolean(viewItem)}
+        onOpenChange={(open) => {
+          if (!open) setViewItem(null);
+        }}
       />
     </div>
   );

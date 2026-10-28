@@ -1,5 +1,4 @@
-import { Pencil, Trash2 } from "lucide-react";
-import Image from "next/image";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import type { ColumnDef, RowData, TableFeatures } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import type { DataTableFeatures } from "./data_table_feature";
@@ -9,11 +8,14 @@ export interface Category {
   name: string;
   parentCategory?: { _id: string; name: string } | string | null;
   Image?: { cloudinaryId?: string; publicId?: string };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 declare module "@tanstack/table-core" {
   interface TableMeta<TFeatures extends TableFeatures, TData extends RowData> {
     onEdit?: (category: TData) => void;
+    onView?: (category: TData) => void;
     onDelete?: (id: string) => void;
   }
 }
@@ -23,14 +25,18 @@ export const Categorycolumns: ColumnDef<DataTableFeatures, Category>[] = [
     accessorKey: "Image",
     header: "Image",
     cell: ({ row }) => {
-      const url = row.original.Image?.publicId;
+      // Older category records have used these two fields inconsistently.
+      // Only pass an actual URL to the browser; a Cloudinary public ID is not
+      // itself a renderable image source.
+      const image = row.original.Image;
+      const url = [image?.publicId, image?.cloudinaryId].find(
+        (value) => typeof value === "string" && /^https?:\/\//i.test(value),
+      );
       return url ? (
-        <Image
+        <img
           src={url}
-          alt="Category visual asset"
-          width={200}
-          height={200}
-          unoptimized
+          alt={`${row.original.name} category`}
+          loading="lazy"
           className="h-10 w-10 rounded object-cover border border-gray-200"
         />
       ) : (
@@ -68,6 +74,17 @@ export const Categorycolumns: ColumnDef<DataTableFeatures, Category>[] = [
 
       return (
         <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => meta?.onView?.(categoryItem)}
+            className="text-foreground"
+            aria-label={`View ${categoryItem.name}`}
+            title={`View ${categoryItem.name}`}
+          >
+            <Eye aria-hidden="true" />
+          </Button>
           <Button
             type="button"
             variant="ghost"
