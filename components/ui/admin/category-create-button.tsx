@@ -25,11 +25,11 @@ import api from "@/lib/axios";
 type ParentCategoryOption = Pick<Category, "_id" | "name">;
 
 const categoryImageSchema = z
-  .custom<File>(
-    (value) => typeof File !== "undefined" && value instanceof File,
-    "Choose a category image.",
+  .custom<File | undefined>(
+    (value) => value === undefined || (typeof File !== "undefined" && value instanceof File),
+    "Choose a valid image file.",
   )
-  .refine((file) => file.type.startsWith("image/"), "Choose a valid image file.");
+  .refine((file) => !file || file.type.startsWith("image/"), "Choose a valid image file.");
 
 function createCategorySchema(availableParentIds: ReadonlySet<string>) {
   return z.object({
@@ -38,7 +38,7 @@ function createCategorySchema(availableParentIds: ReadonlySet<string>) {
       (id) => !id || availableParentIds.has(id),
       "Choose a parent category from the available matches.",
     ),
-    image: categoryImageSchema,
+    image: categoryImageSchema.optional(),
   });
 }
 
@@ -102,7 +102,9 @@ export function CategoryCreateButton() {
     if (values.parentCategory) {
       formData.append("parentCategory", values.parentCategory);
     }
-    formData.append("image", values.image);
+    if (values.image instanceof File) {
+      formData.append("image", values.image);
+    }
 
     try {
       const response = await api.post("/admin/createCategory", formData);
