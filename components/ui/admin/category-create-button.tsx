@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { isAxiosError } from "axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -19,10 +19,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { Category } from "@/components/ui/admin/columns";
+import { useCategoryNameSearch } from "@/hooks/use-category-name-search";
 import api from "@/lib/axios";
-
-type ParentCategoryOption = Pick<Category, "_id" | "name">;
 
 const categoryImageSchema = z
   .custom<File | undefined>(
@@ -48,33 +46,9 @@ export function CategoryCreateButton() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [debouncedParentSearch, setDebouncedParentSearch] = useState("");
   const [parentSearch, setParentSearch] = useState("");
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(
-      () => setDebouncedParentSearch(parentSearch.trim()),
-      300,
-    );
-    return () => window.clearTimeout(timeoutId);
-  }, [parentSearch]);
-
-  const parentQuery = useQuery({
-    queryKey: ["admin-categories", "parent-search", debouncedParentSearch],
-    queryFn: async ({ signal }) => {
-      const response = await api.get<{ categories: ParentCategoryOption[] }>(
-        "/admin/specificCategoryName",
-        { params: { name: debouncedParentSearch }, signal },
-      );
-      return response.data.categories ?? [];
-    },
-    enabled: isOpen && debouncedParentSearch.length >= 2,
-    staleTime: 60_000,
-  });
-  const parentOptions =
-    parentSearch.trim() === debouncedParentSearch
-      ? parentQuery.data ?? []
-      : [];
+  const parentQuery = useCategoryNameSearch(parentSearch, isOpen);
+  const parentOptions = parentQuery.categories;
   const categorySchema = useMemo(
     () => createCategorySchema(new Set(parentOptions.map((option) => option._id))),
     [parentOptions],
@@ -86,15 +60,11 @@ export function CategoryCreateButton() {
     reValidateMode: "onChange",
   });
   const parentCategory = useWatch({ control: form.control, name: "parentCategory" });
-  const isDebouncingParentSearch =
-    parentSearch.trim().length >= 2 &&
-    parentSearch.trim() !== debouncedParentSearch;
+  const selectedParentName = parentOptions.find(
+    (option) => option._id === parentCategory,
+  )?.name;
   const parentSearchError =
-    !parentCategory && parentSearch.trim() === debouncedParentSearch && parentQuery.error
-    ? isAxiosError(parentQuery.error)
-      ? parentQuery.error.response?.data?.message ?? "Could not search categories."
-      : "Could not search categories."
-    : "";
+    !parentCategory ? parentQuery.errorMessage : "";
 
   async function handleSubmit(values: CategoryCreateValues) {
     const formData = new FormData();
@@ -117,7 +87,7 @@ export function CategoryCreateButton() {
       setParentSearch("");
       setIsOpen(false);
       await queryClient.invalidateQueries({
-        queryKey: ["admin-categories", "parent-search"],
+        queryKey: ["admin-categories", "name-search"],
       });
       router.refresh();
     } catch (error) {
@@ -179,7 +149,7 @@ export function CategoryCreateButton() {
                 aria-controls="category-parent-options"
                 aria-describedby="category-parent-help"
                 aria-invalid={Boolean(form.formState.errors.parentCategory)}
-                value={parentSearch}
+                value={parentCategory ? selectedParentName ?? parentSearch : parentSearch}
                 onChange={(event) => {
                   setParentSearch(event.target.value);
                   form.setValue("parentCategory", "", {
@@ -207,7 +177,6 @@ export function CategoryCreateButton() {
                             shouldDirty: true,
                             shouldValidate: true,
                           });
-                          setParentSearch(option.name);
                         }}
                       >
                         {option.name}
@@ -221,15 +190,16 @@ export function CategoryCreateButton() {
               <p className="text-sm text-destructive">{form.formState.errors.parentCategory.message}</p>
             )}
             <p id="category-parent-help" className="text-xs text-muted-foreground" role="status">
-              {parentSearchError || (isDebouncingParentSearch || parentQuery.isFetching
-                ? "Searching categories..."
-                : parentCategory
-                  ? "Parent category selected."
-                  : parentSearch.trim().length < 2
-                    ? "Optional. Choose a parent category, or leave empty."
-                    : parentOptions.length === 0
-                      ? "No matching categories found."
-                      : "Choose a category from the matches.")}
+              {parentSearchError ||
+                (parentQuery.isSearching
+                  ? "Searching categories..."
+                  : parentCategory
+                    ? "Parent category selected."
+                    : parentSearch.trim().length < 2
+                      ? "Optional. Choose a parent category, or leave empty."
+                      : parentOptions.length === 0
+                        ? "No matching categories found."
+                        : "Choose a category from the matches.")}
             </p>
           </div>
 

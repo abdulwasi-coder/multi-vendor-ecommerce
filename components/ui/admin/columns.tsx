@@ -1,8 +1,8 @@
 import { Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { createColumnHelper } from "@tanstack/react-table";
+import type { ColumnDef, RowData, TableFeatures } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { DataTableFeatures } from "./data_table_feature";
+import type { DataTableFeatures } from "./data_table_feature";
 
 export interface Category {
   _id: string;
@@ -11,9 +11,16 @@ export interface Category {
   Image?: { cloudinaryId?: string; publicId?: string };
 }
 
-const columnHelper = createColumnHelper<DataTableFeatures, Category>();
-export const Categorycolumns = [
-  columnHelper.accessor("Image", {
+declare module "@tanstack/table-core" {
+  interface TableMeta<TFeatures extends TableFeatures, TData extends RowData> {
+    onEdit?: (category: TData) => void;
+    onDelete?: (id: string) => void;
+  }
+}
+
+export const Categorycolumns: ColumnDef<DataTableFeatures, Category>[] = [
+  {
+    accessorKey: "Image",
     header: "Image",
     cell: ({ row }) => {
       const url = row.original.Image?.cloudinaryId;
@@ -32,16 +39,18 @@ export const Categorycolumns = [
         </div>
       );
     },
-  }),
-  columnHelper.accessor("name", {
+  },
+  {
+    accessorKey: "name",
     header: "Category Name",
     cell: ({ row }) => (
       <span className="font-semibold text-gray-900">
         {row.getValue("name")}
       </span>
     ),
-  }),
-  columnHelper.accessor("parentCategory", {
+  },
+  {
+    accessorKey: "parentCategory",
     header: "Parent Category",
     cell: ({ row }) => {
       const parent = row.original.parentCategory;
@@ -49,18 +58,13 @@ export const Categorycolumns = [
         typeof parent === "object" && parent !== null ? parent.name : undefined;
       return parentName || <span className="text-muted-foreground">None</span>;
     },
-  }),
-  columnHelper.display({
+  },
+  {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
       const categoryItem = row.original;
-      const meta = row.table.options.meta as
-        | {
-            onEdit?: (category: Category) => void;
-            onDelete?: (id: string) => void;
-          }
-        | undefined;
+      const meta = row.table.options.meta;
 
       return (
         <div className="flex items-center gap-3">
@@ -89,5 +93,5 @@ export const Categorycolumns = [
         </div>
       );
     },
-  }),
+  },
 ];
