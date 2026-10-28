@@ -90,6 +90,9 @@ export function CategoryCreateButton() {
       await queryClient.invalidateQueries({
         queryKey: ["admin-categories", "name-search"],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-categories", "page"],
+      });
       router.refresh();
     } catch (error) {
       const message = isAxiosError(error)

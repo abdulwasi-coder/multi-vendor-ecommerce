@@ -6,14 +6,26 @@ import api from "@/lib/axios";
 
 export default async function CategoryPage() {
   let data: Category[] = [];
+  let currentPage = 1;
+  let totalPages = 1;
+  let totalCategories = 0;
   let hasError = false;
 
   try {
     const cookieHeader = (await cookies()).toString();
-    const response = await api.get<{ categories: Category[] }>("/admin/getAllCategories", {
+    const response = await api.get<{
+      categories: Category[];
+      currentPage: number;
+      totalPages: number;
+      totalCategories: number;
+    }>("/admin/getAllCategories", {
       headers: { Cookie: cookieHeader },
+      params: { page: currentPage, limit: 10 },
     });
     data = response.data.categories;
+    currentPage = response.data.currentPage;
+    totalPages = response.data.totalPages;
+    totalCategories = response.data.totalCategories;
   } catch (error) {
     hasError = true;
   }
@@ -40,7 +52,12 @@ export default async function CategoryPage() {
             Could not load categories. Please reload the page to try again.
           </p>
         ) : (
-          <DataTable data={data} />
+          <DataTable
+            data={data}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCategories={totalCategories}
+          />
         )}
       </div>
     </main>

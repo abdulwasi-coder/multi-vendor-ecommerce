@@ -3,8 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { flexRender, useTable } from "@tanstack/react-table";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import { useQueryClient } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,12 +41,25 @@ import { useCategoryNameSearch } from "@/hooks/use-category-name-search";
 
 interface DataTableProps {
   data: Category[];
+  currentPage: number;
+  totalPages: number;
+  totalCategories: number;
   onDataChange?: () => void;
 }
 
-export function DataTable({ data, onDataChange }: DataTableProps) {
+const CATEGORY_PAGE_SIZE = 10;
+
+export function DataTable({
+  data: initialData,
+  currentPage: initialPage,
+  totalPages: initialTotalPages,
+  totalCategories: initialTotalCategories,
+  onDataChange,
+}: DataTableProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [pageIndex, setPageIndex] = useState(initialPage - 1);
+  const [searchPageIndex, setSearchPageIndex] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<Category | null>(null);
   const [viewItem, setViewItem] = useState<Category | null>(null);
@@ -50,17 +68,58 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
   const [idToDelete, setIdToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const searchQuery = useCategoryNameSearch(categorySearch);
+  const pageQuery = useQuery({
+    queryKey: ["admin-categories", "page", pageIndex + 1],
+    enabled: !searchQuery.isActive,
+    queryFn: async ({ signal }) => {
+      const response = await api.get<{
+        categories: Category[];
+        currentPage: number;
+        totalPages: number;
+        totalCategories: number;
+      }>("/admin/getAllCategories", {
+        params: { page: pageIndex + 1, limit: CATEGORY_PAGE_SIZE },
+        signal,
+      });
+      return response.data;
+    },
+    initialData:
+      pageIndex === initialPage - 1
+        ? {
+            categories: initialData,
+            currentPage: initialPage,
+            totalPages: initialTotalPages,
+            totalCategories: initialTotalCategories,
+          }
+        : undefined,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  });
 
   const handleEdit = (item: Category) => {
     setActiveItem(item);
     setIsEditModalOpen(true);
   };
 
-  const categoriesToDisplay = searchQuery.isActive ? searchQuery.categories : data;
+  const categoriesToDisplay = searchQuery.isActive
+    ? searchQuery.categories
+    : pageQuery.data?.categories ?? initialData;
+  const pageCount = searchQuery.isActive
+    ? Math.max(1, Math.ceil(categoriesToDisplay.length / CATEGORY_PAGE_SIZE))
+    : Math.max(1, pageQuery.data?.totalPages ?? initialTotalPages);
+  const totalRows = searchQuery.isActive
+    ? categoriesToDisplay.length
+    : pageQuery.data?.totalCategories ?? initialTotalCategories;
+  const activePageIndex = searchQuery.isActive
+    ? Math.min(searchPageIndex, Math.max(0, pageCount - 1))
+    : Math.min(pageIndex, Math.max(0, pageCount - 1));
 
   const handleEditSaved = async () => {
     await queryClient.invalidateQueries({
       queryKey: ["admin-categories", "name-search"],
+    });
+    await queryClient.invalidateQueries({
+      queryKey: ["admin-categories", "page"],
     });
     onDataChange?.();
     router.refresh();
@@ -81,6 +140,9 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
       setIsDeleteAlertOpen(false);
       await queryClient.invalidateQueries({
         queryKey: ["admin-categories", "name-search"],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-categories", "page"],
       });
       onDataChange?.();
       router.refresh();
@@ -105,6 +167,21 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
     data: categoriesToDisplay,
     columns: Categorycolumns,
     features,
+    state: {
+      pagination: { pageIndex: activePageIndex, pageSize: CATEGORY_PAGE_SIZE },
+    },
+    onPaginationChange: (updater) => {
+      const setActivePageIndex = searchQuery.isActive
+        ? setSearchPageIndex
+        : setPageIndex;
+      const next =
+        typeof updater === "function"
+          ? updater({ pageIndex: activePageIndex, pageSize: CATEGORY_PAGE_SIZE })
+          : updater;
+      setActivePageIndex(next.pageIndex);
+    },
+    manualPagination: !searchQuery.isActive,
+    pageCount: searchQuery.isActive ? undefined : pageCount,
     meta: {
       onEdit: handleEdit,
       onView: setViewItem,
@@ -200,6 +277,44 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex flex-col gap-3 border-t px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          {totalRows === 0
+            ? "No categories to show"
+            : `Showing ${activePageIndex * CATEGORY_PAGE_SIZE + 1}–${Math.min(
+                (activePageIndex + 1) * CATEGORY_PAGE_SIZE,
+                totalRows,
+              )} of ${totalRows} categories`}
+        </p>
+        <div className="flex items-center gap-3 self-end sm:self-auto">
+          <span>
+            Page {Math.min(activePageIndex + 1, pageCount)} of {pageCount}
+          </span>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage() || pageQuery.isFetching}
+            aria-label="Previous page"
+          >
+            <ChevronLeft aria-hidden="true" />
+            Previous
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage() || pageQuery.isFetching}
+            aria-label="Next page"
+          >
+            Next
+            <ChevronRight aria-hidden="true" />
+          </Button>
+        </div>
       </div>
 
       <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
