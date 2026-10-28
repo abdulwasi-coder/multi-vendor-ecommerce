@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { useCategoryNameSearch } from "@/hooks/use-category-name-search";
 import api from "@/lib/axios";
+import { withUniqueUploadName } from "@/lib/unique-upload-file";
 
 const categoryImageSchema = z
   .custom<File | undefined>(
@@ -73,7 +74,7 @@ export function CategoryCreateButton() {
       formData.append("parentCategory", values.parentCategory);
     }
     if (values.image instanceof File) {
-      formData.append("image", values.image);
+      formData.append("image", withUniqueUploadName(values.image));
     }
 
     try {

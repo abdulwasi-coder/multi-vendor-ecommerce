@@ -18,6 +18,7 @@ import {
 import type { Category } from "@/components/ui/admin/columns";
 import { useCategoryNameSearch } from "@/hooks/use-category-name-search";
 import api from "@/lib/axios";
+import { withUniqueUploadName } from "@/lib/unique-upload-file";
 import { toast } from "sonner";
 
 const categoryImageSchema = z
@@ -106,7 +107,7 @@ export function CategoryEditDialog({
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("ParentCategory", values.parentCategory ?? "");
-    if (values.image) formData.append("image", values.image);
+    if (values.image) formData.append("image", withUniqueUploadName(values.image));
 
     try {
       await api.put(`/admin/updateCategory/${category._id}`, formData);
