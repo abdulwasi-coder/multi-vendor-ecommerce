@@ -23,7 +23,7 @@ export const Categorycolumns: ColumnDef<DataTableFeatures, Category>[] = [
     accessorKey: "Image",
     header: "Image",
     cell: ({ row }) => {
-      const url = row.original.Image?.cloudinaryId;
+      const url = row.original.Image?.publicId;
       return url ? (
         <Image
           src={url}
