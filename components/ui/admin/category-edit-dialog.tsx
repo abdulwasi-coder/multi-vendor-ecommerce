@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Category } from "@/components/ui/admin/columns";
-import { useCategoryNameSearch } from "@/hooks/use-category-name-search";
+import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin";
 import api from "@/lib/axios";
 import { withUniqueUploadName } from "@/lib/unique-upload-file";
 import { toast } from "sonner";

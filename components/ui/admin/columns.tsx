@@ -49,6 +49,7 @@ export const Categorycolumns: ColumnDef<DataTableFeatures, Category>[] = [
   {
     accessorKey: "name",
     header: "Category Name",
+    filterFn: "includesString",
     cell: ({ row }) => (
       <span className="font-semibold text-gray-900">
         {row.getValue("name")}

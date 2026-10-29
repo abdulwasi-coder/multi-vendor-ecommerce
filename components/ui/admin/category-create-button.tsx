@@ -19,7 +19,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCategoryNameSearch } from "@/hooks/use-category-name-search";
+import {
+  invalidateAdminCategoryQueries,
+  useCategoryNameSearch,
+} from "@/Otherfiles/tanstack/admin";
 import api from "@/lib/axios";
 import { withUniqueUploadName } from "@/lib/unique-upload-file";
 
@@ -87,12 +90,7 @@ export function CategoryCreateButton() {
       form.reset();
       setParentSearch("");
       setIsOpen(false);
-      await queryClient.invalidateQueries({
-        queryKey: ["admin-categories", "name-search"],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ["admin-categories", "page"],
-      });
+      await invalidateAdminCategoryQueries(queryClient);
       router.refresh();
     } catch (error) {
       const message = isAxiosError(error)
