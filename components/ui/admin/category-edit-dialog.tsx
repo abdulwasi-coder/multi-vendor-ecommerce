@@ -106,7 +106,7 @@ export function CategoryEditDialog({
 
     const formData = new FormData();
     formData.append("name", values.name);
-    formData.append("ParentCategory", values.parentCategory ?? "");
+    formData.append("parentCategory", values.parentCategory ?? "");
     if (values.image) formData.append("image", withUniqueUploadName(values.image));
 
     try {
