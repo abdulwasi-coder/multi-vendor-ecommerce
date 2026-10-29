@@ -26,26 +26,32 @@ export interface CategoryPageData {
 
 export const adminCategoryQueryKeys = {
   pages: ["admin-categories", "page"] as const,
-  page: (page: number) => ["admin-categories", "page", page] as const,
+  page: (page: number, limit: number) =>
+    ["admin-categories", "page", page, limit] as const,
   nameSearch: ["admin-categories", "name-search"] as const,
   name: (name: string) => ["admin-categories", "name-search", name] as const,
 };
 
 async function fetchCategoryPage(
   page: number,
+  limit: number,
   signal?: AbortSignal,
 ): Promise<CategoryPageData> {
   const response = await api.get<CategoryPageData>("/admin/getAllCategories", {
-    params: { page, limit: CATEGORY_PAGE_SIZE },
+    params: { page, limit },
     signal,
   });
   return response.data;
 }
 
-export function useAdminCategoryPage(page: number, enabled = true) {
+export function useAdminCategoryPage(
+  page: number,
+  limit: number,
+  enabled = true,
+) {
   return useQuery({
-    queryKey: adminCategoryQueryKeys.page(page),
-    queryFn: ({ signal }) => fetchCategoryPage(page, signal),
+    queryKey: adminCategoryQueryKeys.page(page, limit),
+    queryFn: ({ signal }) => fetchCategoryPage(page, limit, signal),
     enabled,
     staleTime: CATEGORY_PAGE_STALE_TIME,
     gcTime: CATEGORY_PAGE_GC_TIME,
@@ -56,10 +62,11 @@ export function useAdminCategoryPage(page: number, enabled = true) {
 export function prefetchAdminCategoryPage(
   queryClient: QueryClient,
   page: number,
+  limit: number,
 ) {
   return queryClient.prefetchQuery({
-    queryKey: adminCategoryQueryKeys.page(page),
-    queryFn: ({ signal }) => fetchCategoryPage(page, signal),
+    queryKey: adminCategoryQueryKeys.page(page, limit),
+    queryFn: ({ signal }) => fetchCategoryPage(page, limit, signal),
     staleTime: CATEGORY_PAGE_STALE_TIME,
     gcTime: CATEGORY_PAGE_GC_TIME,
   });

@@ -79,17 +79,6 @@ export const Categorycolumns: ColumnDef<DataTableFeatures, Category>[] = [
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => meta?.onView?.(categoryItem)}
-            className="text-foreground"
-            aria-label={`View ${categoryItem.name}`}
-            title={`View ${categoryItem.name}`}
-          >
-            <Eye aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
             onClick={() => meta?.onEdit?.(categoryItem)}
             className="text-foreground"
             aria-label={`Edit ${categoryItem.name}`}

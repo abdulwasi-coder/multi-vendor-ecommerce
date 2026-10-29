@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +38,9 @@ import { Categorycolumns, type Category } from "@/components/ui/admin/columns";
 import { CategoryEditDialog } from "@/components/ui/admin/category-edit-dialog";
 import { features } from "@/components/ui/admin/data_table_feature";
 import type { DataTableFeatures } from "@/components/ui/admin/data_table_feature";
+import { RotateCcw } from "lucide-react";
 import {
+  adminCategoryQueryKeys,
   CATEGORY_PAGE_SIZE,
   invalidateAdminCategoryQueries,
   prefetchAdminCategoryPage,
@@ -55,24 +58,26 @@ export function DataTable({ onDataChange }: DataTableProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(CATEGORY_PAGE_SIZE);
   const [searchPageIndex, setSearchPageIndex] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<Category | null>(null);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState<string | null>(null);
+  const [categorySearch, setCategorySearch] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  const categorySearch = String(
-    columnFilters.find((filter) => filter.id === "name")?.value ?? "",
-  );
   const searchQuery = useCategoryNameSearch(categorySearch, true, 3);
-  const pageQuery = useAdminCategoryPage(pageIndex + 1, !searchQuery.isActive);
+  const pageQuery = useAdminCategoryPage(
+    pageIndex + 1,
+    pageSize,
+    !searchQuery.isActive,
+  );
   const categoriesToDisplay = searchQuery.isActive
     ? searchQuery.categories
     : pageQuery.data?.categories ?? EMPTY_CATEGORIES;
-  const pageSize = pageQuery.data?.limit ?? CATEGORY_PAGE_SIZE;
   const pageCount = searchQuery.isActive
     ? Math.max(1, Math.ceil(categoriesToDisplay.length / pageSize))
     : Math.max(1, pageQuery.data?.totalPages ?? 1);
@@ -87,15 +92,17 @@ export function DataTable({ onDataChange }: DataTableProps) {
     : pageQuery.data?.skipped ?? activePageIndex * pageSize;
 
   useEffect(() => {
-    if (searchQuery.isActive) return;
+    if (searchQuery.isActive || pageQuery.isPlaceholderData) return;
 
     const nextPage = pageIndex + 2;
     if (nextPage > (pageQuery.data?.totalPages ?? 0)) return;
 
-    void prefetchAdminCategoryPage(queryClient, nextPage);
+    void prefetchAdminCategoryPage(queryClient, nextPage, pageSize);
   }, [
     pageIndex,
+    pageQuery.isPlaceholderData,
     pageQuery.data?.totalPages,
+    pageSize,
     queryClient,
     searchQuery.isActive,
   ]);
@@ -103,6 +110,14 @@ export function DataTable({ onDataChange }: DataTableProps) {
   const handleEdit = (item: Category) => {
     setActiveItem(item);
     setIsEditModalOpen(true);
+  };
+
+  const handleRefresh = async () => {
+    const queryKey = searchQuery.isActive
+      ? adminCategoryQueryKeys.name(searchQuery.debouncedSearch)
+      : adminCategoryQueryKeys.page(pageIndex + 1, pageSize);
+
+    await queryClient.invalidateQueries({ queryKey, exact: true });
   };
 
   const handleEditSaved = async () => {
@@ -176,19 +191,55 @@ export function DataTable({ onDataChange }: DataTableProps) {
   });
   return (
     <div className="overflow-hidden rounded-lg border bg-background shadow-sm">
-      <div className="flex items-center py-4">
+      <div className="flex flex-col gap-3 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
           placeholder="Search all categories (3+ characters)"
           value={categorySearch}
           onChange={(event) => {
             const value = event.target.value;
+            setCategorySearch(value);
             setSearchPageIndex(0);
             table
               .getColumn("name")
               ?.setFilterValue(value.trim().length >= 3 ? value.trim() : undefined);
           }}
-          className="max-w-sm"
+          className="w-full sm:max-w-sm"
         />
+        <div className="flex items-center justify-between gap-3 sm:justify-end">
+          <label
+            htmlFor="category-page-size"
+            className="text-sm text-muted-foreground"
+          >
+            Rows
+          </label>
+          <NativeSelect
+            id="category-page-size"
+            value={String(pageSize)}
+            onChange={(event) => {
+              setPageIndex(0);
+              setPageSize(Number(event.target.value));
+            }}
+            aria-label="Rows per page"
+          >
+            <NativeSelectOption value="10">10</NativeSelectOption>
+            <NativeSelectOption value="20">20</NativeSelectOption>
+            <NativeSelectOption value="50">50</NativeSelectOption>
+          </NativeSelect>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => void handleRefresh()}
+            disabled={pageQuery.isFetching || searchQuery.isSearching}
+            aria-label="Refresh categories"
+            title="Refresh categories"
+          >
+            <RotateCcw
+              aria-hidden="true"
+              className={pageQuery.isFetching || searchQuery.isSearching ? "animate-spin" : ""}
+            />
+          </Button>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <Table>
@@ -258,7 +309,7 @@ export function DataTable({ onDataChange }: DataTableProps) {
         <p>
           {totalRows === 0
             ? "No categories to show"
-            : `Showing ${firstRowIndex + 1}–${Math.min(
+            : `Showing ${firstRowIndex + 1}-${Math.min(
                 firstRowIndex + categoriesToDisplay.length,
                 totalRows,
               )} of ${totalRows} categories`}
