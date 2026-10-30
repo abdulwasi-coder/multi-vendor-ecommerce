@@ -7,6 +7,7 @@ export interface Category {
   _id: string;
   name: string;
   parentCategory?: { _id: string; name: string } | string | null;
+  ChildCount?: number;
   Image?: { cloudinaryId?: string; publicId?: string };
   createdAt?: string;
   updatedAt?: string;
@@ -65,6 +66,15 @@ export const Categorycolumns: ColumnDef<DataTableFeatures, Category>[] = [
         typeof parent === "object" && parent !== null ? parent.name : undefined;
       return parentName || <span className="text-muted-foreground">None</span>;
     },
+  },
+    {
+    accessorKey: "ChildCount",
+    header: "Child Category",
+    cell: ({ row }) => (
+      <span className="font-semibold text-gray-900">
+          {row.original.ChildCount ?? 0}
+      </span>
+    ),
   },
   {
     id: "actions",
