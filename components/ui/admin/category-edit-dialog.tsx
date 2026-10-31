@@ -37,6 +37,7 @@ const categoryUpdateSchema = z.object({
   parentCategory: z.string().optional(),
   parentSearch: z.string().optional(),
   image: categoryImageSchema.nullable(),
+  removeImage: z.boolean(),
 }).superRefine(({ parentCategory, parentSearch }, context) => {
   if (parentSearch?.trim() && !parentCategory) {
     context.addIssue({
@@ -64,7 +65,13 @@ export function CategoryEditDialog({
 }: CategoryEditDialogProps) {
   const editForm = useForm<CategoryUpdateValues>({
     resolver: zodResolver(categoryUpdateSchema),
-    defaultValues: { name: "", parentCategory: "", parentSearch: "", image: null },
+    defaultValues: {
+      name: "",
+      parentCategory: "",
+      parentSearch: "",
+      image: null,
+      removeImage: false,
+    },
     mode: "onChange",
   });
   const { handleSubmit, reset } = editForm;
@@ -76,6 +83,10 @@ export function CategoryEditDialog({
     control: editForm.control,
     name: "parentSearch",
   }) ?? "";
+  const removeImage = useWatch({
+    control: editForm.control,
+    name: "removeImage",
+  });
   const parentQuery = useCategoryNameSearch(parentSearch, open && !parentCategory);
   const parentOptions = useMemo(
     () => parentQuery.categories.filter((option) => option._id !== category?._id),
@@ -98,6 +109,7 @@ export function CategoryEditDialog({
       parentCategory: currentParentId,
       parentSearch: currentParentName,
       image: null,
+      removeImage: false,
     });
   }, [category, open, reset]);
 
@@ -108,6 +120,7 @@ export function CategoryEditDialog({
     formData.append("name", values.name);
     formData.append("parentCategory", values.parentCategory ?? "");
     if (values.image) formData.append("image", withUniqueUploadName(values.image));
+    if (values.removeImage) formData.append("removeImage", "true");
 
     try {
       await api.put(`/admin/updateCategory/${category._id}`, formData);
@@ -140,6 +153,10 @@ export function CategoryEditDialog({
           : parentOptions.length === 0
             ? "No matching categories found."
             : "Choose a category from the matches.");
+  const currentImageUrl = [
+    category?.Image?.publicId,
+    category?.Image?.cloudinaryId,
+  ].find((value) => typeof value === "string" && /^https?:\/\//i.test(value));
 
   return (
     <Dialog
@@ -250,17 +267,64 @@ export function CategoryEditDialog({
             <label htmlFor="edit-category-image" className="text-sm font-medium">
               Replace image
             </label>
+            {category?.Image && (
+              <div className="flex items-center gap-3">
+                {currentImageUrl ? (
+                  <img
+                    src={currentImageUrl}
+                    alt={`${category.name} category`}
+                    className="h-12 w-12 rounded border object-cover"
+                  />
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    A current image is set.
+                  </span>
+                )}
+                <Button
+                  type="button"
+                  variant={removeImage ? "outline" : "destructive"}
+                  onClick={() => {
+                    editForm.setValue("removeImage", !removeImage, {
+                      shouldDirty: true,
+                    });
+                    if (!removeImage) {
+                      editForm.setValue("image", null, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                    }
+                  }}
+                  disabled={editForm.formState.isSubmitting}
+                >
+                  {removeImage ? "Undo removal" : "Remove current image"}
+                </Button>
+              </div>
+            )}
+            {removeImage && (
+              <p className="text-sm text-destructive" role="status">
+                The current image will be removed when you save.
+              </p>
+            )}
             <Controller
               control={editForm.control}
               name="image"
               render={({ field }) => (
                 <Input
+                  key={`category-image-${removeImage}`}
                   id="edit-category-image"
                   name={field.name}
                   ref={field.ref}
                   type="file"
                   accept="image/*"
-                  onChange={(event) => field.onChange(event.target.files?.[0] ?? null)}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    field.onChange(file);
+                    if (file) {
+                      editForm.setValue("removeImage", false, {
+                        shouldDirty: true,
+                      });
+                    }
+                  }}
                   onBlur={field.onBlur}
                   disabled={editForm.formState.isSubmitting}
                   aria-invalid={Boolean(editForm.formState.errors.image)}
@@ -272,7 +336,9 @@ export function CategoryEditDialog({
                 {editForm.formState.errors.image.message}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">Leave empty to keep the current image.</p>
+            <p className="text-xs text-muted-foreground">
+              Leave empty to keep the current image.
+            </p>
           </div>
           <DialogFooter>
             <Button
