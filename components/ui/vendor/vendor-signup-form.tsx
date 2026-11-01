@@ -131,7 +131,7 @@ export function VendorSignupForm() {
         "mobilenumber",
         `${data.phoneCode}${data.mobilenumber}`,
       );
-      multipartPayload.append("image", data.image);
+      multipartPayload.append("companyimage", data.image);
 
       const response = await api.post("/vendor/register", multipartPayload);
       if (response.data?.success === false) {
