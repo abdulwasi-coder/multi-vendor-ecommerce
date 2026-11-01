@@ -56,6 +56,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../select";
+import { useRouter } from "next/router";
 
 export function VendorSignupForm() {
   const [imagePreview, setImagePreview] = useState("");
@@ -119,6 +120,7 @@ export function VendorSignupForm() {
   }
 
   async function onSubmit(data: VendorSignupInput) {
+    const router = useRouter()
     try {
       const multipartPayload = new FormData();
       multipartPayload.append("name", data.name);
@@ -140,7 +142,9 @@ export function VendorSignupForm() {
         );
       }
       toast.success("Vendor registration submitted successfully.");
-      toast.success("Vendor registration submitted successfully.");
+      if(response.data.success){
+        router.push("/vendor/dashboard")
+      }
     } catch (error) {
       const message = isAxiosError(error)
         ? error.response?.data?.message ?? error.response?.data?.error
