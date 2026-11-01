@@ -133,7 +133,7 @@ export function VendorSignupForm() {
       );
       multipartPayload.append("image", data.image);
 
-      const response = await api.post("/register", multipartPayload);
+      const response = await api.post("/vendor/register", multipartPayload);
       if (response.data?.success === false) {
         throw new Error(
           response.data.message || "Could not register your vendor account.",
@@ -283,7 +283,7 @@ export function VendorSignupForm() {
                               }
                             />
                             <PopoverContent
-                              className="w-[300px] p-0 max-h-[250px]"
+                              className="w-75 p-0 max-h-62.5"
                               align="start"
                             >
                               <Command>
@@ -542,7 +542,7 @@ export function VendorSignupForm() {
 
               <aside className="grid gap-4 sm:grid-cols-2 lg:sticky lg:top-6 lg:grid-cols-1 lg:self-start">
                 <Card className="overflow-hidden rounded-2xl border-border/70 shadow-sm">
-                  <div className="h-20 bg-gradient-to-br from-amber-300 via-orange-100 to-[#f8eee0]" />
+                  <div className="h-20 bg-linear-to-br from-amber-300 via-orange-100 to-[#f8eee0]" />
                   <CardContent className="relative px-5 pb-5">
                     <div className="-mt-9 flex size-16 items-center justify-center overflow-hidden rounded-2xl border-4 border-card bg-background text-muted-foreground shadow-sm">
                       {imagePreview ? (
