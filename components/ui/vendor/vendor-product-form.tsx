@@ -3,10 +3,9 @@
 import Link from "next/link";
 import React, {
   ChangeEvent,
-  HtmlHTMLAttributes,
   useState,
-  type FormEvent,
 } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -35,10 +34,22 @@ import {
 } from "react-hook-form";
 import { ProductInput, productBodySchema } from "@/Otherfiles/ZOD";
 import { Badge } from "../badge";
+import api from "@/lib/axios";
+import { isAxiosError } from "axios";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin";
+import type { Category } from "@/components/ui/admin/columns";
 
 export function ProductForm({ product }: { product?: ProductInput }) {
   const [previews, setPreviews] = useState<string[]>([]);
   const [colorInput, setColorInput] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
+  const categoryQuery = useCategoryNameSearch(categorySearch);
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const editing = Boolean(product);
 
   const {
@@ -59,7 +70,7 @@ export function ProductForm({ product }: { product?: ProductInput }) {
       price: undefined,
       discount: undefined,
       colors: [],
-      attributes: [{ key: "", value: "" }],
+      attributes: [],
     },
   });
 
@@ -92,28 +103,50 @@ export function ProductForm({ product }: { product?: ProductInput }) {
     try {
       const multipartPayload = new FormData();
       multipartPayload.append("name", data.name);
-      multipartPayload.append("brand", String(data?.brand));
+      multipartPayload.append("brand", data.brand?.trim() || "GEN");
       multipartPayload.append("description", data.description);
       multipartPayload.append("categoryID", data.categoryID);
       multipartPayload.append("colors", JSON.stringify(data.colors));
       multipartPayload.append("status", data.status);
       multipartPayload.append("price", String(data.price));
       multipartPayload.append("stock", String(data.stock));
-      multipartPayload.append("attributes", JSON.stringify(data.attributes));
+      multipartPayload.append(
+        "attributes",
+        JSON.stringify(
+          (data.attributes ?? []).filter(
+            (attribute) =>
+              attribute.key.trim() !== "" && attribute.value.trim() !== "",
+          ),
+        ),
+      );
       if (data.discount !== undefined && data.discount !== null) {
         multipartPayload.append("discount", String(data.discount));
       }
       Array.from(data.images ?? []).forEach((file) => {
-        multipartPayload.append("files", file);
+        multipartPayload.append("imagestoUpload", file);
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      const response = await api.post<{
+        success: boolean;
+        message?: string;
+      }>("/vendor/CreateProduct", multipartPayload);
 
-      toast.success("Your vendor profile details are ready", {
-        description: `data is successfully saved.`,
+      if (!response.data.success) {
+        throw new Error(response.data.message ?? "Could not create product.");
+      }
+
+      await queryClient.invalidateQueries({
+        queryKey: ["vendor-products"],
       });
+      toast.success("Product created successfully.");
+      router.push("/vendor/products");
     } catch (error) {
-      toast.error("Form transmission crash detected");
+      const message = isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message ?? "Could not create product."
+        : error instanceof Error
+          ? error.message
+          : "Could not create product.";
+      toast.error(message);
     }
   }
 
@@ -256,11 +289,70 @@ export function ProductForm({ product }: { product?: ProductInput }) {
               ControlName="brand"
               placeholder="Apple"
             />
-            <HandleAddingFields
-              fieldLabel="Category"
-              ControlName="categoryID"
-              placeholder="Laptops"
-            />
+            <Field>
+              <FieldLabel htmlFor="category-search">Category</FieldLabel>
+              <Input
+                id="category-search"
+                value={categorySearch}
+                onChange={(event) => {
+                  setCategorySearch(event.target.value);
+                  setSelectedCategory(null);
+                  setValue("categoryID", "", { shouldValidate: true });
+                }}
+                className={inputClassName}
+                placeholder="Search category names"
+                autoComplete="off"
+              />
+              {selectedCategory ? (
+                <FieldDescription>
+                  Selected: {selectedCategory.name}
+                </FieldDescription>
+              ) : categorySearch.trim().length >= 2 ? (
+                <div className="max-h-48 overflow-y-auto rounded-lg border bg-background">
+                  {categoryQuery.isSearching ? (
+                    <p className="px-3 py-2 text-sm text-muted-foreground">
+                      Searching categories...
+                    </p>
+                  ) : categoryQuery.errorMessage ? (
+                    <p role="alert" className="px-3 py-2 text-sm text-destructive">
+                      {categoryQuery.errorMessage}
+                    </p>
+                  ) : categoryQuery.categories.length > 0 ? (
+                    categoryQuery.categories.map((category) => (
+                      <button
+                        key={category._id}
+                        type="button"
+                        className="block w-full px-3 py-2 text-left text-sm hover:bg-muted"
+                        onClick={() => {
+                          setSelectedCategory(category);
+                          setCategorySearch(category.name);
+                          setValue("categoryID", category._id, {
+                            shouldValidate: true,
+                          });
+                        }}
+                      >
+                        {category.name}
+                        {category.parentCategory &&
+                          typeof category.parentCategory === "object" && (
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              in {category.parentCategory.name}
+                            </span>
+                          )}
+                      </button>
+                    ))
+                  ) : (
+                    <p className="px-3 py-2 text-sm text-muted-foreground">
+                      No matching categories.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <FieldDescription>
+                  Enter at least two characters, then select a category.
+                </FieldDescription>
+              )}
+              <FieldError>{errors.categoryID?.message}</FieldError>
+            </Field>
             <Field>
               <FieldLabel htmlFor="color-input">Available Colors</FieldLabel>
               <div className="space-y-3 ">
@@ -337,7 +429,7 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                     className={`${inputClassName} border pr-9`}
                   >
                     <option value="active">Active</option>
-                    <option value="draft">Archieved</option>
+                    <option value="archived">Archived</option>
                     <option value="inactive">Inactive</option>
                   </select>
                 )}

@@ -148,7 +148,7 @@ export default function VendorProfilePage() {
           </div>
 
           <Card className="overflow-hidden border-[#dfe4df] shadow-md shadow-[#192c25]/5">
-            <div className="h-24 bg-gradient-to-br from-[#d8b975] via-[#f4e5c0] to-[#e4ebe5]" />
+            <div className="h-24 bg-linear-to-br from-[#d8b975] via-[#f4e5c0] to-[#e4ebe5]" />
             <CardContent className="relative">
               <div className="-mt-10 grid size-16 place-items-center overflow-hidden rounded-2xl border-4 border-card bg-[#203b33] text-amber-100 shadow-md">
                 {imageUrl ? (

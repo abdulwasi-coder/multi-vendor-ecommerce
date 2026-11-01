@@ -96,7 +96,7 @@ export const productBodySchema = z.object({
       "Please select at least one image"
     )
     .refine((files) => files.length > 0, "At least one image is required")
-    .refine((files) => files.length <= 5, "You can upload a maximum of 5 images")
+    .refine((files) => files.length <= 3, "You can upload a maximum of 3 images")
     .refine(
       (files) => Array.from(files).every((file) => file.size <= MAX_FILE_SIZE),
       "Each file must be less than 5MB."
