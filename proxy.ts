@@ -116,6 +116,31 @@ export async function proxy(request: NextRequest) {
   }
 
   const role = claims?.role;
+  const normalizedRole = typeof role === "string" ? role.toLowerCase() : null;
+  const pathname = request.nextUrl.pathname;
+  const isCreateRoute = pathname === "/create" || pathname.startsWith("/create/");
+
+  if (isCreateRoute) {
+    const redirectPath =
+      normalizedRole === "vendor"
+        ? "/vendor/dashboard"
+        : normalizedRole === "admin"
+          ? "/unauthorized"
+          : normalizedRole === "user"
+            ? null
+            : "/unauthorized";
+
+    if (redirectPath) {
+      const redirectResponse = redirectTo(request, redirectPath);
+      for (const setCookie of refreshedCookies) {
+        redirectResponse.headers.append("set-cookie", setCookie);
+      }
+      return redirectResponse;
+    }
+
+    return response ?? NextResponse.next();
+  }
+
   if (typeof role !== "string" || role.toLowerCase() !== getRequiredRole(request.nextUrl.pathname)) {
     const unauthorizedResponse = redirectTo(request, "/unauthorized");
     for (const setCookie of refreshedCookies) {
@@ -128,5 +153,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/vendor/:path*"],
+  matcher: ["/admin/:path*", "/vendor/:path*", "/create/:path*"],
 };

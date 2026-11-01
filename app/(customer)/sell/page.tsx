@@ -37,30 +37,30 @@ export default function SellOnMarketlyPage() {
   return (
     <main className="min-h-screen bg-white pb-16 pt-40 text-[#0f1111] sm:pt-32">
       <nav aria-label="Seller page navigation" className="border-y border-[#d5d9d9] bg-white">
-        <div className="mx-auto flex max-w-[1440px] items-center gap-5 overflow-x-auto px-4 py-3 text-sm sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-360 items-center gap-5 overflow-x-auto px-4 py-3 text-sm sm:px-6 lg:px-8">
           <span className="shrink-0 font-bold">Sell on Marketly</span>
           <Link href="#why-sell" className="shrink-0 text-[#333] hover:text-[#c45500] hover:underline">Why sell</Link>
           <Link href="#how-it-works" className="shrink-0 text-[#333] hover:text-[#c45500] hover:underline">How it works</Link>
           <Link href="#seller-tools" className="shrink-0 text-[#333] hover:text-[#c45500] hover:underline">Seller tools</Link>
           <Link href="#seller-faq" className="shrink-0 text-[#333] hover:text-[#c45500] hover:underline">FAQ</Link>
-          <Link href="/vendor/create" className="ml-auto shrink-0 rounded-full bg-[#f3a847] px-5 py-2 font-bold text-[#131921] hover:bg-[#f7bd68]">Start selling</Link>
+          <Link href="/create" className="ml-auto shrink-0 rounded-full bg-[#f3a847] px-5 py-2 font-bold text-[#131921] hover:bg-[#f7bd68]">Start selling</Link>
         </div>
       </nav>
 
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
         <section className="grid gap-8 border-b border-[#ddd] py-10 sm:py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-12 lg:py-16">
           <div>
             <p className="text-sm font-semibold text-[#565959]">A marketplace for independent businesses</p>
             <h1 className="mt-3 max-w-2xl text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">Sell more with Marketly</h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-[#333] sm:text-lg">Put your products in front of shoppers and manage your listings, inventory, and orders with seller tools made for your business.</p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link href="/vendor/create" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#f3a847] px-6 text-sm font-bold text-[#131921] shadow-sm transition hover:bg-[#f7bd68]">Start selling <ArrowRight className="size-4" /></Link>
+              <Link href="/create" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#f3a847] px-6 text-sm font-bold text-[#131921] shadow-sm transition hover:bg-[#f7bd68]">Start selling <ArrowRight className="size-4" /></Link>
               <Link href="/vendor/dashboard" className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#888c8c] bg-white px-6 text-sm font-semibold text-[#0f1111] transition hover:bg-[#f7fafa]">Seller sign in</Link>
             </div>
             <p className="mt-4 text-xs text-[#565959]">Start by creating a product listing. Already a seller? <Link href="/vendor/dashboard" className="text-[#007185] hover:underline">Go to your dashboard</Link>.</p>
           </div>
 
-          <div className="relative min-h-[300px] overflow-hidden rounded-2xl bg-[#f3f5f5] sm:min-h-[380px]">
+          <div className="relative min-h-75 overflow-hidden rounded-2xl bg-[#f3f5f5] sm:min-h-95">
             <Image
               src="/seller-owner.jpg"
               alt="Two business partners shaking hands after a meeting"
@@ -69,7 +69,12 @@ export default function SellOnMarketlyPage() {
               sizes="(max-width: 1023px) 100vw, 45vw"
               className="object-cover object-center"
             />
-            <a href="https://unsplash.com/photos/two-businessmen-shaking-hands-across-a-table-lZXX-QVdyXY" target="_blank" rel="noreferrer" className="absolute bottom-3 right-3 rounded bg-black/55 px-2 py-1 text-[11px] text-white/90 hover:bg-black/70">
+            <a
+              href="https://unsplash.com/photos/two-businessmen-shaking-hands-across-a-table-lZXX-QVdyXY"
+              target="_blank"
+              rel="noreferrer"
+              className="absolute bottom-3 right-3 rounded bg-black/55 px-2 py-1 text-[11px] text-white/90 hover:bg-black/70"
+            >
               Photo by Vitaly Gariev / Unsplash
             </a>
           </div>
