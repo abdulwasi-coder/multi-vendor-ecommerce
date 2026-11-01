@@ -24,6 +24,15 @@ function redirectTo(request: NextRequest, path: string) {
   return NextResponse.redirect(new URL(path, request.url));
 }
 
+function redirectToLogin(request: NextRequest) {
+  const loginUrl = new URL("/login", request.url);
+  loginUrl.searchParams.set(
+    "callbackUrl",
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+  );
+  return NextResponse.redirect(loginUrl);
+}
+
 function getRequiredRole(pathname: string) {
   return pathname.startsWith("/admin/") || pathname === "/admin"
     ? "admin"
@@ -93,7 +102,7 @@ async function refreshAccessToken(request: NextRequest) {
 export async function proxy(request: NextRequest) {
   const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
   if (!refreshToken) {
-    return redirectTo(request, "/login");
+    return redirectToLogin(request);
   }
 
   let accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
@@ -104,14 +113,14 @@ export async function proxy(request: NextRequest) {
   if (!claims) {
     try {
       const refreshed = await refreshAccessToken(request);
-      if (!refreshed) return redirectTo(request, "/login");
+      if (!refreshed) return redirectToLogin(request);
 
       accessToken = refreshed.accessToken;
       claims = getAccessTokenClaims(accessToken);
       response = refreshed.response;
       refreshedCookies = refreshed.setCookieHeaders;
     } catch {
-      return redirectTo(request, "/login");
+      return redirectToLogin(request);
     }
   }
 

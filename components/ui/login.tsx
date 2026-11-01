@@ -50,11 +50,11 @@ export default function LoginFunction() {
         }
       );
 
-      if (response.data.success && response.data.Role === "vendor") {
+      if (response.data.success && response.data.role === "vendor") {
         router.push("/vendor/dashboard");
         return;
       }
-      if (response.data.success && response.data.Role === "admin") {
+      if (response.data.success && response.data.role === "admin") {
         router.push("/admin/dashboard");
         return;
       }
