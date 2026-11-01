@@ -118,7 +118,7 @@ export async function proxy(request: NextRequest) {
   const role = claims?.role;
   const normalizedRole = typeof role === "string" ? role.toLowerCase() : null;
   const pathname = request.nextUrl.pathname;
-  const isCreateRoute = pathname === "/create" || pathname.startsWith("/create/");
+  const isCreateRoute = pathname === "/VendorSignUp" || pathname.startsWith("/VendorSignUp/");
 
   if (isCreateRoute) {
     const redirectPath =
