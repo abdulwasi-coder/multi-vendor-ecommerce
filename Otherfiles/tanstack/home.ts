@@ -60,6 +60,7 @@ function homeCategoriesQueryOptions(cookieHeader?: string) {
     ) =>
       lastPageParam < lastPage.totalPages ? lastPageParam + 1 : undefined,
     staleTime: HOME_CATEGORY_STALE_TIME,
+    refetchOnWindowFocus: false,
   };
 }
 
