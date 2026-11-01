@@ -46,7 +46,6 @@ export function ProductForm({ product }: { product?: ProductInput }) {
     handleSubmit,
     setValue,
     watch,
-    register,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(productBodySchema),
@@ -108,7 +107,6 @@ export function ProductForm({ product }: { product?: ProductInput }) {
         multipartPayload.append("files", file);
       });
 
-      // Keep the submit state visible while the save operation is processed.
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       toast.success("Your vendor profile details are ready", {

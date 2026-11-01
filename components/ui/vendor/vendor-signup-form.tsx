@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { isAxiosError } from "axios";
 import {
   ArrowRight,
   Check,
@@ -21,6 +22,7 @@ import {
   VendorSignupInput,
 } from "@/Otherfiles/ZOD";
 import { toast } from "sonner";
+import api from "@/lib/axios";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -129,13 +131,27 @@ export function VendorSignupForm() {
         "mobilenumber",
         `${data.phoneCode}${data.mobilenumber}`,
       );
-      multipartPayload.append("iamge", data.image);
+      multipartPayload.append("image", data.image);
 
-      toast.success("Your vendor profile details are ready", {
-        description: `data is successfully saved.`,
-      });
+      const response = await api.post("/register", multipartPayload);
+      if (response.data?.success === false) {
+        throw new Error(
+          response.data.message || "Could not register your vendor account.",
+        );
+      }
+      toast.success("Vendor registration submitted successfully.");
+      toast.success("Vendor registration submitted successfully.");
     } catch (error) {
-      toast.error("Form transmission crash detected");
+      const message = isAxiosError(error)
+        ? error.response?.data?.message ?? error.response?.data?.error
+        : error instanceof Error
+          ? error.message
+          : undefined;
+      toast.error(
+        typeof message === "string" && message.trim()
+          ? message
+          : "Could not register your vendor account. Please try again.",
+      );
     }
   }
 
