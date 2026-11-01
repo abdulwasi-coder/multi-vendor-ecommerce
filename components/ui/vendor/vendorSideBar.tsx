@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, ShoppingCart, Package, PackagePlus, Truck, Info } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, PackagePlus, Truck, Info, Store } from "lucide-react";
 
 import {
   Sidebar,
@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import { useVendorProfile } from "@/Otherfiles/tanstack/vendor-profile";
 
 const navigationItems = [
   { title: "Dashboard", href: "/vendor/dashboard", icon: LayoutDashboard },
@@ -35,6 +36,12 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile, state } = useSidebar();
   const [hoverExpanded, setHoverExpanded] = useState(false);
+  const profileQuery = useVendorProfile();
+  const profile = profileQuery.data;
+  const storeImage = [
+    profile?.Companyimage?.cloudinaryId,
+    profile?.Companyimage?.publicId,
+  ].find((value) => typeof value === "string" && /^https?:\/\//i.test(value));
 
   const handleMouseEnter = () => {
     if (state === "collapsed") {
@@ -69,18 +76,21 @@ export function AppSidebar() {
               render={<Link href="/vendor/dashboard" onClick={handleNavigation} />}
             >
               <div className="flex size-8 items-center justify-center rounded-lg">
-                <Image
-                  src="/logo3.jpg"
-                  height={55}
-                  width={50}
-                  alt="Company Logo"
-                  className="w-full rounded-md h-full"
-                  priority
-                />
+                {storeImage ? (
+                  <Image
+                    src={storeImage}
+                    height={55}
+                    width={50}
+                    alt={`${profile?.companyName ?? "Vendor"} store`}
+                    className="h-full w-full rounded-md object-cover"
+                  />
+                ) : (
+                  <Store className="size-5" aria-hidden="true" />
+                )}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:grid">
-                <span className="truncate  font-semibold tracking-wider">
-                  Bon Ton
+                <span className="truncate font-semibold tracking-wider">
+                  {profile?.companyName ?? "Vendor store"}
                 </span>
               </div>
             </SidebarMenuButton>
@@ -164,18 +174,25 @@ export function AppSidebar() {
               render={<Link href="/vendor/profile" onClick={handleNavigation} />}
             >
               <div className="flex size-8 items-center justify-center rounded-lg">
-                <Image
-                  src="/person.jpg"
-                  height={800}
-                  width={800}
-                  alt="Company Logo"
-                  className="w-full rounded-md h-full"
-                  priority
-                />
+                {storeImage ? (
+                  <Image
+                    src={storeImage}
+                    height={800}
+                    width={800}
+                    alt={`${profile?.companyName ?? "Vendor"} store`}
+                    className="h-full w-full rounded-md object-cover"
+                  />
+                ) : (
+                  <Store className="size-5" aria-hidden="true" />
+                )}
               </div>
 
               <span className="truncate group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:inline font-semibold hover: tracking-wider">
-                John Smith
+                {profile
+                  ? `${profile.name} ${profile.lastName}`.trim()
+                  : profileQuery.isPending
+                    ? "Loading profile..."
+                    : "Vendor profile"}
               </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
