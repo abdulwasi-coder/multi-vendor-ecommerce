@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  Archive,
   ArrowDown,
   ArrowUpRight,
   Eye,
@@ -48,7 +49,8 @@ function statusLabel(status: VendorProduct["status"]) {
 
 export function VendorProductsTable() {
   const query = useVendorProducts();
-  const products = query.data ?? [];
+  const products = query.data?.products ?? [];
+  const summary = query.data?.summary;
   const [search, setSearch] = useState("");
 
   const filteredProducts = useMemo(() => {
@@ -67,9 +69,6 @@ export function VendorProductsTable() {
         .includes(normalizedSearch),
     );
   }, [products, search]);
-
-  const inventory = products.reduce((sum, product) => sum + product.stock, 0);
-  const lowStockCount = products.filter((product) => product.stock < 10).length;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-400 space-y-7 bg-muted/20 px-4 py-7 sm:px-7 lg:px-10">
@@ -92,25 +91,31 @@ export function VendorProductsTable() {
       </header>
 
       <section
-        className="grid gap-4 sm:grid-cols-3"
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
         aria-label="Product summary"
       >
         {[
           {
             label: "Products listed",
-            value: products.length.toString(),
+            value: (summary?.totalProducts ?? 0).toString(),
             note: "Across your catalog",
             icon: Package,
           },
           {
             label: "Units in stock",
-            value: inventory.toString(),
+            value: (summary?.totalStock ?? 0).toString(),
             note: "Available to sell",
             icon: SlidersHorizontal,
           },
           {
+            label: "Archived products",
+            value: (summary?.archivedProducts ?? 0).toString(),
+            note: "Not currently listed for sale",
+            icon: Archive,
+          },
+          {
             label: "Low stock",
-            value: lowStockCount.toString(),
+            value: (summary?.lowStockProducts ?? 0).toString(),
             note: "Fewer than 10 units",
             icon: ArrowDown,
           },

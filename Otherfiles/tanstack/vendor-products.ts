@@ -18,10 +18,18 @@ export interface VendorProduct {
   status: "archieved" | "banned" | "active" | "inactive";
 }
 
+export interface VendorProductSummary {
+  totalProducts: number;
+  totalStock: number;
+  archivedProducts: number;
+  lowStockProducts: number;
+}
+
 interface VendorProductsResponse {
   success: boolean;
   message?: string;
   products?: VendorProduct[];
+  summary?: VendorProductSummary;
 }
 
 export const vendorProductsQueryKey = ["vendor-products"] as const;
@@ -47,7 +55,14 @@ function vendorProductsQueryOptions(cookieHeader?: string) {
         );
       }
 
-      return response.data.products;
+      if (!response.data.summary) {
+        throw new Error("Vendor product summary was not returned.");
+      }
+
+      return {
+        products: response.data.products,
+        summary: response.data.summary,
+      };
     },
     staleTime: VENDOR_PRODUCTS_STALE_TIME,
     refetchOnWindowFocus: false,
