@@ -102,9 +102,9 @@ export function VendorProductsTable() {
             icon: Package,
           },
           {
-            label: "Units in stock",
+            label: "Total stock units",
             value: (summary?.totalStock ?? 0).toString(),
-            note: "Available to sell",
+            note: "Sum of stock across all products",
             icon: SlidersHorizontal,
           },
           {

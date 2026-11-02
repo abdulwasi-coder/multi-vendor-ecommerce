@@ -40,6 +40,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin";
 import type { Category } from "@/components/ui/admin/columns";
 
+const MAX_PRODUCT_IMAGES = 5;
+
 export function ProductForm({ product }: { product?: ProductInput }) {
   const [previews, setPreviews] = useState<string[]>([]);
   const [colorInput, setColorInput] = useState("");
@@ -161,12 +163,23 @@ export function ProductForm({ product }: { product?: ProductInput }) {
         (file) => `${file.name}:${file.size}:${file.lastModified}`,
       ),
     );
-    const newFiles = Array.from(files).filter((file) => {
+    const uniqueNewFiles = Array.from(files).filter((file) => {
       const key = `${file.name}:${file.size}:${file.lastModified}`;
       if (seenFiles.has(key)) return false;
       seenFiles.add(key);
       return true;
     });
+    const availableSlots = Math.max(0, MAX_PRODUCT_IMAGES - existingFiles.length);
+    const newFiles = uniqueNewFiles.slice(0, availableSlots);
+
+    if (newFiles.length < uniqueNewFiles.length) {
+      toast.error(`You can upload a maximum of ${MAX_PRODUCT_IMAGES} images.`);
+    }
+
+    if (newFiles.length === 0) {
+      event.target.value = "";
+      return;
+    }
 
     const dataTransfer = new DataTransfer();
     [...existingFiles, ...newFiles].forEach((file) => {
@@ -550,13 +563,16 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                       <>
                         <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                         <p className="text-sm text-muted-foreground">
-                          Click to upload files
+                          Click to upload up to {MAX_PRODUCT_IMAGES} files
                         </p>
                         <Input
                           type="file"
                           name={field.name}
                           accept="image/*"
                           multiple
+                          disabled={
+                            (watch("images")?.length ?? 0) >= MAX_PRODUCT_IMAGES
+                          }
                           onChange={handleImageChange}
                           onBlur={field.onBlur}
                           ref={field.ref}
