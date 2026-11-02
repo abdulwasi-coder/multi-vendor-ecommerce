@@ -43,7 +43,7 @@ export default function SellOnMarketlyPage() {
           <Link href="#how-it-works" className="shrink-0 text-[#333] hover:text-[#c45500] hover:underline">How it works</Link>
           <Link href="#seller-tools" className="shrink-0 text-[#333] hover:text-[#c45500] hover:underline">Seller tools</Link>
           <Link href="#seller-faq" className="shrink-0 text-[#333] hover:text-[#c45500] hover:underline">FAQ</Link>
-          <Link href="/create" className="ml-auto shrink-0 rounded-full bg-[#f3a847] px-5 py-2 font-bold text-[#131921] hover:bg-[#f7bd68]">Start selling</Link>
+          <Link href="/vendorsignup" className="ml-auto shrink-0 rounded-full bg-[#f3a847] px-5 py-2 font-bold text-[#131921] hover:bg-[#f7bd68]">Start selling</Link>
         </div>
       </nav>
 
