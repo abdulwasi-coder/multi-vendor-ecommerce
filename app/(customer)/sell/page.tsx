@@ -54,8 +54,7 @@ export default function SellOnMarketlyPage() {
             <h1 className="mt-3 max-w-2xl text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">Sell more with Marketly</h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-[#333] sm:text-lg">Put your products in front of shoppers and manage your listings, inventory, and orders with seller tools made for your business.</p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link href="/create" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#f3a847] px-6 text-sm font-bold text-[#131921] shadow-sm transition hover:bg-[#f7bd68]">Start selling <ArrowRight className="size-4" /></Link>
-              <Link href="/vendor/dashboard" className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#888c8c] bg-white px-6 text-sm font-semibold text-[#0f1111] transition hover:bg-[#f7fafa]">Seller sign in</Link>
+              <Link href="/vendorsignup" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#f3a847] px-6 text-sm font-bold text-[#131921] shadow-sm transition hover:bg-[#f7bd68]">Start selling <ArrowRight className="size-4" /></Link>
             </div>
             <p className="mt-4 text-xs text-[#565959]">Start by creating a product listing. Already a seller? <Link href="/vendor/dashboard" className="text-[#007185] hover:underline">Go to your dashboard</Link>.</p>
           </div>
