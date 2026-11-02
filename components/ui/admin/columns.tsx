@@ -8,6 +8,7 @@ export interface Category {
   name: string;
   parentCategory?: { _id: string; name: string } | string | null;
   ChildCount?: number;
+  ProductCount?: number;
   Image?: { cloudinaryId?: string; publicId?: string };
   createdAt?: string;
   updatedAt?: string;
@@ -73,6 +74,15 @@ export const Categorycolumns: ColumnDef<DataTableFeatures, Category>[] = [
     cell: ({ row }) => (
       <span className="font-semibold text-gray-900">
           {row.original.ChildCount ?? 0}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "ProductCount",
+    header: "Products",
+    cell: ({ row }) => (
+      <span className="font-semibold text-gray-900">
+        {row.original.ProductCount ?? 0}
       </span>
     ),
   },
