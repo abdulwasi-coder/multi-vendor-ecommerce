@@ -30,6 +30,8 @@ export const adminCategoryQueryKeys = {
     ["admin-categories", "page", page, limit] as const,
   nameSearch: ["admin-categories", "name-search"] as const,
   name: (name: string) => ["admin-categories", "name-search", name] as const,
+  leafName: (name: string) =>
+    ["admin-categories", "name-search", "leaf", name] as const,
 };
 
 async function fetchCategoryPage(
@@ -85,6 +87,7 @@ export function useCategoryNameSearch(
   search: string,
   enabled = true,
   minLength = 2,
+  leafOnly = false,
 ) {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const normalizedSearch = search.trim();
@@ -98,11 +101,19 @@ export function useCategoryNameSearch(
   }, [normalizedSearch]);
 
   const query = useQuery({
-    queryKey: adminCategoryQueryKeys.name(debouncedSearch),
+    queryKey: leafOnly
+      ? adminCategoryQueryKeys.leafName(debouncedSearch)
+      : adminCategoryQueryKeys.name(debouncedSearch),
     queryFn: async ({ signal }) => {
       const response = await api.get<{ categories: Category[] }>(
         "/admin/specificCategoryName",
-        { params: { name: debouncedSearch }, signal },
+        {
+          params: {
+            name: debouncedSearch,
+            ...(leafOnly ? { leafOnly: true } : {}),
+          },
+          signal,
+        },
       );
       return response.data.categories ?? [];
     },

@@ -1,10 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, {
-  ChangeEvent,
-  useState,
-} from "react";
+import React, { ChangeEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -37,19 +34,17 @@ import { Badge } from "../badge";
 import api from "@/lib/axios";
 import { isAxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin";
-import type { Category } from "@/components/ui/admin/columns";
+import { useVendorProductCategories } from "@/Otherfiles/tanstack/vendor-product-categories";
 
 const MAX_PRODUCT_IMAGES = 5;
 
 export function ProductForm({ product }: { product?: ProductInput }) {
   const [previews, setPreviews] = useState<string[]>([]);
   const [colorInput, setColorInput] = useState("");
-  const [categorySearch, setCategorySearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null,
-  );
-  const categoryQuery = useCategoryNameSearch(categorySearch);
+  const [selectedLevelOneId, setSelectedLevelOneId] = useState("");
+  const [selectedLevelTwoId, setSelectedLevelTwoId] = useState("");
+  const [selectedLevelThreeId, setSelectedLevelThreeId] = useState("");
+  const categoryQuery = useVendorProductCategories();
   const queryClient = useQueryClient();
   const router = useRouter();
   const editing = Boolean(product);
@@ -144,7 +139,7 @@ export function ProductForm({ product }: { product?: ProductInput }) {
       router.push("/vendor/products");
     } catch (error) {
       const message = isAxiosError<{ message?: string }>(error)
-        ? error.response?.data?.message ?? "Could not create product."
+        ? (error.response?.data?.message ?? "Could not create product.")
         : error instanceof Error
           ? error.message
           : "Could not create product.";
@@ -169,7 +164,10 @@ export function ProductForm({ product }: { product?: ProductInput }) {
       seenFiles.add(key);
       return true;
     });
-    const availableSlots = Math.max(0, MAX_PRODUCT_IMAGES - existingFiles.length);
+    const availableSlots = Math.max(
+      0,
+      MAX_PRODUCT_IMAGES - existingFiles.length,
+    );
     const newFiles = uniqueNewFiles.slice(0, availableSlots);
 
     if (newFiles.length < uniqueNewFiles.length) {
@@ -259,6 +257,11 @@ export function ProductForm({ product }: { product?: ProductInput }) {
 
   const inputClassName =
     "h-10 rounded-lg border-border bg-background px-3 shadow-none transition focus-visible:ring-2 focus-visible:ring-ring/20";
+  const levelThreeCategories =
+    categoryQuery.data
+      ?.find((category) => category._id === selectedLevelOneId)
+      ?.children.find((category) => category._id === selectedLevelTwoId)
+      ?.children ?? [];
 
   return (
     <main className="min-h-[calc(100dvh-2rem)] bg-background">
@@ -302,70 +305,124 @@ export function ProductForm({ product }: { product?: ProductInput }) {
               ControlName="brand"
               placeholder="Apple"
             />
-            <Field>
-              <FieldLabel htmlFor="category-search">Category</FieldLabel>
-              <Input
-                id="category-search"
-                value={categorySearch}
-                onChange={(event) => {
-                  setCategorySearch(event.target.value);
-                  setSelectedCategory(null);
-                  setValue("categoryID", "", { shouldValidate: true });
-                }}
-                className={inputClassName}
-                placeholder="Search category names"
-                autoComplete="off"
-              />
-              {selectedCategory ? (
+            <div className="space-y-4">
+              <Field>
+                <FieldLabel htmlFor="level-one-category">
+                  Main category
+                </FieldLabel>
+                <select
+                  id="level-one-category"
+                  value={selectedLevelOneId}
+                  disabled={categoryQuery.isPending || categoryQuery.isError}
+                  onChange={(event) => {
+                    const categoryId = event.target.value;
+                    setSelectedLevelOneId(categoryId);
+                    setSelectedLevelTwoId("");
+                    setSelectedLevelThreeId("");
+                    setValue("categoryID", "", { shouldValidate: true });
+                  }}
+                  className={`${inputClassName} w-full border pr-9`}
+                >
+                  <option value="">
+                    {categoryQuery.isPending
+                      ? "Loading categories..."
+                      : "Select a category"}
+                  </option>
+                  {(categoryQuery.data ?? []).map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
                 <FieldDescription>
-                  Selected: {selectedCategory.name}
+                  Choose the broad category first to find its related
+                  subcategories.
                 </FieldDescription>
-              ) : categorySearch.trim().length >= 2 ? (
-                <div className="max-h-48 overflow-y-auto rounded-lg border bg-background">
-                  {categoryQuery.isSearching ? (
-                    <p className="px-3 py-2 text-sm text-muted-foreground">
-                      Searching categories...
+                {categoryQuery.isError && (
+                  <div>
+                    <p role="alert" className="text-sm text-destructive">
+                      {categoryQuery.error instanceof Error
+                        ? categoryQuery.error.message
+                        : "Could not load product categories."}
                     </p>
-                  ) : categoryQuery.errorMessage ? (
-                    <p role="alert" className="px-3 py-2 text-sm text-destructive">
-                      {categoryQuery.errorMessage}
-                    </p>
-                  ) : categoryQuery.categories.length > 0 ? (
-                    categoryQuery.categories.map((category) => (
-                      <button
-                        key={category._id}
-                        type="button"
-                        className="block w-full px-3 py-2 text-left text-sm hover:bg-muted"
-                        onClick={() => {
-                          setSelectedCategory(category);
-                          setCategorySearch(category.name);
-                          setValue("categoryID", category._id, {
-                            shouldValidate: true,
-                          });
-                        }}
-                      >
-                        {category.name}
-                        {category.parentCategory &&
-                          typeof category.parentCategory === "object" && (
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              in {category.parentCategory.name}
-                            </span>
-                          )}
-                      </button>
-                    ))
-                  ) : (
-                    <p className="px-3 py-2 text-sm text-muted-foreground">
-                      No matching categories.
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <FieldDescription>
-                  Enter at least two characters, then select a category.
-                </FieldDescription>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => void categoryQuery.refetch()}
+                    >
+                      Retry
+                    </Button>
+                  </div>
+                )}
+                <FieldError>{errors.categoryID?.message}</FieldError>
+              </Field>
+
+              {selectedLevelOneId && (
+                <Field>
+                  <FieldLabel htmlFor="level-two-category">
+                    Product category
+                  </FieldLabel>
+                  <select
+                    id="level-two-category"
+                    value={selectedLevelTwoId}
+                    onChange={(event) => {
+                      const categoryId = event.target.value;
+                      setSelectedLevelTwoId(categoryId);
+                      setSelectedLevelThreeId("");
+                      setValue("categoryID", "", { shouldValidate: true });
+                    }}
+                    className={`${inputClassName} w-full border pr-9`}
+                  >
+                    <option value="">Select a level-2 category</option>
+                    {categoryQuery.data
+                      ?.find((category) => category._id === selectedLevelOneId)
+                      ?.children.map((category) => (
+                        <option key={category._id} value={category._id}>
+                          {category.name}
+                        </option>
+                      ))}
+                  </select>
+                  <FieldDescription>
+                    Choose a level-2 category or narrow it further below.
+                  </FieldDescription>
+                </Field>
               )}
-              <FieldError>{errors.categoryID?.message}</FieldError>
-            </Field>
+
+              {selectedLevelTwoId && (
+                <Field>
+                  <FieldLabel htmlFor="level-three-category">
+                    Level-3 category
+                  </FieldLabel>
+                  <select
+                    id="level-three-category"
+                    value={selectedLevelThreeId}
+                    required
+                    onChange={(event) => {
+                      const categoryId = event.target.value;
+                      setSelectedLevelThreeId(categoryId);
+                      setValue("categoryID", categoryId, {
+                        shouldValidate: true,
+                      });
+                    }}
+                    className={`${inputClassName} w-full border pr-9`}
+                  >
+                    <option value="">Select a level-3 category</option>
+                    {levelThreeCategories.map((category) => (
+                      <option key={category._id} value={category._id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <FieldDescription>
+                    {levelThreeCategories.length > 0
+                      ? "Select a level-3 category to continue. Deeper levels are not available."
+                      : "No level-3 categories are available here. Choose another level-2 category."}
+                  </FieldDescription>
+                </Field>
+              )}
+            </div>
             <Field>
               <FieldLabel htmlFor="color-input">Available Colors</FieldLabel>
               <div className="space-y-3 ">

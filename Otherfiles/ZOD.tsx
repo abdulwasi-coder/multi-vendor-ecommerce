@@ -80,7 +80,7 @@ export const productBodySchema = z.object({
   name: z.string().min(2, "Product name must be at least 2 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   brand: z.string().optional().nullable(),
-  categoryID: z.string().min(8, "A valid Category is required"),
+  categoryID: z.string().min(8, "Select a level-3 category"),
   stock: z.number().int().nonnegative("Stock must be 0 or greater"),
   status: z.enum(["active", "inactive", "archived"]).default("active"),
   price: z.number().positive("Price must be greater than 0"),
