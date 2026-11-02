@@ -56,9 +56,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../select";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export function VendorSignupForm() {
+  const router = useRouter();
   const [imagePreview, setImagePreview] = useState("");
   const [imageName, setImageName] = useState("");
   const [storeslug, setStoreSlug] = useState("");
@@ -120,7 +121,6 @@ export function VendorSignupForm() {
   }
 
   async function onSubmit(data: VendorSignupInput) {
-    const router = useRouter()
     try {
       const multipartPayload = new FormData();
       multipartPayload.append("name", data.name);
