@@ -66,9 +66,4 @@ export async function prefetchVendorProfile(
   cookieHeader: string,
 ) {
   await queryClient.prefetchQuery(vendorProfileQueryOptions(cookieHeader));
-
-  const queryState = queryClient.getQueryState(vendorProfileQueryKey);
-  if (queryState?.status === "error") {
-    throw queryState.error;
-  }
 }
