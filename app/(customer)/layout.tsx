@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { MobileCustomerNav } from "@/components/ui/customer/mobile-customer-nav";
 import { CartHeaderLink } from "@/components/ui/customer/cart-header-link";
 import { CartHydration } from "@/components/ui/customer/cart-hydration";
+import { CustomerAccountActions } from "@/components/ui/customer/customer-account-actions";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -93,15 +94,7 @@ function CustomerHeader() {
             </button>
           </form>
 
-          <Link
-            href="/login"
-            className="hidden shrink-0 rounded-sm border border-transparent px-2 py-1 hover:border-white sm:block"
-          >
-            <span className="block text-[11px] text-white/70">
-              Hello, sign in
-            </span>
-            <span className="block text-sm font-bold">Account</span>
-          </Link>
+          <CustomerAccountActions />
           <Link
             href="/orders"
             className="hidden shrink-0 rounded-sm border border-transparent px-2 py-1 hover:border-white md:block"

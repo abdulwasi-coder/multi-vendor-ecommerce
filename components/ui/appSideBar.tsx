@@ -10,7 +10,7 @@ import {
   Package,
   Component,
 } from "lucide-react";
-import { useUser } from "@/Otherfiles/tanstack/admin";
+import { LogoutButton } from "@/components/ui/logout-button";
 
 import {
   Sidebar,
@@ -57,7 +57,7 @@ export function AppSidebar() {
     setOpenMobile(false);
     setHoverExpanded(false);
   };
-  const { data: user, isLoading, error } = useUser();
+
   return (
     <Sidebar
       collapsible="icon"
@@ -165,6 +165,9 @@ export function AppSidebar() {
       {/* 3. BOTTOM: BOSS IMAGE */}
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <LogoutButton variant="sidebar" />
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               className="flex  gap-2 items-center "

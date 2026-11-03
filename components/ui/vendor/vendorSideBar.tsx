@@ -3,7 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, ShoppingCart, Package, PackagePlus, Truck, Info, Store } from "lucide-react";
+import {
+  LayoutDashboard,
+  ShoppingCart,
+  Package,
+  PackagePlus,
+  Truck,
+  Info,
+  Store,
+} from "lucide-react";
+import { LogoutButton } from "@/components/ui/logout-button";
 
 import {
   Sidebar,
@@ -167,6 +176,9 @@ export function AppSidebar() {
       {/* 3. BOTTOM: BOSS IMAGE */}
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <LogoutButton variant="sidebar" />
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               className="flex  gap-2 items-center "
