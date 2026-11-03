@@ -2,17 +2,22 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { isAxiosError } from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Archive,
   ArrowDown,
-  ArrowUpRight,
   Eye,
   Package,
+  Pencil,
   Plus,
   Search,
   SlidersHorizontal,
+  Trash2,
 } from "lucide-react";
 import { useVendorProducts, type VendorProduct } from "@/Otherfiles/tanstack/vendor-products";
+import api from "@/lib/axios";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +28,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -37,6 +52,8 @@ const money = (value: number) =>
     value,
   );
 
+const EMPTY_PRODUCTS: VendorProduct[] = [];
+
 function categoryName(category: VendorProduct["categoryID"]) {
   return typeof category === "string" ? category : category.name;
 }
@@ -49,9 +66,14 @@ function statusLabel(status: VendorProduct["status"]) {
 
 export function VendorProductsTable() {
   const query = useVendorProducts();
-  const products = query.data?.products ?? [];
+  const queryClient = useQueryClient();
+  const products = query.data?.products ?? EMPTY_PRODUCTS;
   const summary = query.data?.summary;
   const [search, setSearch] = useState("");
+  const [productToDelete, setProductToDelete] = useState<VendorProduct | null>(
+    null,
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const filteredProducts = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -69,6 +91,38 @@ export function VendorProductsTable() {
         .includes(normalizedSearch),
     );
   }, [products, search]);
+
+  const handleDeleteProduct = async () => {
+    if (!productToDelete || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await api.delete<{
+        success?: boolean;
+        message?: string;
+      }>(`/vendor/deleteProduct/${productToDelete._id}`);
+      if (response.data.success === false) {
+        throw new Error(response.data.message ?? "Could not delete the product.");
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["vendor-products"] });
+      toast.success("Product deleted successfully.");
+      setProductToDelete(null);
+    } catch (error) {
+      const message = isAxiosError(error)
+        ? error.response?.data?.message
+        : error instanceof Error
+          ? error.message
+          : undefined;
+      toast.error(
+        typeof message === "string" && message.trim()
+          ? message
+          : "Could not delete the product. Please try again.",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-400 space-y-7 bg-muted/20 px-4 py-7 sm:px-7 lg:px-10">
@@ -253,20 +307,42 @@ export function VendorProductsTable() {
                         </Badge>
                       </TableCell>
                       <TableCell className="gap-0.5 pr-6 text-right">
-                        <Link href={`/vendor/products/${product._id}`}>
-                          <Button size="sm" variant="outline">
-                            <Eye className="size-4" />
-                            <span className="sr-only">View {product.name}</span>
-                          </Button>
-                        </Link>
-                        <Link
-                          href={`/vendor/create?productID=${product._id}`}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          render={
+                            <Link
+                              href={`/vendor/products/${product._id}`}
+                              aria-label={`View ${product.name}`}
+                              title={`View ${product.name}`}
+                            />
+                          }
                         >
-                          <Button size="sm" variant="outline">
-                            <ArrowUpRight className="size-4" />
-                            <span className="sr-only">Edit {product.name}</span>
-                          </Button>
-                        </Link>
+                          <Eye className="size-4" aria-hidden="true" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          render={
+                            <Link
+                              href={`/vendor/create?productID=${product._id}`}
+                              aria-label={`Edit ${product.name}`}
+                              title={`Edit ${product.name}`}
+                            />
+                          }
+                        >
+                          <Pencil className="size-4" aria-hidden="true" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setProductToDelete(product)}
+                          aria-label={`Delete ${product.name}`}
+                          title={`Delete ${product.name}`}
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="size-4" aria-hidden="true" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
@@ -279,6 +355,35 @@ export function VendorProductsTable() {
           </div>
         </CardContent>
       </Card>
+      <AlertDialog
+        open={Boolean(productToDelete)}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) setProductToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this product?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {productToDelete
+                ? `"${productToDelete.name}" will be permanently removed from your catalog.`
+                : "This product will be permanently removed from your catalog."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              Keep product
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => void handleDeleteProduct()}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete product"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }

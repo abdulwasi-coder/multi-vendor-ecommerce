@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -33,13 +33,38 @@ import { ProductInput, productBodySchema } from "@/Otherfiles/ZOD";
 import { Badge } from "../badge";
 import api from "@/lib/axios";
 import { isAxiosError } from "axios";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useVendorProductCategories } from "@/Otherfiles/tanstack/vendor-product-categories";
 
 const MAX_PRODUCT_IMAGES = 5;
 
-export function ProductForm({ product }: { product?: ProductInput }) {
+interface ExistingProductImage {
+  _id: string;
+  cloudinaryId: string;
+  publicId: string;
+}
+
+interface EditableProduct {
+  _id: string;
+  name: string;
+  description: string;
+  brand: string;
+  categoryID: string;
+  stock: number;
+  price: number;
+  discount?: number;
+  status: string;
+  colors: string[];
+  images: ExistingProductImage[];
+  attributes?: Array<{ key: string; value: string }>;
+}
+
+export function ProductForm({ productId }: { productId?: string }) {
   const [previews, setPreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<ExistingProductImage[]>(
+    [],
+  );
+  const [loadedProductId, setLoadedProductId] = useState<string>();
   const [colorInput, setColorInput] = useState("");
   const [selectedLevelOneId, setSelectedLevelOneId] = useState("");
   const [selectedLevelTwoId, setSelectedLevelTwoId] = useState("");
@@ -47,12 +72,32 @@ export function ProductForm({ product }: { product?: ProductInput }) {
   const categoryQuery = useVendorProductCategories();
   const queryClient = useQueryClient();
   const router = useRouter();
-  const editing = Boolean(product);
+  const editing = Boolean(productId);
+  const productQuery = useQuery({
+    queryKey: ["vendor-product", productId],
+    enabled: editing,
+    queryFn: async () => {
+      if (!productId) throw new Error("A product ID is required.");
+      const response = await api.get<{
+        success: boolean;
+        message?: string;
+        product?: EditableProduct;
+      }>(`/vendor/readProduct/${productId}`);
+      if (!response.data.success || !response.data.product) {
+        throw new Error(response.data.message ?? "Could not load this product.");
+      }
+      return response.data.product;
+    },
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
 
   const {
     control,
     handleSubmit,
     setValue,
+    setError,
+    reset,
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -67,6 +112,7 @@ export function ProductForm({ product }: { product?: ProductInput }) {
       price: undefined,
       discount: undefined,
       colors: [],
+      status: "active",
       attributes: [],
     },
   });
@@ -76,16 +122,74 @@ export function ProductForm({ product }: { product?: ProductInput }) {
     name: "attributes",
   });
 
-  const currentColors = watch("colors") || [];
-  const handleAdd = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && colorInput.trim() !== "") {
-      e.preventDefault();
-      if (!currentColors.includes(colorInput.trim())) {
-        setValue("colors", [...currentColors, colorInput.trim()], {
-          shouldValidate: true,
-        });
+  useEffect(() => {
+    const savedProduct = productQuery.data;
+    if (!savedProduct) return;
+
+    reset({
+      name: savedProduct.name,
+      images: undefined,
+      description: savedProduct.description,
+      brand: savedProduct.brand,
+      categoryID: savedProduct.categoryID,
+      stock: savedProduct.stock,
+      price: savedProduct.price,
+      discount: savedProduct.discount ?? 0,
+      colors: savedProduct.colors ?? [],
+      status:
+        savedProduct.status === "archieved" ||
+        savedProduct.status === "archived"
+          ? "archived"
+          : savedProduct.status === "banned"
+            ? "inactive"
+            : savedProduct.status === "inactive"
+              ? "inactive"
+              : "active",
+      attributes: (savedProduct.attributes ?? []).map(({ key, value }) => ({
+        key,
+        value,
+      })),
+    });
+    setExistingImages(savedProduct.images ?? []);
+    setPreviews([]);
+    setLoadedProductId(productId);
+  }, [productId, productQuery.data, reset]);
+
+  useEffect(() => {
+    const categoryId = productQuery.data?.categoryID;
+    const categories = categoryQuery.data;
+    if (!categoryId || !categories) return;
+
+    for (const levelOne of categories) {
+      for (const levelTwo of levelOne.children) {
+        if (levelTwo.children.some((item) => item._id === categoryId)) {
+          setSelectedLevelOneId(levelOne._id);
+          setSelectedLevelTwoId(levelTwo._id);
+          setSelectedLevelThreeId(categoryId);
+          return;
+        }
       }
-      setColorInput("");
+    }
+  }, [categoryQuery.data, productQuery.data?.categoryID]);
+
+  const currentColors = watch("colors") || [];
+  const addColor = () => {
+    const color = colorInput.trim();
+    if (!color) return;
+
+    if (!currentColors.includes(color)) {
+      setValue("colors", [...currentColors, color], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+    setColorInput("");
+  };
+
+  const handleAdd = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addColor();
     }
   };
   const handleRemove = (colorToRemove: string) => {
@@ -97,6 +201,15 @@ export function ProductForm({ product }: { product?: ProductInput }) {
   };
 
   async function onSubmit(data: ProductInput) {
+    const newImages = Array.from(data.images ?? []);
+    if (existingImages.length + newImages.length === 0) {
+      setError("images", {
+        type: "manual",
+        message: "Keep or upload at least one product image.",
+      });
+      return;
+    }
+
     try {
       const multipartPayload = new FormData();
       multipartPayload.append("name", data.name);
@@ -116,17 +229,28 @@ export function ProductForm({ product }: { product?: ProductInput }) {
           ),
         ),
       );
+      if (editing) {
+        multipartPayload.append(
+          "images",
+          JSON.stringify(existingImages),
+        );
+      }
       if (data.discount !== undefined && data.discount !== null) {
         multipartPayload.append("discount", String(data.discount));
       }
-      Array.from(data.images ?? []).forEach((file) => {
+      newImages.forEach((file) => {
         multipartPayload.append("imagestoUpload", file);
       });
 
       const response = await api.post<{
         success: boolean;
         message?: string;
-      }>("/vendor/CreateProduct", multipartPayload);
+      }>(
+        editing && productId
+          ? `/vendor/UpdateProduct/${productId}`
+          : "/vendor/CreateProduct",
+        multipartPayload,
+      );
 
       if (!response.data.success) {
         throw new Error(response.data.message ?? "Could not create product.");
@@ -135,7 +259,14 @@ export function ProductForm({ product }: { product?: ProductInput }) {
       await queryClient.invalidateQueries({
         queryKey: ["vendor-products"],
       });
-      toast.success("Product created successfully.");
+      if (productId) {
+        await queryClient.invalidateQueries({
+          queryKey: ["vendor-product", productId],
+        });
+      }
+      toast.success(
+        editing ? "Product updated successfully." : "Product created successfully.",
+      );
       router.push("/vendor/products");
     } catch (error) {
       const message = isAxiosError<{ message?: string }>(error)
@@ -166,7 +297,7 @@ export function ProductForm({ product }: { product?: ProductInput }) {
     });
     const availableSlots = Math.max(
       0,
-      MAX_PRODUCT_IMAGES - existingFiles.length,
+      MAX_PRODUCT_IMAGES - existingImages.length - existingFiles.length,
     );
     const newFiles = uniqueNewFiles.slice(0, availableSlots);
 
@@ -190,19 +321,30 @@ export function ProductForm({ product }: { product?: ProductInput }) {
   }
 
   function handleRemoveImage(index: number) {
+    if (index < existingImages.length) {
+      setExistingImages((current) =>
+        current.filter((_, imageIndex) => imageIndex !== index),
+      );
+      return;
+    }
+
+    const newImageIndex = index - existingImages.length;
     const files = watch("images");
     if (!files) return;
 
     const dataTransfer = new DataTransfer();
     Array.from(files).forEach((file, fileIndex) => {
-      if (fileIndex !== index) dataTransfer.items.add(file);
+      if (fileIndex !== newImageIndex) dataTransfer.items.add(file);
     });
 
-    URL.revokeObjectURL(previews[index]);
+    URL.revokeObjectURL(previews[newImageIndex]);
     setPreviews((current) =>
-      current.filter((_, fileIndex) => fileIndex !== index),
+      current.filter((_, fileIndex) => fileIndex !== newImageIndex),
     );
-    setValue("images", dataTransfer.files, { shouldValidate: true });
+    setValue("images", dataTransfer.files, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   }
 
   function HandleAddingFields({
@@ -263,6 +405,37 @@ export function ProductForm({ product }: { product?: ProductInput }) {
       ?.children.find((category) => category._id === selectedLevelTwoId)
       ?.children ?? [];
 
+  if (
+    editing &&
+    (productQuery.isPending || loadedProductId !== productId)
+  ) {
+    return (
+      <main className="min-h-[calc(100dvh-2rem)] bg-background px-4 py-10 text-center text-muted-foreground">
+        Loading product details...
+      </main>
+    );
+  }
+
+  if (editing && productQuery.isError) {
+    return (
+      <main className="min-h-[calc(100dvh-2rem)] bg-background px-4 py-10">
+        <div className="mx-auto max-w-xl space-y-4 text-center">
+          <p role="alert" className="text-sm text-destructive">
+            {productQuery.error instanceof Error
+              ? productQuery.error.message
+              : "Could not load this product."}
+          </p>
+          <Button type="button" variant="outline" onClick={() => void productQuery.refetch()}>
+            Try again
+          </Button>
+          <Button variant="ghost" render={<Link href="/vendor/products" />}>
+            Back to products
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-[calc(100dvh-2rem)] bg-background">
       <div className="mx-auto w-full max-w-6xl px-4 py-3 sm:px-7 lg:px-10">
@@ -285,7 +458,9 @@ export function ProductForm({ product }: { product?: ProductInput }) {
             </h1>
           </div>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Fill in the needed product details below.
+            {editing
+              ? "Update the listing details below. Keep or replace its images before saving."
+              : "Fill in the needed product details below."}
           </p>
         </header>
 
@@ -430,21 +605,34 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                   control={control}
                   name="colors"
                   render={({ field }) => (
-                    <Input
-                      id="color-input"
-                      name={field.name}
-                      value={colorInput}
-                      className={inputClassName}
-                      onChange={(e) => setColorInput(e.target.value)}
-                      onKeyDown={handleAdd}
-                      onBlur={field.onBlur}
-                      ref={field.ref}
-                      placeholder="e.g. Black"
-                    />
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                      <Input
+                        id="color-input"
+                        name={field.name}
+                        value={colorInput}
+                        className={inputClassName}
+                        onChange={(event) => setColorInput(event.target.value)}
+                        onKeyDown={handleAdd}
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        placeholder="e.g. Black"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={addColor}
+                        disabled={!colorInput.trim()}
+                        aria-label="Add color"
+                        className="min-h-11 gap-1.5 px-3"
+                      >
+                        <Plus className="size-4" aria-hidden="true" />
+                        Add
+                      </Button>
+                    </div>
                   )}
                 />
                 <FieldDescription>
-                  Type a color name and hit Enter.
+                  Type a color name and tap Add.
                 </FieldDescription>
                 {currentColors.length > 0 && (
                   <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-muted/40">
@@ -458,6 +646,7 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                         <button
                           type="button"
                           onClick={() => handleRemove(color)}
+                          aria-label={`Remove ${color}`}
                           className="rounded-full hover:bg-muted p-0.5 transition"
                         >
                           <X className="w-3 h-3 text-muted-foreground hover:text-destructive" />
@@ -494,7 +683,7 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                   <select
                     {...field}
                     id="product-status"
-                    value={field.value ?? product?.status ?? "active"}
+                    value={field.value ?? "active"}
                     required
                     className={`${inputClassName} border pr-9`}
                   >
@@ -602,7 +791,6 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                     value={field.value ?? ""}
                     onChange={(event) => field.onChange(event.target.value)}
                     placeholder="Describe the product, its materials, fit, and care."
-                    defaultValue={product?.description}
                   />
                 )}
               />
@@ -620,7 +808,7 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                       <>
                         <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                         <p className="text-sm text-muted-foreground">
-                          Click to upload up to {MAX_PRODUCT_IMAGES} files
+                          Click to upload up to {Math.max(0, MAX_PRODUCT_IMAGES - existingImages.length)} more files
                         </p>
                         <Input
                           type="file"
@@ -628,7 +816,9 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                           accept="image/*"
                           multiple
                           disabled={
-                            (watch("images")?.length ?? 0) >= MAX_PRODUCT_IMAGES
+                            existingImages.length +
+                              (watch("images")?.length ?? 0) >=
+                              MAX_PRODUCT_IMAGES
                           }
                           onChange={handleImageChange}
                           onBlur={field.onBlur}
@@ -638,8 +828,28 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                     )}
                   />
                 </label>
-                {previews.length > 0 && (
+                {(existingImages.length > 0 || previews.length > 0) && (
                   <div className="grid grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/20">
+                    {existingImages.map((image, index) => (
+                      <div
+                        key={image._id}
+                        className="relative aspect-square rounded-md overflow-hidden border"
+                      >
+                        <img
+                          src={image.publicId}
+                          alt={`Current product image ${index + 1}`}
+                          className="object-cover w-full h-full"
+                        />
+                        <button
+                          type="button"
+                          aria-label={`Remove current image ${index + 1}`}
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute right-2 top-2 rounded-full bg-background/90 p-1 text-foreground shadow hover:bg-destructive hover:text-destructive-foreground"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
                     {previews.map((url, idx) => (
                       <div
                         key={idx}
@@ -652,8 +862,10 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                         />
                         <button
                           type="button"
-                          aria-label={`Remove image ${idx + 1}`}
-                          onClick={() => handleRemoveImage(idx)}
+                          aria-label={`Remove new image ${idx + 1}`}
+                          onClick={() =>
+                            handleRemoveImage(existingImages.length + idx)
+                          }
                           className="absolute right-2 top-2 rounded-full bg-background/90 p-1 text-foreground shadow hover:bg-destructive hover:text-destructive-foreground"
                         >
                           <X className="h-4 w-4" />
@@ -685,7 +897,8 @@ export function ProductForm({ product }: { product?: ProductInput }) {
                 </>
               ) : (
                 <>
-                  <Save className="size-4" /> Save Product
+                  <Save className="size-4" />
+                  {editing ? "Save changes" : "Save Product"}
                 </>
               )}
             </button>

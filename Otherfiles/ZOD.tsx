@@ -93,20 +93,23 @@ export const productBodySchema = z.object({
   images: z
     .custom<FileList>(
       (val) => val instanceof FileList,
-      "Please select at least one image"
+      "Please select valid image files",
     )
-    .refine((files) => files.length > 0, "At least one image is required")
-    .refine((files) => files.length <= 5, "You can upload a maximum of 5 images")
+    .optional()
     .refine(
-      (files) => Array.from(files).every((file) => file.size <= MAX_FILE_SIZE),
-      "Each file must be less than 5MB."
+      (files) => !files || files.length <= 5,
+      "You can upload a maximum of 5 images",
     )
     .refine(
       (files) =>
-        Array.from(files).every((file) =>
-          ACCEPTED_IMAGE_TYPES.includes(file.type)
-        ),
-      "Only .jpg, .jpeg, .png and .webp formats are supported."
+        !files || Array.from(files).every((file) => file.size <= MAX_FILE_SIZE),
+      "Each file must be less than 5MB.",
+    )
+    .refine(
+      (files) =>
+        !files ||
+        Array.from(files).every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)),
+      "Only .jpg, .jpeg, .png and .webp formats are supported.",
     ),
   attributes: z.array(attributeItemSchema).optional().default([]),
 });

@@ -15,12 +15,6 @@ interface CategoryViewDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-function categoryImageUrl(category: Category) {
-  return [category.Image?.publicId, category.Image?.cloudinaryId].find(
-    (value) => typeof value === "string" && /^https?:\/\//i.test(value),
-  );
-}
-
 function formatDate(value?: string) {
   if (!value) return "Not available";
   const date = new Date(value);
@@ -41,7 +35,7 @@ export function CategoryViewDialog({
       : typeof parent === "string"
         ? parent
         : "None";
-  const imageUrl = categoryImageUrl(category);
+  const imageUrl = category.Image?.publicId;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

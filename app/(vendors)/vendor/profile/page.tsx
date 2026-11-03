@@ -19,23 +19,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  useVendorProfile,
-  type VendorProfile,
-} from "@/Otherfiles/tanstack/vendor-profile";
-
-function companyImageUrl(profile: VendorProfile) {
-  const image = profile.Companyimage;
-  return [image?.cloudinaryId, image?.publicId].find(
-    (value) => typeof value === "string" && /^https?:\/\//i.test(value),
-  );
-}
+import { useVendorProfile } from "@/Otherfiles/tanstack/vendor-profile";
 
 export default function VendorProfilePage() {
   const query = useVendorProfile();
   const profile = query.data;
 
-  const imageUrl = profile ? companyImageUrl(profile) : undefined;
+  const imageUrl = profile?.Companyimage?.publicId;
 
   return (
     <main className="min-h-screen space-y-5 bg-[#f5f6f4] px-2 py-4 sm:px-4 lg:px-6">

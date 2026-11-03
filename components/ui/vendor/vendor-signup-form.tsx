@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent} from "react";
 import { isAxiosError } from "axios";
 import {
   ArrowRight,
@@ -11,10 +11,9 @@ import {
   MapPin,
   ShieldCheck,
   Store,
-  Upload,
   UserRound,
 } from "lucide-react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ALLOWED_COUNTRIES,
@@ -70,7 +69,6 @@ export function VendorSignupForm() {
     control,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(VendorBodySchema),
@@ -86,7 +84,7 @@ export function VendorSignupForm() {
       country: "",
     },
   });
-  const watchCountry = watch("country");
+  const watchCountry = useWatch({ control, name: "country" });
 
   useEffect(() => {
     if (watchCountry) {
@@ -487,7 +485,7 @@ export function VendorSignupForm() {
                       <Controller
                         control={control}
                         name="image"
-                        render={({ field }) => (
+                        render={() => (
                           <div className="relative border-2 border-dashed border-zinc-200 rounded-xl p-4 text-center cursor-pointer bg-zinc-50/50">
                             <input
                               type="file"

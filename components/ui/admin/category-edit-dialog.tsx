@@ -153,10 +153,7 @@ export function CategoryEditDialog({
           : parentOptions.length === 0
             ? "No matching categories found."
             : "Choose a category from the matches.");
-  const currentImageUrl = [
-    category?.Image?.publicId,
-    category?.Image?.cloudinaryId,
-  ].find((value) => typeof value === "string" && /^https?:\/\//i.test(value));
+  const currentImageUrl = category?.Image?.publicId;
 
   return (
     <Dialog

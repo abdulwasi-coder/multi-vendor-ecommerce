@@ -27,16 +27,10 @@ export const Categorycolumns: ColumnDef<DataTableFeatures, Category>[] = [
     accessorKey: "Image",
     header: "Image",
     cell: ({ row }) => {
-      // Older category records have used these two fields inconsistently.
-      // Only pass an actual URL to the browser; a Cloudinary public ID is not
-      // itself a renderable image source.
-      const image = row.original.Image;
-      const url = [image?.publicId, image?.cloudinaryId].find(
-        (value) => typeof value === "string" && /^https?:\/\//i.test(value),
-      );
-      return url ? (
+      const imageUrl = row.original.Image?.publicId;
+      return imageUrl ? (
         <img
-          src={url}
+          src={imageUrl}
           alt={`${row.original.name} category`}
           loading="lazy"
           className="h-10 w-10 rounded object-cover border border-gray-200"

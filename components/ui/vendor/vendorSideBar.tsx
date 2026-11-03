@@ -47,10 +47,7 @@ export function AppSidebar() {
   const [hoverExpanded, setHoverExpanded] = useState(false);
   const profileQuery = useVendorProfile();
   const profile = profileQuery.data;
-  const storeImage = [
-    profile?.Companyimage?.cloudinaryId,
-    profile?.Companyimage?.publicId,
-  ].find((value) => typeof value === "string" && /^https?:\/\//i.test(value));
+  const storeImage = profile?.Companyimage?.publicId;
 
   const handleMouseEnter = () => {
     if (state === "collapsed") {
