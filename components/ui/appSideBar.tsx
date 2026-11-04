@@ -98,7 +98,6 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      {/* 2. MIDDLE: NAV LINKS (Home, Inbox, etc.) */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
@@ -162,7 +161,6 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* 3. BOTTOM: BOSS IMAGE */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
+  ArrowDown,
+  ArrowUp,
   Plus,
   Save,
   Trash2,
@@ -61,9 +63,11 @@ interface EditableProduct {
 
 export function ProductForm({ productId }: { productId?: string }) {
   const [previews, setPreviews] = useState<string[]>([]);
+  const [newImageIds, setNewImageIds] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<ExistingProductImage[]>(
     [],
   );
+  const [imageOrder, setImageOrder] = useState<string[]>([]);
   const [loadedProductId, setLoadedProductId] = useState<string>();
   const [colorInput, setColorInput] = useState("");
   const [selectedLevelOneId, setSelectedLevelOneId] = useState("");
@@ -152,6 +156,10 @@ export function ProductForm({ productId }: { productId?: string }) {
     });
     setExistingImages(savedProduct.images ?? []);
     setPreviews([]);
+    setNewImageIds([]);
+    setImageOrder(
+      (savedProduct.images ?? []).map((image) => `existing:${image._id}`),
+    );
     setLoadedProductId(productId);
   }, [productId, productQuery.data, reset]);
 
@@ -235,6 +243,16 @@ export function ProductForm({ productId }: { productId?: string }) {
           JSON.stringify(existingImages),
         );
       }
+      multipartPayload.append(
+        "imageOrder",
+        JSON.stringify(
+          imageOrder.map((imageId) =>
+            imageId.startsWith("existing:")
+              ? imageId
+              : `new:${newImageIds.indexOf(imageId)}`,
+          ),
+        ),
+      );
       if (data.discount !== undefined && data.discount !== null) {
         multipartPayload.append("discount", String(data.discount));
       }
@@ -317,33 +335,57 @@ export function ProductForm({ productId }: { productId?: string }) {
     setValue("images", dataTransfer.files, { shouldValidate: true });
 
     const localURLs = newFiles.map((file) => URL.createObjectURL(file));
+    const newIds = newFiles.map(() => crypto.randomUUID());
     setPreviews((current) => [...current, ...localURLs]);
+    setNewImageIds((current) => [...current, ...newIds]);
+    setImageOrder((current) => [...current, ...newIds]);
   }
 
-  function handleRemoveImage(index: number) {
-    if (index < existingImages.length) {
+  function handleRemoveImage(imageId: string) {
+    if (imageId.startsWith("existing:")) {
+      const existingId = imageId.slice("existing:".length);
       setExistingImages((current) =>
-        current.filter((_, imageIndex) => imageIndex !== index),
+        current.filter((image) => image._id !== existingId),
       );
-      return;
+    } else {
+      const newImageIndex = newImageIds.indexOf(imageId);
+      if (newImageIndex < 0) return;
+
+      const files = watch("images");
+      if (!files) return;
+
+      const dataTransfer = new DataTransfer();
+      Array.from(files).forEach((file, fileIndex) => {
+        if (fileIndex !== newImageIndex) dataTransfer.items.add(file);
+      });
+
+      URL.revokeObjectURL(previews[newImageIndex]);
+      setPreviews((current) =>
+        current.filter((_, fileIndex) => fileIndex !== newImageIndex),
+      );
+      setNewImageIds((current) =>
+        current.filter((_, fileIndex) => fileIndex !== newImageIndex),
+      );
+      setValue("images", dataTransfer.files, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
 
-    const newImageIndex = index - existingImages.length;
-    const files = watch("images");
-    if (!files) return;
+    setImageOrder((current) => current.filter((id) => id !== imageId));
+  }
 
-    const dataTransfer = new DataTransfer();
-    Array.from(files).forEach((file, fileIndex) => {
-      if (fileIndex !== newImageIndex) dataTransfer.items.add(file);
-    });
+  function moveImage(imageId: string, direction: -1 | 1) {
+    setImageOrder((current) => {
+      const currentIndex = current.indexOf(imageId);
+      const nextIndex = currentIndex + direction;
+      if (currentIndex < 0 || nextIndex < 0 || nextIndex >= current.length) {
+        return current;
+      }
 
-    URL.revokeObjectURL(previews[newImageIndex]);
-    setPreviews((current) =>
-      current.filter((_, fileIndex) => fileIndex !== newImageIndex),
-    );
-    setValue("images", dataTransfer.files, {
-      shouldValidate: true,
-      shouldDirty: true,
+      const next = [...current];
+      [next[currentIndex], next[nextIndex]] = [next[nextIndex], next[currentIndex]];
+      return next;
     });
   }
 
@@ -798,6 +840,10 @@ export function ProductForm({ productId }: { productId?: string }) {
             </Field>
             <Field className="sm:col-span-2">
               <FieldLabel>Upload Images</FieldLabel>
+              <FieldDescription>
+                Use the arrows to arrange images. The first image is the main
+                product photo shoppers see.
+              </FieldDescription>
               <div className="space-y-4 mt-1.5">
                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/60 transition">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6"></div>
@@ -828,50 +874,62 @@ export function ProductForm({ productId }: { productId?: string }) {
                     )}
                   />
                 </label>
-                {(existingImages.length > 0 || previews.length > 0) && (
+                {imageOrder.length > 0 && (
                   <div className="grid grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/20">
-                    {existingImages.map((image, index) => (
-                      <div
-                        key={image._id}
-                        className="relative aspect-square rounded-md overflow-hidden border"
-                      >
-                        <img
-                          src={image.publicId}
-                          alt={`Current product image ${index + 1}`}
-                          className="object-cover w-full h-full"
-                        />
-                        <button
-                          type="button"
-                          aria-label={`Remove current image ${index + 1}`}
-                          onClick={() => handleRemoveImage(index)}
-                          className="absolute right-2 top-2 rounded-full bg-background/90 p-1 text-foreground shadow hover:bg-destructive hover:text-destructive-foreground"
+                    {imageOrder.map((imageId, index) => {
+                      const existing = imageId.startsWith("existing:");
+                      const source = existing
+                        ? existingImages.find(
+                            (image) =>
+                              image._id === imageId.slice("existing:".length),
+                          )?.publicId
+                        : previews[newImageIds.indexOf(imageId)];
+                      if (!source) return null;
+
+                      return (
+                        <div
+                          key={imageId}
+                          className="relative aspect-square overflow-hidden rounded-md border"
                         >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                    {previews.map((url, idx) => (
-                      <div
-                        key={idx}
-                        className="relative aspect-square rounded-md overflow-hidden border"
-                      >
-                        <img
-                          src={url}
-                          alt={`Preview image ${idx + 1}`}
-                          className="object-cover w-full h-full"
-                        />
-                        <button
-                          type="button"
-                          aria-label={`Remove new image ${idx + 1}`}
-                          onClick={() =>
-                            handleRemoveImage(existingImages.length + idx)
-                          }
-                          className="absolute right-2 top-2 rounded-full bg-background/90 p-1 text-foreground shadow hover:bg-destructive hover:text-destructive-foreground"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
+                          <img
+                            src={source}
+                            alt={`Product image ${index + 1}`}
+                            className="size-full object-cover"
+                          />
+                          <span className="absolute bottom-2 left-2 rounded bg-background/90 px-2 py-1 text-xs font-medium">
+                            {index === 0 ? "Main image" : `Image ${index + 1}`}
+                          </span>
+                          <div className="absolute right-2 top-2 flex gap-1">
+                            <button
+                              type="button"
+                              aria-label={`Move image ${index + 1} earlier`}
+                              disabled={index === 0}
+                              onClick={() => moveImage(imageId, -1)}
+                              className="rounded-full bg-background/90 p-1 text-foreground shadow disabled:opacity-40"
+                            >
+                              <ArrowUp className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label={`Move image ${index + 1} later`}
+                              disabled={index === imageOrder.length - 1}
+                              onClick={() => moveImage(imageId, 1)}
+                              className="rounded-full bg-background/90 p-1 text-foreground shadow disabled:opacity-40"
+                            >
+                              <ArrowDown className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label={`Remove image ${index + 1}`}
+                              onClick={() => handleRemoveImage(imageId)}
+                              className="rounded-full bg-background/90 p-1 text-foreground shadow hover:bg-destructive hover:text-destructive-foreground"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

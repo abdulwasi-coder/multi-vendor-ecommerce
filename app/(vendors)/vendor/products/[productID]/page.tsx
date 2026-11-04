@@ -160,7 +160,9 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
             <div className="flex py-2 flex-col border-y gap-1">
               <div className="flex flex-col gap-3 text-xs">
                 <span className="font-semibold text-sm">About The Item</span>
-                   <span className="text-gray-500">{product.description}</span>
+                <span className="whitespace-pre-wrap break-words text-gray-500">
+                  {product.description}
+                </span>
               </div>
             </div>
             <Button
