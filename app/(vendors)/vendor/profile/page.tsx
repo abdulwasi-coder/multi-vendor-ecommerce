@@ -2,16 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type ReactNode } from "react";
+import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import {
   ArrowLeft,
+  Pencil,
   MapPin,
   Phone,
+  Save,
   ShieldCheck,
   Store,
   UserRound,
+  X,
 } from "lucide-react";
+import { isAxiosError } from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -19,13 +25,73 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import api from "@/lib/axios";
+import { toast } from "sonner";
 import { useVendorProfile } from "@/Otherfiles/tanstack/vendor-profile";
 
 export default function VendorProfilePage() {
   const query = useVendorProfile();
+  const queryClient = useQueryClient();
   const profile = query.data;
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [imageFile, setImageFile] = useState<File>();
+  const [imagePreview, setImagePreview] = useState("");
 
-  const imageUrl = profile?.Companyimage?.publicId;
+  useEffect(
+    () => () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    },
+    [imagePreview],
+  );
+
+  const imageUrl = imagePreview || profile?.Companyimage?.publicId;
+
+  function closeEditor() {
+    setIsEditing(false);
+    setImageFile(undefined);
+    setImagePreview("");
+  }
+
+  async function handleProfileSave(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!profile || isSaving) return;
+
+    const formData = new FormData(event.currentTarget);
+    if (imageFile) formData.set("companyimage", imageFile);
+    setIsSaving(true);
+
+    try {
+      const response = await api.put<{
+        success: boolean;
+        message?: string;
+        vendor?: typeof profile;
+      }>("/vendor/updateProfile", formData);
+
+      if (!response.data.success || !response.data.vendor) {
+        throw new Error(response.data.message ?? "Could not update your profile.");
+      }
+
+      queryClient.setQueryData(["vendor-profile"], response.data.vendor);
+      toast.success(response.data.message ?? "Profile updated successfully.");
+      closeEditor();
+    } catch (error) {
+      const message = isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message
+        : error instanceof Error
+          ? error.message
+          : undefined;
+      toast.error(
+        typeof message === "string" && message.trim()
+          ? message
+          : "Could not update your profile. Please try again.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
     <main className="min-h-screen space-y-5 bg-[#f5f6f4] px-2 py-4 sm:px-4 lg:px-6">
@@ -45,13 +111,20 @@ export default function VendorProfilePage() {
           </p>
         </div>
         {profile && (
-          <Badge
-            variant="outline"
-            className="w-fit gap-1.5 rounded-full bg-background px-2.5 py-1 text-xs font-normal capitalize text-muted-foreground"
-          >
-            <ShieldCheck className="size-3" />
-            {profile.status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="outline"
+              className="w-fit gap-1.5 rounded-full bg-background px-2.5 py-1 text-xs font-normal capitalize text-muted-foreground"
+            >
+              <ShieldCheck className="size-3" />
+              {profile.status}
+            </Badge>
+            {!isEditing && (
+              <Button type="button" onClick={() => setIsEditing(true)}>
+                <Pencil /> Edit profile
+              </Button>
+            )}
+          </div>
         )}
       </header>
 
@@ -77,6 +150,86 @@ export default function VendorProfilePage() {
       ) : profile ? (
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-5">
+            {isEditing && (
+              <Card className="border-[#dfe4df] shadow-sm shadow-[#192c25]/5">
+                <CardHeader className="border-b">
+                  <CardTitle>Edit vendor profile</CardTitle>
+                  <CardDescription>
+                    Update your contact information and public store details.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleProfileSave} className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="space-y-1.5 text-sm font-medium">
+                        First name
+                        <Input name="name" required minLength={2} maxLength={120} defaultValue={profile.name} />
+                      </label>
+                      <label className="space-y-1.5 text-sm font-medium">
+                        Last name
+                        <Input name="lastName" required minLength={2} maxLength={120} defaultValue={profile.lastName} />
+                      </label>
+                      <label className="space-y-1.5 text-sm font-medium">
+                        Country
+                        <Input name="country" required minLength={2} maxLength={120} defaultValue={profile.country} />
+                      </label>
+                      <label className="space-y-1.5 text-sm font-medium">
+                        Mobile number (include country code)
+                        <Input
+                          name="mobilenumber"
+                          type="tel"
+                          required
+                          defaultValue={profile.mobilenumber}
+                          placeholder="+447123456789"
+                        />
+                      </label>
+                      <label className="space-y-1.5 text-sm font-medium">
+                        Store name
+                        <Input name="companyName" required minLength={2} maxLength={120} defaultValue={profile.companyName} />
+                      </label>
+                      <label className="space-y-1.5 text-sm font-medium">
+                        Store URL
+                        <Input name="storeSlug" required minLength={2} maxLength={120} pattern="[a-zA-Z0-9-]+" defaultValue={profile.storeSlug} />
+                      </label>
+                    </div>
+                    <label className="block space-y-1.5 text-sm font-medium">
+                      Store description
+                      <Textarea
+                        name="storeDescription"
+                        required
+                        minLength={2}
+                        maxLength={2000}
+                        defaultValue={profile.storeDescription}
+                        className="min-h-28"
+                      />
+                    </label>
+                    <label className="block space-y-1.5 text-sm font-medium">
+                      Store image (optional)
+                      <Input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          setImageFile(file);
+                          setImagePreview((current) => {
+                            if (current) URL.revokeObjectURL(current);
+                            return file ? URL.createObjectURL(file) : "";
+                          });
+                        }}
+                      />
+                    </label>
+                    <div className="flex justify-end gap-2">
+                      <Button type="button" variant="outline" onClick={closeEditor} disabled={isSaving}>
+                        <X /> Cancel
+                      </Button>
+                      <Button type="submit" disabled={isSaving}>
+                        <Save /> {isSaving ? "Saving..." : "Save changes"}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
             <Card className="border-[#dfe4df] shadow-sm shadow-[#192c25]/5">
               <CardHeader className="border-b">
                 <div className="flex items-center gap-3">
@@ -142,13 +295,21 @@ export default function VendorProfilePage() {
             <CardContent className="relative">
               <div className="-mt-10 grid size-16 place-items-center overflow-hidden rounded-2xl border-4 border-card bg-[#203b33] text-amber-100 shadow-md">
                 {imageUrl ? (
-                  <Image
-                    src={imageUrl}
-                    alt={`${profile.companyName} store`}
-                    width={64}
-                    height={64}
-                    className="size-full object-cover"
-                  />
+                  imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt={`${profile.companyName} store`}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={imageUrl}
+                      alt={`${profile.companyName} store`}
+                      width={64}
+                      height={64}
+                      className="size-full object-cover"
+                    />
+                  )
                 ) : (
                   <Store className="size-6" />
                 )}
