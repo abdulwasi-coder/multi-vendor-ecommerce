@@ -32,8 +32,8 @@ function categoryImageUrl(category: HomeCategoryChild) {
   return imageUrl.replace("w_400", "w_800").replace("h_400", "h_800");
 }
 
-function categoryHref(name: string) {
-  return `/products?${new URLSearchParams({ category: name }).toString()}`;
+function categoryHref(id: string) {
+  return `/products?${new URLSearchParams({ category: id }).toString()}`;
 }
 
 export function HomeCategoryGrid() {
@@ -99,7 +99,7 @@ export function HomeCategoryGrid() {
                 <h2 className="text-lg font-bold leading-7">
                   {group.root ? (
                     <Link
-                      href={categoryHref(group.root.name)}
+                      href={categoryHref(group.root._id)}
                       className="hover:text-[#c45500]"
                     >
                       {group.name}
@@ -116,7 +116,7 @@ export function HomeCategoryGrid() {
                   return (
                     <Link
                       key={category._id}
-                      href={categoryHref(category.name)}
+                      href={categoryHref(category._id)}
                       className="group min-w-0 text-sm text-[#0f1111] hover:text-[#c45500]"
                     >
                       <div className="relative aspect-square overflow-hidden rounded-xl bg-[#f4f4f4]">
