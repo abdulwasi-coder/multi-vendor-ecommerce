@@ -5,6 +5,9 @@ import Link from "next/link";
 import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import {
   ArrowLeft,
+  Check,
+  ChevronsUpDown,
+  KeyRound,
   Pencil,
   MapPin,
   Phone,
@@ -27,9 +30,55 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ALLOWED_COUNTRIES } from "@/Otherfiles/ZOD";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import { useVendorProfile } from "@/Otherfiles/tanstack/vendor-profile";
+
+const PHONE_CODES = [
+  ...new Set(ALLOWED_COUNTRIES.map((country) => country.phoneCode)),
+];
+
+function findCountry(countryValue: string) {
+  return (
+    ALLOWED_COUNTRIES.find((country) => country.value === countryValue) ??
+    ALLOWED_COUNTRIES.find(
+      (country) => country.label.toLowerCase() === countryValue.toLowerCase(),
+    )
+  );
+}
+
+function getPhoneDetails(countryValue: string, phone: string) {
+  const country = findCountry(countryValue);
+  const matchingPhoneCode = [...PHONE_CODES]
+    .sort((a, b) => b.length - a.length)
+    .find((code) => phone.startsWith(code));
+  const phoneCode = matchingPhoneCode ?? country?.phoneCode ?? "+44";
+  const localNumber = phone.startsWith(phoneCode)
+    ? phone.slice(phoneCode.length)
+    : phone;
+
+  return {
+    phoneCode,
+    localNumber: localNumber.replace(/\D/g, ""),
+  };
+}
 
 export default function VendorProfilePage() {
   const query = useVendorProfile();
@@ -37,8 +86,13 @@ export default function VendorProfilePage() {
   const profile = query.data;
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [imageFile, setImageFile] = useState<File>();
   const [imagePreview, setImagePreview] = useState("");
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [editCountry, setEditCountry] = useState("");
+  const [phoneCode, setPhoneCode] = useState("+44");
+  const [localPhoneNumber, setLocalPhoneNumber] = useState("");
 
   useEffect(
     () => () => {
@@ -55,11 +109,27 @@ export default function VendorProfilePage() {
     setImagePreview("");
   }
 
+  function openEditor() {
+    if (!profile) return;
+    const phoneDetails = getPhoneDetails(profile.country, profile.mobilenumber);
+
+    setEditCountry(findCountry(profile.country)?.value ?? "");
+    setPhoneCode(phoneDetails.phoneCode);
+    setLocalPhoneNumber(phoneDetails.localNumber);
+    setIsEditing(true);
+  }
+
   async function handleProfileSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!profile || isSaving) return;
+    if (!editCountry) {
+      toast.error("Please select a country.");
+      return;
+    }
 
     const formData = new FormData(event.currentTarget);
+    formData.set("country", editCountry);
+    formData.set("mobilenumber", `${phoneCode}${localPhoneNumber}`);
     if (imageFile) formData.set("companyimage", imageFile);
     setIsSaving(true);
 
@@ -93,6 +163,45 @@ export default function VendorProfilePage() {
     }
   }
 
+  async function handlePasswordChange(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (isChangingPassword) return;
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    setIsChangingPassword(true);
+
+    try {
+      const response = await api.put<{
+        success: boolean;
+        message?: string;
+      }>("/vendor/changePassword", {
+        email: formData.get("email"),
+        password: formData.get("password"),
+      });
+
+      if (!response.data.success) {
+        throw new Error(response.data.message ?? "Could not change your password.");
+      }
+
+      form.reset();
+      toast.success(response.data.message ?? "Password changed successfully.");
+    } catch (error) {
+      const message = isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message
+        : error instanceof Error
+          ? error.message
+          : undefined;
+      toast.error(
+        typeof message === "string" && message.trim()
+          ? message
+          : "Could not change your password. Please try again.",
+      );
+    } finally {
+      setIsChangingPassword(false);
+    }
+  }
+
   return (
     <main className="min-h-screen space-y-5 bg-[#f5f6f4] px-2 py-4 sm:px-4 lg:px-6">
       <header className="flex flex-col justify-between gap-3 border-b border-border/70 pb-4 sm:flex-row sm:items-center">
@@ -120,7 +229,7 @@ export default function VendorProfilePage() {
               {profile.status}
             </Badge>
             {!isEditing && (
-              <Button type="button" onClick={() => setIsEditing(true)}>
+              <Button type="button" onClick={openEditor}>
                 <Pencil /> Edit profile
               </Button>
             )}
@@ -169,20 +278,126 @@ export default function VendorProfilePage() {
                         Last name
                         <Input name="lastName" required minLength={2} maxLength={120} defaultValue={profile.lastName} />
                       </label>
-                      <label className="space-y-1.5 text-sm font-medium">
-                        Country
-                        <Input name="country" required minLength={2} maxLength={120} defaultValue={profile.country} />
-                      </label>
-                      <label className="space-y-1.5 text-sm font-medium">
-                        Mobile number (include country code)
-                        <Input
-                          name="mobilenumber"
-                          type="tel"
-                          required
-                          defaultValue={profile.mobilenumber}
-                          placeholder="+447123456789"
-                        />
-                      </label>
+                      <div className="space-y-1.5 text-sm font-medium">
+                        <span className="block">Country</span>
+                        <input type="hidden" name="country" value={editCountry} />
+                        <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                          <PopoverTrigger
+                            render={
+                              <Button
+                                type="button"
+                                variant="outline"
+                                aria-label="Select your country"
+                                className="h-11 w-full justify-between rounded-xl font-normal"
+                              >
+                                {findCountry(editCountry)?.label ??
+                                  "Select your country..."}
+                                <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+                              </Button>
+                            }
+                          />
+                          <PopoverContent
+                            className="max-h-72 w-75 p-0"
+                            align="start"
+                          >
+                            <Command>
+                              <CommandInput placeholder="Search country..." />
+                              <CommandList>
+                                <CommandEmpty>No country found.</CommandEmpty>
+                                <CommandGroup>
+                                  {ALLOWED_COUNTRIES.map((country) => (
+                                    <CommandItem
+                                      key={country.value}
+                                      value={country.label}
+                                      onSelect={() => {
+                                        setEditCountry(country.value);
+                                        setPhoneCode(country.phoneCode);
+                                        setLocalPhoneNumber((current) =>
+                                          current.slice(
+                                            0,
+                                            15 -
+                                              country.phoneCode.replace(
+                                                /\D/g,
+                                                "",
+                                              ).length,
+                                          ),
+                                        );
+                                        setCountryOpen(false);
+                                      }}
+                                    >
+                                      <Check
+                                        className={
+                                          editCountry === country.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        }
+                                      />
+                                      {country.label}
+                                      <span className="ml-auto font-mono text-xs text-muted-foreground">
+                                        {country.phoneCode}
+                                      </span>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="space-y-1.5 text-sm font-medium">
+                        <label className="block" htmlFor="edit-mobile-number">
+                          Mobile number
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={phoneCode}
+                            onValueChange={(value) => {
+                              if (value) {
+                                setPhoneCode(value);
+                                setLocalPhoneNumber((current) =>
+                                  current.slice(
+                                    0,
+                                    15 - value.replace(/\D/g, "").length,
+                                  ),
+                                );
+                              }
+                            }}
+                          >
+                            <SelectTrigger
+                              className="h-11 w-24 rounded-xl"
+                              aria-label="Mobile country calling code"
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {PHONE_CODES.map((code) => (
+                                <SelectItem key={code} value={code}>
+                                  {code}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            id="edit-mobile-number"
+                            type="tel"
+                            inputMode="numeric"
+                            autoComplete="tel-national"
+                            required
+                            minLength={Math.max(
+                              1,
+                              8 - phoneCode.replace(/\D/g, "").length,
+                            )}
+                            maxLength={15 - phoneCode.replace(/\D/g, "").length}
+                            value={localPhoneNumber}
+                            onChange={(event) =>
+                              setLocalPhoneNumber(
+                                event.target.value.replace(/\D/g, ""),
+                              )
+                            }
+                            placeholder="712345678"
+                          />
+                        </div>
+                      </div>
                       <label className="space-y-1.5 text-sm font-medium">
                         Store name
                         <Input name="companyName" required minLength={2} maxLength={120} defaultValue={profile.companyName} />
@@ -256,9 +471,60 @@ export default function VendorProfilePage() {
                 />
                 <ProfileValue
                   label="Country"
-                  value={profile.country}
+                  value={findCountry(profile.country)?.label ?? profile.country}
                   icon={<MapPin className="size-4" />}
                 />
+              </CardContent>
+            </Card>
+
+            <Card className="border-[#dfe4df] shadow-sm shadow-[#192c25]/5">
+              <CardHeader className="border-b">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <KeyRound className="size-5" />
+                  </span>
+                  <div>
+                    <CardTitle>Change password</CardTitle>
+                    <CardDescription className="mt-1">
+                      Confirm your account email and choose a new password.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handlePasswordChange} className="space-y-4">
+                  <label className="block space-y-1.5 text-sm font-medium">
+                    Account email
+                    <Input
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      maxLength={254}
+                    />
+                  </label>
+                  <label className="block space-y-1.5 text-sm font-medium">
+                    New password
+                    <Input
+                      name="password"
+                      type="password"
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      maxLength={128}
+                    />
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    Use at least 8 characters. You must be signed in to change
+                    your password.
+                  </p>
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={isChangingPassword}>
+                      <KeyRound />
+                      {isChangingPassword ? "Changing..." : "Change password"}
+                    </Button>
+                  </div>
+                </form>
               </CardContent>
             </Card>
 

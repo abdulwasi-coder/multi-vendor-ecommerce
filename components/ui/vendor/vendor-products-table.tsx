@@ -14,7 +14,7 @@ import {
   ArrowDown,
   Package,
   Plus,
-  RotateCcw,
+  RotateCw,
   Search,
   SlidersHorizontal,
 } from "lucide-react";
@@ -295,7 +295,7 @@ export function VendorProductsTable() {
               aria-label="Refresh products"
               title="Refresh products"
             >
-              <RotateCcw
+              <RotateCw
                 aria-hidden="true"
                 className={query.isFetching ? "animate-spin" : ""}
               />

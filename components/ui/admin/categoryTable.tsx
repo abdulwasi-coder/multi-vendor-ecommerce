@@ -38,7 +38,7 @@ import { Categorycolumns, type Category } from "@/components/ui/admin/columns";
 import { CategoryEditDialog } from "@/components/ui/admin/category-edit-dialog";
 import { features } from "@/components/ui/admin/data_table_feature";
 import type { DataTableFeatures } from "@/components/ui/admin/data_table_feature";
-import { RotateCcw } from "lucide-react";
+import { RotateCw } from "lucide-react";
 import {
   adminCategoryQueryKeys,
   CATEGORY_PAGE_SIZE,
@@ -234,7 +234,7 @@ export function DataTable({ onDataChange }: DataTableProps) {
             aria-label="Refresh categories"
             title="Refresh categories"
           >
-            <RotateCcw
+            <RotateCw
               aria-hidden="true"
               className={pageQuery.isFetching || searchQuery.isSearching ? "animate-spin" : ""}
             />

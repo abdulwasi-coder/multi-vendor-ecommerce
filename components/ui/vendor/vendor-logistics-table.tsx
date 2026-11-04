@@ -14,7 +14,7 @@ import {
   Boxes,
   CircleAlert,
   PackageCheck,
-  RotateCcw,
+  RotateCw,
   Search,
   Star,
 } from "lucide-react";
@@ -351,7 +351,7 @@ export function VendorLogisticsTable() {
               aria-label="Refresh inventory"
               title="Refresh inventory"
             >
-              <RotateCcw
+              <RotateCw
                 aria-hidden="true"
                 className={query.isFetching ? "animate-spin" : ""}
               />
