@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
 import {
+  keepPreviousData,
   useQuery,
   type QueryClient,
   type QueryFunctionContext,
@@ -30,20 +31,44 @@ interface VendorProductsResponse {
   message?: string;
   products?: VendorProduct[];
   summary?: VendorProductSummary;
+  totalProducts?: number;
+  totalMatches?: number;
+  currentPage?: number;
+  totalPages?: number;
+  skipped?: number;
+  limit?: number;
 }
 
-export const vendorProductsQueryKey = ["vendor-products"] as const;
-const VENDOR_PRODUCTS_STALE_TIME = 5 * 60_000;
+export const vendorProductsQueryKey = (
+  page: number,
+  limit: number,
+  search: string,
+) => ["vendor-products", page, limit, search] as const;
+export const VENDOR_PRODUCTS_PAGE_SIZE = 10;
+const VENDOR_PRODUCTS_STALE_TIME = 60_000;
 
-function vendorProductsQueryOptions(cookieHeader?: string) {
+function vendorProductsQueryOptions(
+  page: number,
+  limit: number,
+  search: string,
+  cookieHeader?: string,
+) {
   return {
-    queryKey: vendorProductsQueryKey,
+    queryKey: vendorProductsQueryKey(page, limit, search),
     queryFn: async ({
       signal,
-    }: QueryFunctionContext<typeof vendorProductsQueryKey>) => {
+    }: QueryFunctionContext<
+      ReturnType<typeof vendorProductsQueryKey>
+    >) => {
       const response = await api.get<VendorProductsResponse>(
         "/vendor/getProducts",
         {
+          params: {
+            page,
+            limit,
+            skip: (page - 1) * limit,
+            search,
+          },
           signal,
           headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
         },
@@ -55,27 +80,59 @@ function vendorProductsQueryOptions(cookieHeader?: string) {
         );
       }
 
-      if (!response.data.summary) {
-        throw new Error("Vendor product summary was not returned.");
+      if (
+        !response.data.summary ||
+        typeof response.data.totalProducts !== "number" ||
+        typeof response.data.totalMatches !== "number" ||
+        typeof response.data.currentPage !== "number" ||
+        typeof response.data.totalPages !== "number" ||
+        typeof response.data.skipped !== "number" ||
+        typeof response.data.limit !== "number"
+      ) {
+        throw new Error("Vendor product pagination data was not returned.");
       }
 
       return {
         products: response.data.products,
         summary: response.data.summary,
+        totalProducts: response.data.totalProducts,
+        totalMatches: response.data.totalMatches,
+        currentPage: response.data.currentPage,
+        totalPages: response.data.totalPages,
+        skipped: response.data.skipped,
+        limit: response.data.limit,
       };
     },
     staleTime: VENDOR_PRODUCTS_STALE_TIME,
     refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   };
 }
 
-export function useVendorProducts() {
-  return useQuery(vendorProductsQueryOptions());
+export function useVendorProducts(
+  page: number,
+  limit: number,
+  search: string,
+) {
+  return useQuery(vendorProductsQueryOptions(page, limit, search));
 }
 
 export async function prefetchVendorProducts(
   queryClient: QueryClient,
   cookieHeader: string,
 ) {
-  await queryClient.prefetchQuery(vendorProductsQueryOptions(cookieHeader));
+  await queryClient.prefetchQuery(
+    vendorProductsQueryOptions(1, VENDOR_PRODUCTS_PAGE_SIZE, "", cookieHeader),
+  );
+}
+
+export async function prefetchVendorProductsPage(
+  queryClient: QueryClient,
+  page: number,
+  limit: number,
+  search: string,
+) {
+  await queryClient.prefetchQuery(
+    vendorProductsQueryOptions(page, limit, search),
+  );
 }
