@@ -68,6 +68,27 @@ export function CategoryViewDialog({
             <span className="text-right">{formatDate(category.updatedAt)}</span>
           </div>
           <div className="space-y-2">
+            <span className="text-muted-foreground">Attribute fields</span>
+            {category.attributes && category.attributes.length > 0 ? (
+              <ul className="space-y-1">
+                {category.attributes.map((attribute) => (
+                  <li
+                    key={attribute.key}
+                    className="flex items-center justify-between gap-3 rounded-md border px-3 py-1.5"
+                  >
+                    <span className="font-medium">{attribute.label}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {attribute.type}
+                      {attribute.required ? " · required" : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">None defined.</p>
+            )}
+          </div>
+          <div className="space-y-2">
             <span className="text-muted-foreground">Image</span>
             {imageUrl ? (
               <img

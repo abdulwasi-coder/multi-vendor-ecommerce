@@ -1,6 +1,7 @@
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import type { ColumnDef, RowData, TableFeatures } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import type { CategoryAttributeDefinition } from "@/lib/category-attributes";
 import type { DataTableFeatures } from "./data_table_feature";
 
 export interface Category {
@@ -10,6 +11,7 @@ export interface Category {
   ChildCount?: number;
   ProductCount?: number;
   Image?: { cloudinaryId?: string; publicId?: string };
+  attributes?: CategoryAttributeDefinition[];
   createdAt?: string;
   updatedAt?: string;
 }

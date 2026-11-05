@@ -10,7 +10,6 @@ import {
   ArrowUp,
   Plus,
   Save,
-  Trash2,
   Upload,
   X,
 } from "lucide-react";
@@ -36,9 +35,19 @@ import { Badge } from "../badge";
 import api from "@/lib/axios";
 import { isAxiosError } from "axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useVendorProductCategories } from "@/Otherfiles/tanstack/vendor-product-categories";
+import {
+  useVendorCategoryAttributes,
+  useVendorProductCategories,
+} from "@/Otherfiles/tanstack/vendor-product-categories";
+import {
+  coerceAttributeFormValue,
+  isAttributeValueFilled,
+  type CategoryAttributeDefinition,
+  type ProductAttribute,
+} from "@/lib/category-attributes";
 
 const MAX_PRODUCT_IMAGES = 5;
+const EMPTY_ATTRIBUTE_DEFINITIONS: CategoryAttributeDefinition[] = [];
 
 interface ExistingProductImage {
   _id: string;
@@ -58,7 +67,7 @@ interface EditableProduct {
   status: string;
   colors: string[];
   images: ExistingProductImage[];
-  attributes?: Array<{ key: string; value: string }>;
+  attributes?: ProductAttribute[];
 }
 
 export function ProductForm({ productId }: { productId?: string }) {
@@ -101,6 +110,7 @@ export function ProductForm({ productId }: { productId?: string }) {
     handleSubmit,
     setValue,
     setError,
+    getValues,
     reset,
     watch,
     formState: { errors, isSubmitting },
@@ -121,10 +131,17 @@ export function ProductForm({ productId }: { productId?: string }) {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, replace } = useFieldArray({
     control,
     name: "attributes",
   });
+
+  const selectedCategoryId = watch("categoryID");
+  const attributesQuery = useVendorCategoryAttributes(
+    selectedCategoryId || undefined,
+  );
+  const attributeDefinitions =
+    attributesQuery.data ?? EMPTY_ATTRIBUTE_DEFINITIONS;
 
   useEffect(() => {
     const savedProduct = productQuery.data;
@@ -180,6 +197,34 @@ export function ProductForm({ productId }: { productId?: string }) {
     }
   }, [categoryQuery.data, productQuery.data?.categoryID]);
 
+  useEffect(() => {
+    const definitions = attributesQuery.data;
+    if (!definitions) return;
+
+    const valuesByKey = new Map<string, unknown>();
+    for (const attribute of [
+      ...(productQuery.data?.attributes ?? []),
+      ...(getValues("attributes") ?? []),
+    ]) {
+      valuesByKey.set(attribute.key, attribute.value);
+    }
+
+    replace(
+      definitions.map((definition) => ({
+        key: definition.key,
+        value: coerceAttributeFormValue(
+          valuesByKey.get(definition.key),
+          definition.type,
+        ),
+      })),
+    );
+  }, [
+    attributesQuery.data,
+    productQuery.data?.attributes,
+    getValues,
+    replace,
+  ]);
+
   const currentColors = watch("colors") || [];
   const addColor = () => {
     const color = colorInput.trim();
@@ -209,6 +254,39 @@ export function ProductForm({ productId }: { productId?: string }) {
   };
 
   async function onSubmit(data: ProductInput) {
+    if (selectedCategoryId && attributesQuery.isPending) {
+      toast.error("Category attributes are still loading. Please try again.");
+      return;
+    }
+    if (selectedCategoryId && attributesQuery.isError) {
+      toast.error(
+        attributesQuery.error instanceof Error
+          ? attributesQuery.error.message
+          : "Could not load category attributes.",
+      );
+      return;
+    }
+
+    const definitions = attributesQuery.data ?? [];
+    const attributeRows = data.attributes ?? [];
+    const missingAttributes = definitions.filter(
+      (definition) =>
+        definition.required &&
+        !attributeRows.some(
+          (attribute) =>
+            attribute.key === definition.key &&
+            isAttributeValueFilled(attribute.value, definition.type),
+        ),
+    );
+    if (missingAttributes.length > 0) {
+      toast.error(
+        `Please fill in the required attributes: ${missingAttributes
+          .map((definition) => definition.label)
+          .join(", ")}.`,
+      );
+      return;
+    }
+
     const newImages = Array.from(data.images ?? []);
     if (existingImages.length + newImages.length === 0) {
       setError("images", {
@@ -228,13 +306,19 @@ export function ProductForm({ productId }: { productId?: string }) {
       multipartPayload.append("status", data.status);
       multipartPayload.append("price", String(data.price));
       multipartPayload.append("stock", String(data.stock));
+      const attributeTypes = new Map(
+        definitions.map((definition) => [definition.key, definition.type]),
+      );
       multipartPayload.append(
         "attributes",
         JSON.stringify(
-          (data.attributes ?? []).filter(
-            (attribute) =>
-              attribute.key.trim() !== "" && attribute.value.trim() !== "",
-          ),
+          attributeRows.filter((attribute) => {
+            const type = attributeTypes.get(attribute.key);
+            return (
+              type !== undefined &&
+              isAttributeValueFilled(attribute.value, type)
+            );
+          }),
         ),
       );
       if (editing) {
@@ -747,78 +831,169 @@ export function ProductForm({ productId }: { productId?: string }) {
               placeholder="0"
               InputParts={{ type: "number", min: "0", max: "99" }}
             />
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b pb-2">
-                <div>
+            {selectedCategoryId && (
+              <div className="space-y-4">
+                <div className="border-b pb-2">
                   <h3 className="text-base font-semibold text-foreground">
-                    Specification Attributes
+                    Category Attributes
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Add customized key-value parameters.
+                    Fill in the details this category requires.
                   </p>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => append({ key: "", value: "" })}
-                  className="flex items-center gap-1.5"
-                >
-                  <Plus className="w-4 h-4" /> Add Row
-                </Button>
-              </div>
-              <div className="space-y-4">
-                {fields.map((item, index) => {
-                  const keyError = errors.attributes?.[index]?.key;
-                  const valueError = errors.attributes?.[index]?.value;
-                  return (
-                    <div
-                      key={item.id}
-                      className="flex gap-4 items-start p-3 border rounded-xl bg-muted/10"
+                {attributesQuery.isPending ? (
+                  <p className="text-sm text-muted-foreground">
+                    Loading category attributes...
+                  </p>
+                ) : attributesQuery.isError ? (
+                  <div>
+                    <p role="alert" className="text-sm text-destructive">
+                      {attributesQuery.error instanceof Error
+                        ? attributesQuery.error.message
+                        : "Could not load category attributes."}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => void attributesQuery.refetch()}
                     >
-                      <div className="flex-1">
-                        <Field>
-                          <FieldLabel className="sr-only">Key Name</FieldLabel>
-                          <Controller
-                            control={control}
-                            name={`attributes.${index}.key` as const}
-                            render={({ field }) => (
-                              <Input {...field} placeholder="e.g. Storage" />
-                            )}
-                          />
-                          <FieldError>{keyError?.message}</FieldError>
-                        </Field>
-                      </div>
-                      <div className="flex-1">
-                        <Field>
-                          <FieldLabel className="sr-only">
-                            Value Metric
-                          </FieldLabel>
-                          <Controller
-                            control={control}
-                            name={`attributes.${index}.value` as const}
-                            render={({ field }) => (
-                              <Input {...field} placeholder="e.g. 256 GB" />
-                            )}
-                          />
-                          <FieldError>{valueError?.message}</FieldError>
-                        </Field>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        disabled={fields.length === 1}
-                        onClick={() => remove(index)}
-                        className="mt-0.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      Retry
+                    </Button>
+                  </div>
+                ) : attributeDefinitions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    This category has no attribute fields.
+                  </p>
+                ) : (
+                  fields.map((item, index) => {
+                    const definition = attributeDefinitions.find(
+                      (candidate) => candidate.key === item.key,
+                    );
+                    if (!definition) return null;
+
+                    const valueError =
+                      errors.attributes?.[index]?.value?.message;
+                    return (
+                      <div
+                        key={item.id}
+                        className="space-y-2 rounded-xl border bg-muted/10 p-3"
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  );
-                })}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-medium text-foreground">
+                            {definition.label}
+                            {definition.unit ? ` (${definition.unit})` : ""}
+                            {definition.required && (
+                              <span className="text-destructive"> *</span>
+                            )}
+                          </p>
+                          {definition.required && (
+                            <Badge variant="secondary">Required</Badge>
+                          )}
+                        </div>
+                        <Controller
+                          control={control}
+                          name={`attributes.${index}.value` as const}
+                          render={({ field }) => {
+                            if (definition.type === "number") {
+                              return (
+                                <Input
+                                  {...field}
+                                  type="number"
+                                  value={
+                                    typeof field.value === "number"
+                                      ? field.value
+                                      : ""
+                                  }
+                                  onChange={(event) => {
+                                    if (event.target.value === "") {
+                                      field.onChange("");
+                                      return;
+                                    }
+                                    const numeric = event.target.valueAsNumber;
+                                    field.onChange(
+                                      Number.isNaN(numeric) ? "" : numeric,
+                                    );
+                                  }}
+                                  placeholder={definition.label}
+                                />
+                              );
+                            }
+                            if (definition.type === "boolean") {
+                              return (
+                                <select
+                                  {...field}
+                                  value={
+                                    field.value === true
+                                      ? "true"
+                                      : field.value === false
+                                        ? "false"
+                                        : ""
+                                  }
+                                  onChange={(event) =>
+                                    field.onChange(
+                                      event.target.value === ""
+                                        ? ""
+                                        : event.target.value === "true",
+                                    )
+                                  }
+                                  className={`${inputClassName} w-full border pr-9`}
+                                >
+                                  <option value="">Select an option</option>
+                                  <option value="true">Yes</option>
+                                  <option value="false">No</option>
+                                </select>
+                              );
+                            }
+                            if (definition.type === "select") {
+                              return (
+                                <select
+                                  {...field}
+                                  value={
+                                    typeof field.value === "string"
+                                      ? field.value
+                                      : ""
+                                  }
+                                  onChange={(event) =>
+                                    field.onChange(event.target.value)
+                                  }
+                                  className={`${inputClassName} w-full border pr-9`}
+                                >
+                                  <option value="">Select an option</option>
+                                  {(definition.options ?? []).map((option) => (
+                                    <option key={option} value={option}>
+                                      {option}
+                                    </option>
+                                  ))}
+                                </select>
+                              );
+                            }
+                            return (
+                              <Input
+                                {...field}
+                                value={
+                                  typeof field.value === "string"
+                                    ? field.value
+                                    : ""
+                                }
+                                onChange={(event) =>
+                                  field.onChange(event.target.value)
+                                }
+                                placeholder={definition.label}
+                              />
+                            );
+                          }}
+                        />
+                        {valueError && (
+                          <FieldError>{valueError}</FieldError>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
-            </div>
+            )}
             <Field className="sm:col-span-2 border-t pt-4">
               <FieldLabel htmlFor="product-description">
                 Description <span className="text-destructive">*</span>

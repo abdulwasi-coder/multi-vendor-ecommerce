@@ -23,6 +23,14 @@ import {
   invalidateAdminCategoryQueries,
   useCategoryNameSearch,
 } from "@/Otherfiles/tanstack/admin";
+import {
+  categoryAttributesFormSchema,
+  toCategoryAttributeDefinition,
+} from "@/lib/category-attributes";
+import {
+  CategoryAttributesEditor,
+  type CategoryAttributesControl,
+} from "@/components/ui/admin/category-attributes-editor";
 import api from "@/lib/axios";
 import { withUniqueUploadName } from "@/lib/unique-upload-file";
 
@@ -41,6 +49,7 @@ function createCategorySchema(availableParentIds: ReadonlySet<string>) {
       "Choose a parent category from the available matches.",
     ),
     image: categoryImageSchema.optional(),
+    attributes: categoryAttributesFormSchema,
   });
 }
 
@@ -59,7 +68,12 @@ export function CategoryCreateButton() {
   );
   const form = useForm<CategoryCreateValues>({
     resolver: zodResolver(categorySchema),
-    defaultValues: { name: "", parentCategory: undefined, image: undefined },
+    defaultValues: {
+      name: "",
+      parentCategory: undefined,
+      image: undefined,
+      attributes: [],
+    },
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
@@ -79,6 +93,12 @@ export function CategoryCreateButton() {
     if (values.image instanceof File) {
       formData.append("image", withUniqueUploadName(values.image));
     }
+    formData.append(
+      "attributes",
+      JSON.stringify(
+        (values.attributes ?? []).map(toCategoryAttributeDefinition),
+      ),
+    );
 
     try {
       const response = await api.post("/admin/createCategory", formData);
@@ -112,7 +132,7 @@ export function CategoryCreateButton() {
         <Plus aria-hidden="true" />
         Add category
       </Button>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Add category</DialogTitle>
           <DialogDescription>
@@ -230,6 +250,11 @@ export function CategoryCreateButton() {
               <p className="text-sm text-destructive">{form.formState.errors.image.message}</p>
             )}
           </div>
+
+          <CategoryAttributesEditor
+            control={form.control as unknown as CategoryAttributesControl}
+            disabled={form.formState.isSubmitting}
+          />
 
           <DialogFooter>
             <Button

@@ -16,7 +16,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Category } from "@/components/ui/admin/columns";
+import {
+  CategoryAttributesEditor,
+  type CategoryAttributesControl,
+} from "@/components/ui/admin/category-attributes-editor";
 import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin";
+import {
+  categoryAttributesFormSchema,
+  fromCategoryAttributeDefinition,
+  toCategoryAttributeDefinition,
+} from "@/lib/category-attributes";
 import api from "@/lib/axios";
 import { withUniqueUploadName } from "@/lib/unique-upload-file";
 import { toast } from "sonner";
@@ -38,6 +47,7 @@ const categoryUpdateSchema = z.object({
   parentSearch: z.string().optional(),
   image: categoryImageSchema.nullable(),
   removeImage: z.boolean(),
+  attributes: categoryAttributesFormSchema,
 }).superRefine(({ parentCategory, parentSearch }, context) => {
   if (parentSearch?.trim() && !parentCategory) {
     context.addIssue({
@@ -71,6 +81,7 @@ export function CategoryEditDialog({
       parentSearch: "",
       image: null,
       removeImage: false,
+      attributes: [],
     },
     mode: "onChange",
   });
@@ -110,6 +121,9 @@ export function CategoryEditDialog({
       parentSearch: currentParentName,
       image: null,
       removeImage: false,
+      attributes: (category.attributes ?? []).map(
+        fromCategoryAttributeDefinition,
+      ),
     });
   }, [category, open, reset]);
 
@@ -121,6 +135,12 @@ export function CategoryEditDialog({
     formData.append("parentCategory", values.parentCategory ?? "");
     if (values.image) formData.append("image", withUniqueUploadName(values.image));
     if (values.removeImage) formData.append("removeImage", "true");
+    formData.append(
+      "attributes",
+      JSON.stringify(
+        (values.attributes ?? []).map(toCategoryAttributeDefinition),
+      ),
+    );
 
     try {
       await api.put(`/admin/updateCategory/${category._id}`, formData);
@@ -163,11 +183,11 @@ export function CategoryEditDialog({
         if (!isOpen) reset();
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Edit category</DialogTitle>
           <DialogDescription>
-            Update the category name, parent category, or image.
+            Update the category name, parent category, attributes, or image.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -337,6 +357,10 @@ export function CategoryEditDialog({
               Leave empty to keep the current image.
             </p>
           </div>
+          <CategoryAttributesEditor
+            control={editForm.control as unknown as CategoryAttributesControl}
+            disabled={editForm.formState.isSubmitting}
+          />
           <DialogFooter>
             <Button
               type="button"

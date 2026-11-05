@@ -5,10 +5,11 @@ const attributeItemSchema = z.object({
     .string()
     .trim()
     .min(1, "if you add an attribute, the key cannot be empty."),
-  value: z
-    .string()
-    .trim()
-    .min(1, "if you add a vlue, the key cannot be empty."),
+  value: z.union([
+    z.string().trim(),
+    z.number().finite(),
+    z.boolean(),
+  ]),
 });
 
 export interface CountryOption {
