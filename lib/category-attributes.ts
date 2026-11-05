@@ -19,7 +19,7 @@ export interface CategoryAttributeDefinition {
   filterable: boolean;
 }
 
-export type ProductAttributeValue = string | number | boolean;
+export type ProductAttributeValue = string | number | boolean | string[];
 
 export interface ProductAttribute {
   key: string;
@@ -134,6 +134,13 @@ export function coerceAttributeFormValue(
   value: unknown,
   type: CategoryAttributeType,
 ): ProductAttributeValue | "" {
+  if (type === "select") {
+    if (Array.isArray(value)) {
+      return value.filter((item): item is string => typeof item === "string");
+    }
+    if (typeof value === "string" && value.trim() !== "") return [value];
+    return [];
+  }
   if (type === "number") {
     if (typeof value === "number") {
       return Number.isFinite(value) ? value : "";
@@ -160,5 +167,9 @@ export function isAttributeValueFilled(
 ): boolean {
   if (type === "number") return typeof value === "number" && Number.isFinite(value);
   if (type === "boolean") return typeof value === "boolean";
+  if (type === "select") {
+    if (Array.isArray(value)) return value.length > 0;
+    return typeof value === "string" && value.trim() !== "";
+  }
   return typeof value === "string" && value.trim() !== "";
 }

@@ -9,6 +9,7 @@ const attributeItemSchema = z.object({
     z.string().trim(),
     z.number().finite(),
     z.boolean(),
+    z.array(z.string()),
   ]),
 });
 

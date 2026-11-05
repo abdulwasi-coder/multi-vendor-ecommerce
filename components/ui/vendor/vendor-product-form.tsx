@@ -947,26 +947,46 @@ export function ProductForm({ productId }: { productId?: string }) {
                               );
                             }
                             if (definition.type === "select") {
+                              const selectedOptions = Array.isArray(
+                                field.value,
+                              )
+                                ? field.value
+                                : typeof field.value === "string" &&
+                                    field.value !== ""
+                                  ? [field.value]
+                                  : [];
                               return (
-                                <select
-                                  {...field}
-                                  value={
-                                    typeof field.value === "string"
-                                      ? field.value
-                                      : ""
-                                  }
-                                  onChange={(event) =>
-                                    field.onChange(event.target.value)
-                                  }
-                                  className={`${inputClassName} w-full border pr-9`}
-                                >
-                                  <option value="">Select an option</option>
-                                  {(definition.options ?? []).map((option) => (
-                                    <option key={option} value={option}>
-                                      {option}
-                                    </option>
-                                  ))}
-                                </select>
+                                <div className="space-y-2">
+                                  <p className="text-xs text-muted-foreground">
+                                    Choose all that apply.
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {(definition.options ?? []).map((option) => {
+                                      const checked =
+                                        selectedOptions.includes(option);
+                                      return (
+                                        <label
+                                          key={option}
+                                          className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition has-checked:border-primary has-checked:bg-primary/5"
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={checked}
+                                            onChange={() => {
+                                              const next = checked
+                                                ? selectedOptions.filter(
+                                                    (item) => item !== option,
+                                                  )
+                                                : [...selectedOptions, option];
+                                              field.onChange(next);
+                                            }}
+                                          />
+                                          {option}
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
                               );
                             }
                             return (
