@@ -183,7 +183,7 @@ export function CategoryEditDialog({
         if (!isOpen) reset();
       }}
     >
-      <DialogContent className="sm:max-w-3xl min-h-fit overflow-scroll">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Edit category</DialogTitle>
           <DialogDescription>
