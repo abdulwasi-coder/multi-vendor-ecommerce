@@ -89,6 +89,23 @@ export function CategoryViewDialog({
             )}
           </div>
           <div className="space-y-2">
+            <span className="text-muted-foreground">Allowed brands</span>
+            {category.brands && category.brands.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {category.brands.map((brand) => (
+                  <span
+                    key={brand}
+                    className="rounded-md border px-2 py-0.5 text-xs"
+                  >
+                    {brand}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">Any brand allowed.</p>
+            )}
+          </div>
+          <div className="space-y-2">
             <span className="text-muted-foreground">Image</span>
             {imageUrl ? (
               <img

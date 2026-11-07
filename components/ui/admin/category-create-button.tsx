@@ -31,6 +31,10 @@ import {
   CategoryAttributesEditor,
   type CategoryAttributesControl,
 } from "@/components/ui/admin/category-attributes-editor";
+import {
+  CategoryBrandsEditor,
+  type CategoryBrandsControl,
+} from "@/components/ui/admin/category-brands-editor";
 import api from "@/lib/axios";
 import { withUniqueUploadName } from "@/lib/unique-upload-file";
 
@@ -50,6 +54,9 @@ function createCategorySchema(availableParentIds: ReadonlySet<string>) {
     ),
     image: categoryImageSchema.optional(),
     attributes: categoryAttributesFormSchema,
+    brands: z
+      .array(z.object({ brand: z.string().trim().min(1).max(100) }))
+      .max(100),
   });
 }
 
@@ -73,6 +80,7 @@ export function CategoryCreateButton() {
       parentCategory: undefined,
       image: undefined,
       attributes: [],
+      brands: [],
     },
     mode: "onSubmit",
     reValidateMode: "onChange",
@@ -98,6 +106,10 @@ export function CategoryCreateButton() {
       JSON.stringify(
         (values.attributes ?? []).map(toCategoryAttributeDefinition),
       ),
+    );
+    formData.append(
+      "brands",
+      JSON.stringify((values.brands ?? []).map((item) => item.brand)),
     );
 
     try {
@@ -253,6 +265,10 @@ export function CategoryCreateButton() {
 
           <CategoryAttributesEditor
             control={form.control as unknown as CategoryAttributesControl}
+            disabled={form.formState.isSubmitting}
+          />
+          <CategoryBrandsEditor
+            control={form.control as unknown as CategoryBrandsControl}
             disabled={form.formState.isSubmitting}
           />
 

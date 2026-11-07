@@ -12,6 +12,7 @@ export interface Category {
   ProductCount?: number;
   Image?: { cloudinaryId?: string; publicId?: string };
   attributes?: CategoryAttributeDefinition[];
+  brands?: string[];
   createdAt?: string;
   updatedAt?: string;
 }

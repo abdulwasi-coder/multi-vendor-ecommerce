@@ -20,6 +20,10 @@ import {
   CategoryAttributesEditor,
   type CategoryAttributesControl,
 } from "@/components/ui/admin/category-attributes-editor";
+import {
+  CategoryBrandsEditor,
+  type CategoryBrandsControl,
+} from "@/components/ui/admin/category-brands-editor";
 import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin";
 import {
   categoryAttributesFormSchema,
@@ -48,6 +52,9 @@ const categoryUpdateSchema = z.object({
   image: categoryImageSchema.nullable(),
   removeImage: z.boolean(),
   attributes: categoryAttributesFormSchema,
+  brands: z
+    .array(z.object({ brand: z.string().trim().min(1).max(100) }))
+    .max(100),
 }).superRefine(({ parentCategory, parentSearch }, context) => {
   if (parentSearch?.trim() && !parentCategory) {
     context.addIssue({
@@ -82,6 +89,7 @@ export function CategoryEditDialog({
       image: null,
       removeImage: false,
       attributes: [],
+      brands: [],
     },
     mode: "onChange",
   });
@@ -124,6 +132,7 @@ export function CategoryEditDialog({
       attributes: (category.attributes ?? []).map(
         fromCategoryAttributeDefinition,
       ),
+      brands: (category.brands ?? []).map((brand) => ({ brand })),
     });
   }, [category, open, reset]);
 
@@ -140,6 +149,10 @@ export function CategoryEditDialog({
       JSON.stringify(
         (values.attributes ?? []).map(toCategoryAttributeDefinition),
       ),
+    );
+    formData.append(
+      "brands",
+      JSON.stringify((values.brands ?? []).map((item) => item.brand)),
     );
 
     try {
@@ -359,6 +372,10 @@ export function CategoryEditDialog({
           </div>
           <CategoryAttributesEditor
             control={editForm.control as unknown as CategoryAttributesControl}
+            disabled={editForm.formState.isSubmitting}
+          />
+          <CategoryBrandsEditor
+            control={editForm.control as unknown as CategoryBrandsControl}
             disabled={editForm.formState.isSubmitting}
           />
           <DialogFooter>

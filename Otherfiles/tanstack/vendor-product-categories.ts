@@ -11,6 +11,7 @@ export interface VendorProductCategoryOption {
     children: Array<{
       _id: string;
       name: string;
+      brands?: string[];
     }>;
   }>;
 }

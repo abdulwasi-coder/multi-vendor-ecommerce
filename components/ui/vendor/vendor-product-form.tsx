@@ -48,6 +48,8 @@ import {
 
 const MAX_PRODUCT_IMAGES = 5;
 const EMPTY_ATTRIBUTE_DEFINITIONS: CategoryAttributeDefinition[] = [];
+const OTHER_BRAND_VALUE = "__other_brand__";
+const RESERVED_BRAND_OPTIONS = ["General", "GEN"];
 
 interface ExistingProductImage {
   _id: string;
@@ -79,6 +81,7 @@ export function ProductForm({ productId }: { productId?: string }) {
   const [imageOrder, setImageOrder] = useState<string[]>([]);
   const [loadedProductId, setLoadedProductId] = useState<string>();
   const [colorInput, setColorInput] = useState("");
+  const [brandIsOther, setBrandIsOther] = useState(false);
   const [selectedLevelOneId, setSelectedLevelOneId] = useState("");
   const [selectedLevelTwoId, setSelectedLevelTwoId] = useState("");
   const [selectedLevelThreeId, setSelectedLevelThreeId] = useState("");
@@ -225,7 +228,12 @@ export function ProductForm({ productId }: { productId?: string }) {
     replace,
   ]);
 
+  useEffect(() => {
+    setBrandIsOther(false);
+  }, [selectedLevelThreeId]);
+
   const currentColors = watch("colors") || [];
+  const currentBrand = watch("brand");
   const addColor = () => {
     const color = colorInput.trim();
     if (!color) return;
@@ -300,6 +308,14 @@ export function ProductForm({ productId }: { productId?: string }) {
       const multipartPayload = new FormData();
       multipartPayload.append("name", data.name);
       multipartPayload.append("brand", data.brand?.trim() || "GEN");
+      const submittedBrand = data.brand?.trim() ?? "";
+      if (
+        categoryBrands.length > 0 &&
+        submittedBrand !== "" &&
+        !brandOptions.includes(submittedBrand)
+      ) {
+        multipartPayload.append("brandIsCustom", "true");
+      }
       multipartPayload.append("description", data.description);
       multipartPayload.append("categoryID", data.categoryID);
       multipartPayload.append("colors", JSON.stringify(data.colors));
@@ -530,6 +546,18 @@ export function ProductForm({ productId }: { productId?: string }) {
       ?.find((category) => category._id === selectedLevelOneId)
       ?.children.find((category) => category._id === selectedLevelTwoId)
       ?.children ?? [];
+  const selectedLeafCategory = levelThreeCategories.find(
+    (category) => category._id === selectedLevelThreeId,
+  );
+  const categoryBrands = selectedLeafCategory?.brands ?? [];
+  const brandOptions = Array.from(
+    new Set([...categoryBrands, ...RESERVED_BRAND_OPTIONS]),
+  );
+  const trimmedBrand = typeof currentBrand === "string" ? currentBrand.trim() : "";
+  const showCustomBrandInput =
+    categoryBrands.length > 0 &&
+    (brandIsOther ||
+      (trimmedBrand !== "" && !brandOptions.includes(trimmedBrand)));
 
   if (
     editing &&
@@ -601,11 +629,69 @@ export function ProductForm({ productId }: { productId?: string }) {
               ControlName="name"
               placeholder="Macbook"
             />
-            <HandleAddingFields
-              fieldLabel="Brand"
-              ControlName="brand"
-              placeholder="Apple"
-            />
+            {categoryBrands.length > 0 ? (
+              <div className="space-y-4">
+                <Field>
+                  <FieldLabel htmlFor="product-brand-select">Brand</FieldLabel>
+                  <select
+                    id="product-brand-select"
+                    value={
+                      brandIsOther
+                        ? OTHER_BRAND_VALUE
+                        : brandOptions.includes(trimmedBrand)
+                          ? trimmedBrand
+                          : ""
+                    }
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      if (value === OTHER_BRAND_VALUE) {
+                        setBrandIsOther(true);
+                        if (brandOptions.includes(trimmedBrand)) {
+                          setValue("brand", "", {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }
+                        return;
+                      }
+                      setBrandIsOther(false);
+                      setValue("brand", value, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                    }}
+                    className={`${inputClassName} w-full border pr-9`}
+                  >
+                    <option value="">Select a brand</option>
+                    {brandOptions.map((brand) => (
+                      <option key={brand} value={brand}>
+                        {brand}
+                      </option>
+                    ))}
+                    <option value={OTHER_BRAND_VALUE}>
+                      Others (type your own)
+                    </option>
+                  </select>
+                  <FieldDescription>
+                    This category only allows the listed brands.
+                  </FieldDescription>
+                  <FieldError>{errors.brand?.message}</FieldError>
+                </Field>
+                {showCustomBrandInput && (
+                  <HandleAddingFields
+                    fieldLabel="Custom brand"
+                    ControlName="brand"
+                    placeholder="Type any brand"
+                  />
+                )}
+              </div>
+            ) : (
+              <HandleAddingFields
+                fieldLabel="Brand"
+                ControlName="brand"
+                placeholder="Apple"
+              />
+            )}
             <div className="space-y-4">
               <Field>
                 <FieldLabel htmlFor="level-one-category">
