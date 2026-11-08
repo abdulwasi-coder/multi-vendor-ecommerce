@@ -18,7 +18,7 @@ async function fetchProductFeed(queryString: string) {
   }
 
   const response = await fetch(
-    new URL(`/user/products?${queryString}`, backendUrl),
+    new URL(`/user/search?${queryString}`, backendUrl),
     {
       next: { revalidate: 60, tags: ["customer-product-feed"] },
     },

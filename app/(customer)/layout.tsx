@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { LayoutGrid, Search, Store } from "lucide-react";
+import { LayoutGrid, Store } from "lucide-react";
 import type { ReactNode } from "react";
 import { MobileCustomerNav } from "@/components/ui/customer/mobile-customer-nav";
 import { CartHeaderLink } from "@/components/ui/customer/cart-header-link";
 import { CartHydration } from "@/components/ui/customer/cart-hydration";
 import { CustomerAccountActions } from "@/components/ui/customer/customer-account-actions";
+import { SearchBar } from "@/components/ui/customer/search-bar";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -71,28 +72,7 @@ function CustomerHeader() {
             </span>
           </Link>
 
-          <form
-            action="/products"
-            className="order-3 flex h-10 min-w-0 flex-[1_1_100%] overflow-hidden rounded-md bg-white focus-within:ring-2 focus-within:ring-[#f3a847] sm:order-0 sm:h-11 sm:flex-1"
-          >
-            <label htmlFor="marketplace-search" className="sr-only">
-              Search products
-            </label>
-            <input
-              id="marketplace-search"
-              name="q"
-              type="search"
-              placeholder="Search Marketly"
-              className="min-w-0 flex-1 border-0 bg-white px-3 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 sm:px-4"
-            />
-            <button
-              type="submit"
-              aria-label="Search"
-              className="grid w-11 shrink-0 place-items-center bg-[#f3a847] text-[#131921] transition hover:bg-[#f7bd68] sm:w-14"
-            >
-              <Search className="size-5" aria-hidden="true" />
-            </button>
-          </form>
+          <SearchBar />
 
           <CustomerAccountActions />
           <Link
