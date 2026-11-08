@@ -329,14 +329,18 @@ export default function ProductCatalogView({
                   {feed?.ratingRange ? (
                     <form action="/products" className="mt-2 grid gap-2">
                       <HiddenFilters params={params} excludedKeys={["rating"]} />
+                      <p className="text-xs text-[#565959]">
+                        Available:{" "}
+                        {feed.ratingRange.min.toFixed(1)}–
+                        {feed.ratingRange.max.toFixed(1)}
+                      </p>
                       <label className="grid gap-1 text-sm">
-                        Minimum rating ({feed.ratingRange.min.toFixed(1)}–
-                        {feed.ratingRange.max.toFixed(1)})
+                        Minimum rating (0–5)
                         <input
                           type="number"
                           name="rating"
-                          min={feed.ratingRange.min}
-                          max={feed.ratingRange.max}
+                          min={0}
+                          max={5}
                           step="0.1"
                           defaultValue={minimumRating || ""}
                           className="h-9 rounded-md border border-[#888c8c] px-2"
@@ -381,8 +385,7 @@ export default function ProductCatalogView({
                         <input
                           type="number"
                           name="minPrice"
-                          min={feed.priceRange.min}
-                          max={feed.priceRange.max}
+                          min={0}
                           step="any"
                           defaultValue={minPrice}
                           className="h-9 rounded-md border border-[#888c8c] px-2"
@@ -393,8 +396,7 @@ export default function ProductCatalogView({
                         <input
                           type="number"
                           name="maxPrice"
-                          min={feed.priceRange.min}
-                          max={feed.priceRange.max}
+                          min={0}
                           step="any"
                           defaultValue={maxPrice}
                           className="h-9 rounded-md border border-[#888c8c] px-2"
