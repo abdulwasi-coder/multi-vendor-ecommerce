@@ -35,7 +35,8 @@ async function fetchProductFeed(queryString: string) {
     !data.success ||
     !Array.isArray(data.products) ||
     !Array.isArray(data.categories) ||
-    !Array.isArray(data.selectedCategories) ||
+    (data.selectedCategory === null ||
+      typeof data.selectedCategory === "object") &&
     !Array.isArray(data.brands) ||
     !Array.isArray(data.selectedBrands) ||
     !Array.isArray(data.colors) ||
@@ -99,12 +100,9 @@ export default async function ProductsPage({
 
   const products = feed?.products ?? [];
   const categories: CategoryOption[] = [
-    ...(feed?.selectedCategories ?? []),
+    ...(feed?.selectedCategory ? [feed.selectedCategory] : []),
     ...(feed?.categories ?? []).filter(
-      (category) =>
-        !feed?.selectedCategories.some(
-          (selectedCategory) => selectedCategory.id === category.id,
-        ),
+      (category) => category.id !== feed?.selectedCategory?.id,
     ),
   ];
   const brands = [
@@ -113,9 +111,7 @@ export default async function ProductsPage({
   const colors = [
     ...new Set([...(feed?.selectedColors ?? []), ...(feed?.colors ?? [])]),
   ];
-  const activeCategoryNames = (feed?.selectedCategories ?? [])
-    .map((category) => category.name)
-    .join(", ");
+  const activeCategoryNames = feed?.selectedCategory?.name ?? "";
   const firstResult = feed && feed.totalProducts > 0 ? feed.skipped + 1 : 0;
   const lastResult = feed
     ? Math.min(feed.skipped + products.length, feed.totalProducts)

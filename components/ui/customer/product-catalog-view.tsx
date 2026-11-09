@@ -13,6 +13,14 @@ export interface CategoryOption {
   name: string;
 }
 
+export interface AttributeFilterDefinition {
+  key: string;
+  label: string;
+  type: string;
+  unit?: string;
+  options?: string[];
+}
+
 interface ProductFeedItem {
   id: string;
   name: string;
@@ -43,8 +51,12 @@ export interface ProductFeedResponse {
   skipped: number;
   limit: number;
   products: ProductFeedItem[];
+  department: { id: string; name: string } | null;
   categories: CategoryOption[];
-  selectedCategories: CategoryOption[];
+  selectedCategory: (CategoryOption & {
+    attributes?: AttributeFilterDefinition[];
+    brands?: string[];
+  }) | null;
   brands: string[];
   selectedBrands: string[];
   colors: string[];
@@ -100,7 +112,7 @@ function filterHref(params: ProductSearchParams, key: string, value: string) {
       ? existingValues.includes(value)
         ? []
         : [value]
-      : key === "brand" || key === "color"
+      : key === "brand" || key === "color" || key.startsWith("attr_")
         ? existingValues.includes(value)
           ? existingValues.filter((entry) => entry !== value)
           : [...existingValues, value]
@@ -207,6 +219,11 @@ export default function ProductCatalogView({
   firstResult,
   lastResult,
 }: ProductCatalogViewProps) {
+  const attributeFilters =
+    feed?.selectedCategory?.attributes?.filter(
+      (attribute) => attribute.type === "select" || attribute.type === "boolean",
+    ) ?? [];
+
   return (
     <main className="min-h-screen bg-white px-3 pb-14 pt-40 text-[#0f1111] sm:px-5 sm:pt-32 lg:px-7">
       <div className="mx-auto max-w-400">
@@ -280,6 +297,7 @@ export default function ProductCatalogView({
                 Filters
               </summary>
               <div className="mt-4 grid gap-x-5 gap-y-6 sm:grid-cols-2 lg:mt-0 lg:grid-cols-1">
+                {categories.length > 0 && (
                 <section>
                   <h2 className="text-base font-bold">Categories</h2>
                   {categories.length ? (
@@ -300,24 +318,27 @@ export default function ProductCatalogView({
                     </p>
                   )}
                 </section>
+                )}
 
-                <section className="border-t border-[#ddd] pt-4">
-                  <h2 className="text-base font-bold">Brands</h2>
-                  <div className="mt-2 space-y-0.5">
-                    {brands.map((brand) => (
-                      <FilterOption
-                        key={brand}
-                        href={filterHref(params, "brand", brand)}
-                        label={brand}
-                        selected={selectedBrands.includes(brand)}
-                      />
-                    ))}
-                  </div>
-                </section>
+                {brands.length > 0 && (
+                  <section className="border-t border-[#ddd] pt-4">
+                    <h2 className="text-base font-bold">Brands</h2>
+                    <div className="mt-2 space-y-0.5">
+                      {brands.map((brand) => (
+                        <FilterOption
+                          key={brand}
+                          href={filterHref(params, "brand", brand)}
+                          label={brand}
+                          selected={selectedBrands.includes(brand)}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )}
 
-                <section className="border-t border-[#ddd] pt-4">
-                  <h2 className="text-base font-bold">Color</h2>
-                  {colors.length ? (
+                {colors.length > 0 && (
+                  <section className="border-t border-[#ddd] pt-4">
+                    <h2 className="text-base font-bold">Color</h2>
                     <div className="mt-2 space-y-0.5">
                       {colors.map((color) => (
                         <FilterOption
@@ -328,12 +349,61 @@ export default function ProductCatalogView({
                         />
                       ))}
                     </div>
-                  ) : (
-                    <p className="mt-2 text-sm text-[#565959]">
-                      No colors available.
-                    </p>
-                  )}
-                </section>
+                  </section>
+                )}
+
+                {attributeFilters.length > 0 && (
+                  <section className="border-t border-[#ddd] pt-4">
+                    <h2 className="text-base font-bold">Specifications</h2>
+                    <div className="mt-2 space-y-3">
+                      {attributeFilters.map((attribute) => {
+                        const paramKey = `attr_${attribute.key}`;
+                        const selectedValues = values(params[paramKey]);
+                        if (attribute.type === "boolean") {
+                          return (
+                            <div key={attribute.key}>
+                              <p className="text-sm font-medium">
+                                {attribute.label}
+                              </p>
+                              <FilterOption
+                                href={filterHref(params, paramKey, "true")}
+                                label="Yes"
+                                selected={selectedValues.includes("true")}
+                              />
+                            </div>
+                          );
+                        }
+                        if (
+                          attribute.type === "select" &&
+                          attribute.options?.length
+                        ) {
+                          return (
+                            <div key={attribute.key}>
+                              <p className="text-sm font-medium">
+                                {attribute.label}
+                              </p>
+                              <div className="mt-1 space-y-0.5">
+                                {attribute.options.map((option) => (
+                                  <FilterOption
+                                    key={option}
+                                    href={filterHref(
+                                      params,
+                                      paramKey,
+                                      option,
+                                    )}
+                                    label={option}
+                                    selected={selectedValues.includes(option)}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  </section>
+                )}
 
                 <section className="border-t border-[#ddd] pt-4">
                   <h2 className="text-base font-bold">Customer reviews</h2>
@@ -372,11 +442,7 @@ export default function ProductCatalogView({
                         </Link>
                       )}
                     </form>
-                  ) : (
-                    <p className="mt-2 text-sm text-[#565959]">
-                      No rating data available.
-                    </p>
-                  )}
+                  ) : null}
                 </section>
 
                 <section className="border-t border-[#ddd] pt-4">
@@ -431,11 +497,7 @@ export default function ProductCatalogView({
                         </Link>
                       )}
                     </form>
-                  ) : (
-                    <p className="mt-2 text-sm text-[#565959]">
-                      No price data available.
-                    </p>
-                  )}
+                  ) : null}
                 </section>
               </div>
             </details>
