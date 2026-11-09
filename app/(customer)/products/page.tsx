@@ -57,7 +57,7 @@ export default async function ProductsPage({
 }: PageProps<"/products">) {
   const params: ProductSearchParams = await searchParams;
   const query = values(params.q)[0]?.trim().slice(0, 100) ?? "";
-  const selectedCategories = values(params.category);
+  const selectedCategories = values(params.category).slice(0, 1);
   const selectedBrands = values(params.brand);
   const selectedColors = values(params.color);
   const minPrice = values(params.minPrice)[0] ?? "";

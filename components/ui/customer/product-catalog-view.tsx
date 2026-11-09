@@ -96,13 +96,17 @@ function filterHref(params: ProductSearchParams, key: string, value: string) {
   const existingValues = search.getAll(key);
   search.delete(key);
   const nextValues =
-    key === "category" || key === "brand" || key === "color"
+    key === "category"
       ? existingValues.includes(value)
-        ? existingValues.filter((entry) => entry !== value)
-        : [...existingValues, value]
-      : existingValues.includes(value)
         ? []
-        : [value];
+        : [value]
+      : key === "brand" || key === "color"
+        ? existingValues.includes(value)
+          ? existingValues.filter((entry) => entry !== value)
+          : [...existingValues, value]
+        : existingValues.includes(value)
+          ? []
+          : [value];
   for (const entry of nextValues) search.append(key, entry);
 
   const query = search.toString();
@@ -152,26 +156,32 @@ function FilterOption({
   href,
   label,
   selected,
+  checkbox = true,
 }: {
   href: string;
   label: string;
   selected: boolean;
+  checkbox?: boolean;
 }) {
   return (
     <Link
       href={href}
       aria-current={selected ? "true" : undefined}
-      className="flex items-center gap-2 py-1 text-sm leading-5 hover:text-[#c45500]"
+      className={`flex items-center gap-2 py-1 text-sm leading-5 hover:text-[#c45500] ${
+        selected && !checkbox ? "font-semibold text-[#c45500]" : ""
+      }`}
     >
-      <span
-        className={`grid size-4.25 shrink-0 place-items-center rounded-[3px] border ${
-          selected
-            ? "border-[#007185] bg-[#007185] text-white"
-            : "border-[#888c8c] bg-white"
-        }`}
-      >
-        {selected && <Check className="size-3.5" aria-hidden="true" />}
-      </span>
+      {checkbox && (
+        <span
+          className={`grid size-4.25 shrink-0 place-items-center rounded-[3px] border ${
+            selected
+              ? "border-[#007185] bg-[#007185] text-white"
+              : "border-[#888c8c] bg-white"
+          }`}
+        >
+          {selected && <Check className="size-3.5" aria-hidden="true" />}
+        </span>
+      )}
       {label}
     </Link>
   );
@@ -280,6 +290,7 @@ export default function ProductCatalogView({
                           href={filterHref(params, "category", category.id)}
                           label={category.name}
                           selected={selectedCategories.includes(category.id)}
+                          checkbox={false}
                         />
                       ))}
                     </div>
