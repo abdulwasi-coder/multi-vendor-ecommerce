@@ -219,10 +219,7 @@ export default function ProductCatalogView({
   firstResult,
   lastResult,
 }: ProductCatalogViewProps) {
-  const attributeFilters =
-    feed?.selectedCategory?.attributes?.filter(
-      (attribute) => attribute.type === "select" || attribute.type === "boolean",
-    ) ?? [];
+  const attributeFilters = feed?.selectedCategory?.attributes ?? [];
 
   return (
     <main className="min-h-screen bg-white px-3 pb-14 pt-40 text-[#0f1111] sm:px-5 sm:pt-32 lg:px-7">
@@ -359,6 +356,82 @@ export default function ProductCatalogView({
                       {attributeFilters.map((attribute) => {
                         const paramKey = `attr_${attribute.key}`;
                         const selectedValues = values(params[paramKey]);
+                        if (attribute.type === "number") {
+                          const minKey = `${paramKey}_min`;
+                          const maxKey = `${paramKey}_max`;
+                          return (
+                            <form
+                              key={attribute.key}
+                              action="/products"
+                              className="grid gap-1"
+                            >
+                              <HiddenFilters
+                                params={params}
+                                excludedKeys={[minKey, maxKey]}
+                              />
+                              <p className="text-sm font-medium">
+                                {attribute.label}
+                                {attribute.unit ? ` (${attribute.unit})` : ""}
+                              </p>
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="number"
+                                  name={minKey}
+                                  min={0}
+                                  step="any"
+                                  placeholder="Min"
+                                  defaultValue={values(params[minKey])[0] ?? ""}
+                                  className="h-8 w-full rounded-md border border-[#888c8c] px-2 text-sm"
+                                />
+                                <span className="text-xs text-[#565959]">–</span>
+                                <input
+                                  type="number"
+                                  name={maxKey}
+                                  min={0}
+                                  step="any"
+                                  placeholder="Max"
+                                  defaultValue={values(params[maxKey])[0] ?? ""}
+                                  className="h-8 w-full rounded-md border border-[#888c8c] px-2 text-sm"
+                                />
+                              </div>
+                              <button
+                                type="submit"
+                                className="justify-self-start text-xs font-semibold text-[#007185] hover:underline"
+                              >
+                                Apply
+                              </button>
+                            </form>
+                          );
+                        }
+                        if (attribute.type === "text") {
+                          return (
+                            <form
+                              key={attribute.key}
+                              action="/products"
+                              className="grid gap-1"
+                            >
+                              <HiddenFilters
+                                params={params}
+                                excludedKeys={[paramKey]}
+                              />
+                              <label className="grid gap-1 text-sm font-medium">
+                                {attribute.label}
+                                <input
+                                  type="text"
+                                  name={paramKey}
+                                  defaultValue={values(params[paramKey])[0] ?? ""}
+                                  className="h-8 rounded-md border border-[#888c8c] px-2 text-sm"
+                                />
+                              </label>
+                              <button
+                                type="submit"
+                                className="justify-self-start text-xs font-semibold text-[#007185] hover:underline"
+                              >
+                                Apply
+                              </button>
+                            </form>
+                          );
+                        }
                         if (attribute.type === "boolean") {
                           return (
                             <div key={attribute.key}>
@@ -416,7 +489,7 @@ export default function ProductCatalogView({
                         {feed.ratingRange.max.toFixed(1)}
                       </p>
                       <label className="grid gap-1 text-sm">
-                        Minimum rating (0–5)
+                        Minimum rating (0-5)
                         <input
                           type="number"
                           name="rating"

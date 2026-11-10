@@ -34,18 +34,11 @@ async function fetchProductFeed(queryString: string) {
   if (
     !data.success ||
     !Array.isArray(data.products) ||
-    !Array.isArray(data.categories) ||
-    (data.selectedCategory === null ||
-      typeof data.selectedCategory === "object") &&
-    !Array.isArray(data.brands) ||
-    !Array.isArray(data.selectedBrands) ||
-    !Array.isArray(data.colors) ||
-    !Array.isArray(data.selectedColors) ||
+    (data.selectedCategory != null &&
+      typeof data.selectedCategory !== "object") ||
     typeof data.totalProducts !== "number" ||
     typeof data.currentPage !== "number" ||
-    typeof data.totalPages !== "number" ||
-    typeof data.skipped !== "number" ||
-    typeof data.limit !== "number"
+    typeof data.totalPages !== "number"
   ) {
     throw new Error(data.message ?? "Product results were not returned.");
   }
