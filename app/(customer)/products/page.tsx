@@ -75,14 +75,11 @@ export default async function ProductsPage({
       ...(maxPrice ? { maxPrice } : {}),
       ...(minimumRating ? { rating: String(minimumRating) } : {}),
     });
-    for (const categoryId of selectedCategories) {
-      search.append("category", categoryId);
-    }
-    for (const brand of selectedBrands) {
-      search.append("brand", brand);
-    }
-    for (const color of selectedColors) {
-      search.append("color", color);
+    for (const [key, paramValue] of Object.entries(params)) {
+      if (["page", "limit", "sort", "q", "search"].includes(key)) continue;
+      for (const entry of values(paramValue)) {
+        search.append(key, entry);
+      }
     }
 
     feed = await fetchProductFeed(search.toString());
