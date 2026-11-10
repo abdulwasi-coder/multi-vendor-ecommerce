@@ -498,7 +498,10 @@ export default function ProductCatalogView({
                       key={product.id}
                       className="grid gap-3 rounded-lg border border-[#e7e9ec]/60 p-2.5 hover:shadow-xs sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-3 sm:p-3 lg:grid-cols-[220px_minmax(0,1fr)]"
                     >
-                      <div className="relative h-36 overflow-hidden rounded-md bg-[#f5f5f5] sm:h-auto sm:aspect-square">
+                      <Link
+                        href={`/products/${product.id}`}
+                        className="relative block h-36 overflow-hidden rounded-md bg-[#f5f5f5] sm:h-auto sm:aspect-square"
+                      >
                         {product.discount > 0 && (
                           <span className="absolute left-2 top-2 z-10 rounded-sm bg-[#cc0c39] px-2 py-1 text-xs font-bold text-white">
                             -{product.discount}%
@@ -517,14 +520,19 @@ export default function ProductCatalogView({
                             No image
                           </span>
                         )}
-                      </div>
+                      </Link>
 
                       <div className="flex min-w-0 flex-col">
                         <p className="text-sm font-bold text-[#565959]">
                           {product.brand}
                         </p>
                         <h2 className="mt-1 text-base leading-5 sm:text-lg">
-                          {product.name}
+                          <Link
+                            href={`/products/${product.id}`}
+                            className="hover:underline"
+                          >
+                            {product.name}
+                          </Link>
                         </h2>
                         <p className="mt-1 line-clamp-2 text-sm text-[#565959]">
                           {product.description}
