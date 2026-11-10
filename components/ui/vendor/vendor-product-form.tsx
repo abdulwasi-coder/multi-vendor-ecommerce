@@ -600,7 +600,7 @@ export function ProductForm({ productId }: { productId?: string }) {
 
   return (
     <main className="min-h-[calc(100dvh-2rem)] bg-muted/30">
-      <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-7 sm:py-10 lg:px-10">
+      <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-7 sm:py-10 lg:px-10">
         <Button
           variant="ghost"
           size="sm"
@@ -610,7 +610,7 @@ export function ProductForm({ productId }: { productId?: string }) {
           <ArrowLeft /> Back to products
         </Button>
 
-        <header className="mb-6 flex animate-in items-start gap-4 slide-in-from-bottom-2 fade-in-0 duration-500">
+        <header className="mb-6 flex items-start gap-4">
           <div className="hidden size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm sm:flex">
             <PackagePlus className="size-6" aria-hidden="true" />
           </div>
