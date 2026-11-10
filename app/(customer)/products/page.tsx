@@ -66,21 +66,14 @@ export default async function ProductsPage({
   let loadError: string | undefined;
 
   try {
-    const search = new URLSearchParams({
-      page: String(requestedPage),
-      limit: String(PRODUCT_PAGE_SIZE),
-      sort,
-      ...(query ? { search: query } : {}),
-      ...(minPrice ? { minPrice } : {}),
-      ...(maxPrice ? { maxPrice } : {}),
-      ...(minimumRating ? { rating: String(minimumRating) } : {}),
-    });
+    const search = new URLSearchParams();
     for (const [key, paramValue] of Object.entries(params)) {
-      if (["page", "limit", "sort", "q", "search"].includes(key)) continue;
       for (const entry of values(paramValue)) {
         search.append(key, entry);
       }
     }
+    if (!search.has("page")) search.set("page", String(requestedPage));
+    if (!search.has("limit")) search.set("limit", String(PRODUCT_PAGE_SIZE));
 
     feed = await fetchProductFeed(search.toString());
   } catch (error) {
