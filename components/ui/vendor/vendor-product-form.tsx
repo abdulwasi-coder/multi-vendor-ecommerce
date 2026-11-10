@@ -5,9 +5,10 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
-  ArrowRight,
   ArrowDown,
   ArrowUp,
+  LoaderCircle,
+  PackagePlus,
   Plus,
   Save,
   Upload,
@@ -564,8 +565,15 @@ export function ProductForm({ productId }: { productId?: string }) {
     (productQuery.isPending || loadedProductId !== productId)
   ) {
     return (
-      <main className="min-h-[calc(100dvh-2rem)] bg-background px-4 py-10 text-center text-muted-foreground">
-        Loading product details...
+      <main className="grid min-h-[calc(100dvh-2rem)] place-items-center bg-muted/30 px-4 py-10">
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center gap-3 rounded-2xl border bg-card px-5 py-4 text-sm text-muted-foreground shadow-sm"
+        >
+          <LoaderCircle className="size-5 animate-spin text-primary" aria-hidden="true" />
+          Loading product details...
+        </div>
       </main>
     );
   }
@@ -591,8 +599,8 @@ export function ProductForm({ productId }: { productId?: string }) {
   }
 
   return (
-    <main className="min-h-[calc(100dvh-2rem)] bg-background">
-      <div className="mx-auto w-full max-w-6xl px-4 py-3 sm:px-7 lg:px-10">
+    <main className="min-h-[calc(100dvh-2rem)] bg-muted/30">
+      <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-7 sm:py-10 lg:px-10">
         <Button
           variant="ghost"
           size="sm"
@@ -602,28 +610,42 @@ export function ProductForm({ productId }: { productId?: string }) {
           <ArrowLeft /> Back to products
         </Button>
 
-        <header className="mb-4 border-b pb-4">
-          <p className="text-sm text-muted-foreground">
-            Store management <span className="mx-1">/</span> Products
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+        <header className="mb-6 flex animate-in items-start gap-4 slide-in-from-bottom-2 fade-in-0 duration-500">
+          <div className="hidden size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm sm:flex">
+            <PackagePlus className="size-6" aria-hidden="true" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+              Store management
+              <span className="mx-1 text-muted-foreground">/</span>
+              Products
+            </p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
               {editing ? "Edit product" : "Add product"}
             </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              {editing
+                ? "Update the listing details below. Keep or replace its images before saving."
+                : "Add clear product details, pricing, and photos to create your listing."}
+            </p>
           </div>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            {editing
-              ? "Update the listing details below. Keep or replace its images before saving."
-              : "Fill in the needed product details below."}
-          </p>
         </header>
 
         <form
+          className="space-y-5"
           onSubmit={handleSubmit(onSubmit, (error) => {
             console.log(error);
           })}
         >
-          <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+          <div className="grid gap-x-6 gap-y-5 rounded-2xl border bg-card p-4 shadow-sm sm:grid-cols-2 sm:p-7">
+            <div className="sm:col-span-2">
+              <h2 className="text-base font-semibold tracking-tight">
+                Product information
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Start with the name and brand shoppers will see.
+              </p>
+            </div>
             <HandleAddingFields
               fieldLabel="Product Name"
               ControlName="name"
@@ -692,59 +714,68 @@ export function ProductForm({ productId }: { productId?: string }) {
                 placeholder="Apple"
               />
             )}
-            <div className="space-y-4">
-              <Field>
-                <FieldLabel htmlFor="level-one-category">
-                  Main category
-                </FieldLabel>
-                <select
-                  id="level-one-category"
-                  value={selectedLevelOneId}
-                  disabled={categoryQuery.isPending || categoryQuery.isError}
-                  onChange={(event) => {
-                    const categoryId = event.target.value;
-                    setSelectedLevelOneId(categoryId);
-                    setSelectedLevelTwoId("");
-                    setSelectedLevelThreeId("");
-                    setValue("categoryID", "", { shouldValidate: true });
-                  }}
-                  className={`${inputClassName} w-full border pr-9`}
-                >
-                  <option value="">
-                    {categoryQuery.isPending
-                      ? "Loading categories..."
-                      : "Select a category"}
-                  </option>
-                  {(categoryQuery.data ?? []).map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.name}
+            <section className="space-y-4 rounded-xl border bg-muted/20 p-4 sm:col-span-2 sm:p-5">
+              <div>
+                <h2 className="text-base font-semibold tracking-tight">
+                  Product category
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Choose a category to load its matching product attributes.
+                </p>
+              </div>
+              <div className="grid gap-4 md:grid-cols-3">
+                <Field>
+                  <FieldLabel htmlFor="level-one-category">
+                    Main category
+                  </FieldLabel>
+                  <select
+                    id="level-one-category"
+                    value={selectedLevelOneId}
+                    disabled={categoryQuery.isPending || categoryQuery.isError}
+                    onChange={(event) => {
+                      const categoryId = event.target.value;
+                      setSelectedLevelOneId(categoryId);
+                      setSelectedLevelTwoId("");
+                      setSelectedLevelThreeId("");
+                      setValue("categoryID", "", { shouldValidate: true });
+                    }}
+                    className={`${inputClassName} w-full border pr-9`}
+                  >
+                    <option value="">
+                      {categoryQuery.isPending
+                        ? "Loading categories..."
+                        : "Select a category"}
                     </option>
-                  ))}
-                </select>
-                <FieldDescription>
-                  Choose the broad category first to find its related
-                  subcategories.
-                </FieldDescription>
-                {categoryQuery.isError && (
-                  <div>
-                    <p role="alert" className="text-sm text-destructive">
-                      {categoryQuery.error instanceof Error
-                        ? categoryQuery.error.message
-                        : "Could not load product categories."}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => void categoryQuery.refetch()}
-                    >
-                      Retry
-                    </Button>
-                  </div>
-                )}
-                <FieldError>{errors.categoryID?.message}</FieldError>
-              </Field>
+                    {(categoryQuery.data ?? []).map((category) => (
+                      <option key={category._id} value={category._id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <FieldDescription>
+                    Choose the broad category first to find its related
+                    subcategories.
+                  </FieldDescription>
+                  {categoryQuery.isError && (
+                    <div>
+                      <p role="alert" className="text-sm text-destructive">
+                        {categoryQuery.error instanceof Error
+                          ? categoryQuery.error.message
+                          : "Could not load product categories."}
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2"
+                        onClick={() => void categoryQuery.refetch()}
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                  )}
+                  <FieldError>{errors.categoryID?.message}</FieldError>
+                </Field>
 
               {selectedLevelOneId && (
                 <Field>
@@ -777,38 +808,47 @@ export function ProductForm({ productId }: { productId?: string }) {
                 </Field>
               )}
 
-              {selectedLevelTwoId && (
-                <Field>
-                  <FieldLabel htmlFor="level-three-category">
-                    Level-3 category
-                  </FieldLabel>
-                  <select
-                    id="level-three-category"
-                    value={selectedLevelThreeId}
-                    required
-                    onChange={(event) => {
-                      const categoryId = event.target.value;
-                      setSelectedLevelThreeId(categoryId);
-                      setValue("categoryID", categoryId, {
-                        shouldValidate: true,
-                      });
-                    }}
-                    className={`${inputClassName} w-full border pr-9`}
-                  >
-                    <option value="">Select a level-3 category</option>
-                    {levelThreeCategories.map((category) => (
-                      <option key={category._id} value={category._id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                  <FieldDescription>
-                    {levelThreeCategories.length > 0
-                      ? "Select a level-3 category to continue. Deeper levels are not available."
-                      : "No level-3 categories are available here. Choose another level-2 category."}
-                  </FieldDescription>
-                </Field>
-              )}
+                {selectedLevelTwoId && (
+                  <Field>
+                    <FieldLabel htmlFor="level-three-category">
+                      Level-3 category
+                    </FieldLabel>
+                    <select
+                      id="level-three-category"
+                      value={selectedLevelThreeId}
+                      required
+                      onChange={(event) => {
+                        const categoryId = event.target.value;
+                        setSelectedLevelThreeId(categoryId);
+                        setValue("categoryID", categoryId, {
+                          shouldValidate: true,
+                        });
+                      }}
+                      className={`${inputClassName} w-full border pr-9`}
+                    >
+                      <option value="">Select a level-3 category</option>
+                      {levelThreeCategories.map((category) => (
+                        <option key={category._id} value={category._id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    <FieldDescription>
+                      {levelThreeCategories.length > 0
+                        ? "Select a level-3 category to continue. Deeper levels are not available."
+                        : "No level-3 categories are available here. Choose another level-2 category."}
+                    </FieldDescription>
+                  </Field>
+                )}
+              </div>
+            </section>
+            <div className="sm:col-span-2 border-t pt-4">
+              <h2 className="text-base font-semibold tracking-tight">
+                Pricing & inventory
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Set availability, price, and product options.
+              </p>
             </div>
             <Field>
               <FieldLabel htmlFor="color-input">Available Colors</FieldLabel>
@@ -918,17 +958,18 @@ export function ProductForm({ productId }: { productId?: string }) {
               InputParts={{ type: "number", min: "0", max: "99" }}
             />
             {selectedCategoryId && (
-              <div className="space-y-4">
+              <section className="space-y-4 rounded-xl border bg-muted/20 p-4 sm:col-span-2 sm:p-5">
                 <div className="border-b pb-2">
-                  <h3 className="text-base font-semibold text-foreground">
+                  <h2 className="text-base font-semibold text-foreground">
                     Category Attributes
-                  </h3>
+                  </h2>
                   <p className="text-sm text-muted-foreground">
                     Fill in the details this category requires.
                   </p>
                 </div>
                 {attributesQuery.isPending ? (
-                  <p className="text-sm text-muted-foreground">
+                  <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
                     Loading category attributes...
                   </p>
                 ) : attributesQuery.isError ? (
@@ -1098,9 +1139,15 @@ export function ProductForm({ productId }: { productId?: string }) {
                     );
                   })
                 )}
-              </div>
+              </section>
             )}
-            <Field className="sm:col-span-2 border-t pt-4">
+            <Field className="sm:col-span-2 rounded-xl border bg-muted/20 p-4 sm:p-5">
+              <div>
+                <h2 className="text-base font-semibold tracking-tight">Description</h2>
+                <FieldDescription>
+                  Include the details that help customers choose your product.
+                </FieldDescription>
+              </div>
               <FieldLabel htmlFor="product-description">
                 Description <span className="text-destructive">*</span>
               </FieldLabel>
@@ -1119,25 +1166,32 @@ export function ProductForm({ productId }: { productId?: string }) {
               />
               <FieldError>{errors.description?.message}</FieldError>
             </Field>
-            <Field className="sm:col-span-2">
-              <FieldLabel>Upload Images</FieldLabel>
-              <FieldDescription>
-                Use the arrows to arrange images. The first image is the main
-                product photo shoppers see.
-              </FieldDescription>
+            <Field className="sm:col-span-2 rounded-xl border bg-muted/20 p-4 sm:p-5">
+              <div>
+                <FieldLabel>Product images</FieldLabel>
+                <FieldDescription>
+                  Use the arrows to arrange images. The first image is the main
+                  product photo shoppers see.
+                </FieldDescription>
+              </div>
               <div className="space-y-4 mt-1.5">
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/60 transition">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6"></div>
+                <label className="group flex min-h-40 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-background/70 px-4 py-6 text-center transition hover:border-primary/50 hover:bg-primary/5 focus-within:ring-2 focus-within:ring-ring/30">
                   <Controller
                     control={control}
                     name="images"
                     render={({ field }) => (
                       <>
-                        <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">
-                          Click to upload up to {Math.max(0, MAX_PRODUCT_IMAGES - existingImages.length)} more files
-                        </p>
+                        <span className="mb-3 flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:scale-105">
+                          <Upload className="size-5" aria-hidden="true" />
+                        </span>
+                        <span className="text-sm font-medium text-foreground">
+                          Click to upload product photos
+                        </span>
+                        <span className="mt-1 text-xs text-muted-foreground">
+                          Up to {Math.max(0, MAX_PRODUCT_IMAGES - existingImages.length)} more images - JPG, PNG, or WebP
+                        </span>
                         <Input
+                          id="product-images"
                           type="file"
                           name={field.name}
                           accept="image/*"
@@ -1150,13 +1204,14 @@ export function ProductForm({ productId }: { productId?: string }) {
                           onChange={handleImageChange}
                           onBlur={field.onBlur}
                           ref={field.ref}
+                          className="sr-only"
                         />
                       </>
                     )}
                   />
                 </label>
                 {imageOrder.length > 0 && (
-                  <div className="grid grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/20">
+                  <div className="grid grid-cols-2 gap-3 rounded-xl border bg-background/70 p-3 sm:grid-cols-3 lg:grid-cols-5">
                     {imageOrder.map((imageId, index) => {
                       const existing = imageId.startsWith("existing:");
                       const source = existing
@@ -1170,7 +1225,7 @@ export function ProductForm({ productId }: { productId?: string }) {
                       return (
                         <div
                           key={imageId}
-                          className="relative aspect-square overflow-hidden rounded-md border"
+                          className="group relative aspect-square overflow-hidden rounded-xl border bg-muted shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                         >
                           <img
                             src={source}
@@ -1218,29 +1273,32 @@ export function ProductForm({ productId }: { productId?: string }) {
             </Field>
           </div>
 
-          <div className="mt-5 flex items-center justify-end gap-2">
+          <div className="sticky bottom-0 z-20 -mx-4 flex items-center justify-end gap-3 border-t bg-background/90 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:rounded-xl sm:border sm:bg-card sm:px-5 sm:py-4 sm:shadow-sm">
             <Link
               href="/vendor/products"
-              className="inline-flex min-w-24 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+              className="inline-flex min-h-10 min-w-24 items-center justify-center rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               Cancel
             </Link>
-            <button
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className=" rounded-xl py-2 text-sm px-6 text-white bg-black flex items-center gap-0.5 shadow-sm"
+              size="lg"
+              aria-busy={isSubmitting}
+              className="min-w-40 gap-2 rounded-lg shadow-sm"
             >
               {isSubmitting ? (
                 <>
-                  Saving... <ArrowRight className="size-4" />
+                  <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                  Saving product...
                 </>
               ) : (
                 <>
-                  <Save className="size-4" />
-                  {editing ? "Save changes" : "Save Product"}
+                  <Save className="size-4" aria-hidden="true" />
+                  {editing ? "Save changes" : "Add product"}
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
