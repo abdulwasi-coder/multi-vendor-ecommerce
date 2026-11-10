@@ -4,7 +4,6 @@ import ProductCatalogView, {
   type ProductSearchParams,
 } from "@/components/ui/customer/product-catalog-view";
 
-const PRODUCT_PAGE_SIZE = 20;
 
 function values(value: string | string[] | undefined) {
   if (Array.isArray(value)) return value;
@@ -50,18 +49,6 @@ export default async function ProductsPage({
   searchParams,
 }: PageProps<"/products">) {
   const params: ProductSearchParams = await searchParams;
-  const query = values(params.q)[0]?.trim().slice(0, 100) ?? "";
-  const selectedCategories = values(params.category).slice(0, 1);
-  const selectedBrands = values(params.brand);
-  const selectedColors = values(params.color);
-  const minPrice = values(params.minPrice)[0] ?? "";
-  const maxPrice = values(params.maxPrice)[0] ?? "";
-  const minimumRating = Number(values(params.rating)[0] ?? 0);
-  const sort = values(params.sort)[0] ?? "featured";
-  const requestedPage = Math.max(
-    1,
-    Math.floor(Number(values(params.page)[0]) || 1),
-  );
   let feed: ProductFeedResponse | undefined;
   let loadError: string | undefined;
 
@@ -72,8 +59,6 @@ export default async function ProductsPage({
         search.append(key, entry);
       }
     }
-    if (!search.has("page")) search.set("page", String(requestedPage));
-    if (!search.has("limit")) search.set("limit", String(PRODUCT_PAGE_SIZE));
 
     feed = await fetchProductFeed(search.toString());
   } catch (error) {
@@ -89,7 +74,10 @@ export default async function ProductsPage({
     ),
   ];
   const brands = [
-    ...new Set([...(feed?.selectedBrands ?? []), ...(feed?.brands ?? [])]),
+    ...new Set([
+      ...(feed?.selectedBrands ?? []),
+      ...(feed?.selectedCategory?.brands ?? []),
+    ]),
   ];
   const colors = [
     ...new Set([...(feed?.selectedColors ?? []), ...(feed?.colors ?? [])]),
@@ -105,14 +93,6 @@ export default async function ProductsPage({
       params={params}
       feed={feed}
       loadError={loadError}
-      query={query}
-      selectedCategories={selectedCategories}
-      selectedBrands={selectedBrands}
-      selectedColors={selectedColors}
-      minPrice={minPrice}
-      maxPrice={maxPrice}
-      minimumRating={minimumRating}
-      sort={sort}
       products={products}
       categories={categories}
       brands={brands}

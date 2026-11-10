@@ -69,14 +69,6 @@ interface ProductCatalogViewProps {
   params: ProductSearchParams;
   feed: ProductFeedResponse | undefined;
   loadError: string | undefined;
-  query: string;
-  selectedCategories: string[];
-  selectedBrands: string[];
-  selectedColors: string[];
-  minPrice: string;
-  maxPrice: string;
-  minimumRating: number;
-  sort: string;
   products: ProductFeedItem[];
   categories: CategoryOption[];
   brands: string[];
@@ -203,14 +195,6 @@ export default function ProductCatalogView({
   params,
   feed,
   loadError,
-  query,
-  selectedCategories,
-  selectedBrands,
-  selectedColors,
-  minPrice,
-  maxPrice,
-  minimumRating,
-  sort,
   products,
   categories,
   brands,
@@ -220,6 +204,11 @@ export default function ProductCatalogView({
   lastResult,
 }: ProductCatalogViewProps) {
   const attributeFilters = feed?.selectedCategory?.attributes ?? [];
+  const query = values(params.q ?? params.search)[0]?.trim() ?? "";
+  const selectedCategories = values(params.category).slice(0, 1);
+  const selectedBrands = values(params.brand);
+  const selectedColors = values(params.color);
+  const sort = values(params.sort)[0] ?? "featured";
 
   return (
     <main className="min-h-screen bg-white px-3 pb-14 pt-40 text-[#0f1111] sm:px-5 sm:pt-32 lg:px-7">
