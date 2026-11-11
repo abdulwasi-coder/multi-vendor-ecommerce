@@ -70,7 +70,30 @@ export function HomeCategoryGrid() {
   ]);
 
   if (query.isPending) {
-    return <p role="status">Loading categories...</p>;
+    return (
+      <div
+        role="status"
+        aria-label="Loading categories"
+        className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4"
+      >
+        {Array.from({ length: 8 }, (_, index) => (
+          <section
+            key={index}
+            className="rounded-2xl border bg-white p-3 sm:p-4"
+          >
+            <div className="mb-3 h-5 w-28 animate-pulse rounded bg-[#e3e6e6]" />
+            <div className="grid grid-cols-2 gap-2">
+              {Array.from({ length: 4 }, (_, tile) => (
+                <div key={tile}>
+                  <div className="aspect-square animate-pulse rounded-xl bg-[#f0f2f2]" />
+                  <div className="mt-2 h-3 w-3/4 animate-pulse rounded bg-[#e3e6e6]" />
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    );
   }
 
   if (query.isError && !query.data) {

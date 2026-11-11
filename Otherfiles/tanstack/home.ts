@@ -75,9 +75,4 @@ export async function prefetchHomeCategories(
   await queryClient.prefetchInfiniteQuery(
     homeCategoriesQueryOptions(cookieHeader),
   );
-
-  const queryState = queryClient.getQueryState(homeCategoryQueryKey);
-  if (queryState?.status === "error") {
-    throw queryState.error;
-  }
 }

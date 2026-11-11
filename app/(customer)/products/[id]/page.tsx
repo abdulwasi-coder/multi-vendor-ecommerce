@@ -56,12 +56,18 @@ export default async function CustomerProductDetailPage({
   const backendUrl = process.env.Base_Url;
   if (!backendUrl) notFound();
 
-  const response = await fetch(new URL(`/user/products/${id}`, backendUrl), {
-    next: { revalidate: 60, tags: ["customer-product-feed"] },
-  });
-  const data = (await response.json()) as CustomerProductDetails;
+  let response: Response;
+  let data: CustomerProductDetails;
+  try {
+    response = await fetch(new URL(`/user/products/${id}`, backendUrl), {
+      next: { revalidate: 60, tags: ["customer-product-feed"] },
+    });
+    data = (await response.json()) as CustomerProductDetails;
+  } catch {
+    notFound();
+  }
 
-  if (!response.ok || !data.success) notFound();
+  if (!response!.ok || !data!.success) notFound();
 
   const productImages = (data.images ?? []).map((image) => image.publicId);
 
