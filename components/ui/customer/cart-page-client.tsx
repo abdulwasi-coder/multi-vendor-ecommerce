@@ -120,10 +120,16 @@ export function CartPageClient() {
                     }
                     toast.error("Could not start checkout. Please try again.");
                   } catch (error) {
+                    const apiMessage = (
+                      error as {
+                        response?: { data?: { message?: string } };
+                      }
+                    )?.response?.data?.message;
                     toast.error(
-                      error instanceof Error
-                        ? error.message
-                        : "Could not start checkout. Please try again.",
+                      apiMessage ??
+                        (error instanceof Error
+                          ? error.message
+                          : "Could not start checkout. Please try again."),
                     );
                   } finally {
                     setPlacing(false);

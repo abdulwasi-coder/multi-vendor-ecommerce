@@ -38,6 +38,10 @@ const processQueue = (error?: unknown) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const apiMessage = error.response?.data?.message;
+    if (typeof apiMessage === "string" && apiMessage) {
+      error.message = apiMessage;
+    }
     const originalRequest = error.config as RetryableRequest | undefined;
     const requestUrl = originalRequest?.url ?? "";
     const isRefreshRequest = /refresh[-_]?token/i.test(requestUrl);
