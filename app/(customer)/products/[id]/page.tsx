@@ -135,7 +135,7 @@ export default async function CustomerProductDetailPage({
 
             <div className="flex flex-col gap-3 border-y py-4">
               <span className="text-sm font-semibold">About The Item</span>
-              <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">
+              <p className="whitespace-pre-wrap wrap-break-word text-sm text-muted-foreground">
                 {data.description}
               </p>
             </div>

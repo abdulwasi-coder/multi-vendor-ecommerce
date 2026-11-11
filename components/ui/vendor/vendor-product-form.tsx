@@ -556,7 +556,7 @@ export function ProductForm({ productId }: { productId?: string }) {
   );
   const trimmedBrand = typeof currentBrand === "string" ? currentBrand.trim() : "";
   const showCustomBrandInput =
-    categoryBrands.length > 0 &&
+    Boolean(selectedLeafCategory) &&
     (brandIsOther ||
       (trimmedBrand !== "" && !brandOptions.includes(trimmedBrand)));
 
@@ -651,7 +651,7 @@ export function ProductForm({ productId }: { productId?: string }) {
               ControlName="name"
               placeholder="Macbook"
             />
-            {categoryBrands.length > 0 ? (
+            {selectedLeafCategory ? (
               <div className="space-y-4">
                 <Field>
                   <FieldLabel htmlFor="product-brand-select">Brand</FieldLabel>
@@ -708,11 +708,19 @@ export function ProductForm({ productId }: { productId?: string }) {
                 )}
               </div>
             ) : (
-              <HandleAddingFields
-                fieldLabel="Brand"
-                ControlName="brand"
-                placeholder="Apple"
-              />
+              <Field>
+                <FieldLabel htmlFor="product-brand-select">Brand</FieldLabel>
+                <select
+                  id="product-brand-select"
+                  disabled
+                  className={`${inputClassName} w-full border bg-muted pr-9 opacity-60`}
+                >
+                  <option value="">Select a category first</option>
+                </select>
+                <FieldDescription>
+                  Choose a level-3 category to see its allowed brands.
+                </FieldDescription>
+              </Field>
             )}
             <section className="space-y-4 rounded-xl border bg-muted/20 p-4 sm:col-span-2 sm:p-5">
               <div>
@@ -955,7 +963,12 @@ export function ProductForm({ productId }: { productId?: string }) {
                 </>
               }
               placeholder="0"
-              InputParts={{ type: "number", min: "0", max: "99" }}
+              InputParts={{
+                type: "number",
+                min: "0",
+                max: "99",
+                step: "0.01",
+              }}
             />
             {selectedCategoryId && (
               <section className="space-y-4 rounded-xl border bg-muted/20 p-4 sm:col-span-2 sm:p-5">
