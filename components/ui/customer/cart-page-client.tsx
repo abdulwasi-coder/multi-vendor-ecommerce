@@ -2,17 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Check, LockKeyhole, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import api from "@/lib/axios";
 import { useCustomerCart } from "@/lib/customer-cart-store";
 
 const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
 export function CartPageClient() {
-  const [placing, setPlacing] = useState(false);
+  const router = useRouter();
   const items = useCustomerCart((state) => state.items);
   const hydrated = useCustomerCart((state) => state.hydrated);
   const removeItem = useCustomerCart((state) => state.removeItem);
@@ -100,43 +99,10 @@ export function CartPageClient() {
               <p className="flex items-center gap-2 text-sm font-medium text-[#007600]"><Check className="size-4" /> Shipping calculated at checkout</p>
               <p className="mt-3 text-xl text-[#0f1111]">Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"}): <strong className="font-bold">{currency.format(subtotal)}</strong></p>
               <Button
-                className="mt-5 h-11 w-full rounded-full bg-[#ffd814] text-sm font-medium text-[#0f1111] shadow-sm hover:bg-[#f7ca00] disabled:opacity-60"
-                disabled={placing}
-                onClick={async () => {
-                  setPlacing(true);
-                  try {
-                    const response = await api.post("/checkout", {
-                      shippingAddress: {},
-                      CartItems: items.map((item) => ({
-                        productID: item.productId,
-                        quantity: item.quantity,
-                      })),
-                      paymentMethod: "Stripe_Card",
-                    });
-                    const url = response.data?.url;
-                    if (url) {
-                      window.location.href = url;
-                      return;
-                    }
-                    toast.error("Could not start checkout. Please try again.");
-                  } catch (error) {
-                    const apiMessage = (
-                      error as {
-                        response?: { data?: { message?: string } };
-                      }
-                    )?.response?.data?.message;
-                    toast.error(
-                      apiMessage ??
-                        (error instanceof Error
-                          ? error.message
-                          : "Could not start checkout. Please try again."),
-                    );
-                  } finally {
-                    setPlacing(false);
-                  }
-                }}
+                className="mt-5 h-11 w-full rounded-full bg-[#ffd814] text-sm font-medium text-[#0f1111] shadow-sm hover:bg-[#f7ca00]"
+                onClick={() => router.push("/checkout")}
               >
-                {placing ? "Redirecting to Stripe..." : "Proceed to checkout"}
+                Proceed to checkout
               </Button>
               <Button
                 variant="ghost"
