@@ -65,7 +65,17 @@ export function CustomerOrdersPage() {
   function buyAgain(productId: string) {
     const product = products.find((item) => item.id === productId);
     if (!product) return;
-    const added = addItem(product.id, product.stock);
+    const added = addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      discount: product.discount,
+      stock: product.stock,
+      color: product.color,
+      image: product.images[0],
+      brand: product.brand,
+      vendorCompanyName: product.vendorCompanyName,
+    });
     toast[added ? "success" : "error"](added ? "Added to your cart" : "This item could not be added", {
       description: product.name,
     });

@@ -20,25 +20,25 @@ const footerGroups = [
   {
     title: "Discover",
     links: [
-      ["All products", "/customer/products"],
-      ["Today's deals", "/customer/top-discounts"],
-      ["Top rated", "/customer/top-rated"],
+      ["All products", "/products"],
+      ["Today's deals", "/top-discounts"],
+      ["Top rated", "/top-rated"],
     ],
   },
   {
     title: "Your account",
     links: [
-      ["My orders", "/customer/orders"],
-      ["Wishlist", "/customer/product/wishlist"],
-      ["Profile", "/customer/profile"],
+      ["My orders", "/orders"],
+      ["Wishlist", "/product/wishlist"],
+      ["Profile", "/profile"],
     ],
   },
   {
     title: "For sellers",
     links: [
-      ["Start selling", "/customer/sell"],
+      ["Start selling", "/sell"],
       ["Seller dashboard", "/vendor/dashboard"],
-      ["Seller information", "/customer/sell"],
+      ["Seller information", "/sell"],
     ],
   },
 ];
@@ -49,7 +49,7 @@ function CustomerHeader() {
       <div className="bg-[#131921]">
         <div className="mx-auto flex min-h-17 max-w-400 flex-wrap items-center gap-2 px-3 py-2 sm:flex-nowrap sm:gap-3 sm:px-5 lg:px-7">
           <Link
-            href="/customer"
+            href="/"
             className="flex shrink-0 items-center gap-2 rounded-sm border border-transparent px-2 py-1.5 hover:border-white"
             aria-label="Marketly home"
           >
@@ -62,7 +62,7 @@ function CustomerHeader() {
           </Link>
 
           <Link
-            href="/customer#shop-categories"
+            href="/"
             className="hidden shrink-0 items-center gap-2 rounded-sm border border-transparent px-2 py-1 hover:border-white md:flex"
           >
             <LayoutGrid className="size-4 text-white/80" aria-hidden="true" />
@@ -149,25 +149,25 @@ function CustomerFooter() {
       <div className="border-t border-white/10 bg-[#131921]">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 py-7 sm:flex-row sm:justify-between">
           <Link
-            href="/customer"
+            href="/"
             className="flex items-center gap-2 rounded-sm px-2 py-1"
             aria-label="Marketly home"
           >
             <span className="grid size-8 place-items-center rounded-lg bg-[#f3a847] text-[#131921]">
-              <Store className="size-[18px]" aria-hidden="true" />
+              <Store className="size-4.5" aria-hidden="true" />
             </span>
             <span className="text-lg font-extrabold tracking-tight">
               marketly<span className="text-[#f3a847]">.</span>
             </span>
           </Link>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-white/60">
-            <Link href="/customer/profile" className="hover:text-white">
+            <Link href="/profile" className="hover:text-white">
               Your account
             </Link>
-            <Link href="/customer/orders" className="hover:text-white">
+            <Link href="/orders" className="hover:text-white">
               Help &amp; orders
             </Link>
-            <Link href="/customer/sell" className="hover:text-white">
+            <Link href="/sell" className="hover:text-white">
               Sell on Marketly
             </Link>
           </div>

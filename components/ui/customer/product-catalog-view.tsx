@@ -576,9 +576,16 @@ export default function ProductCatalogView({
                         </div>
                         <div className="max-w-57.5 pt-2 [&>button]:mt-0 [&>button]:h-9">
                           <AddToCartButton
-                            productId={product.id}
-                            productName={product.name}
-                            stock={product.stock}
+                            product={{
+                              id: product.id,
+                              name: product.name,
+                              price: product.price,
+                              discount: product.discount,
+                              stock: product.stock,
+                              color: product.color,
+                              image: product.images[0],
+                              brand: product.brand,
+                            }}
                           />
                         </div>
                       </div>

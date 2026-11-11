@@ -2,41 +2,40 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Check, LockKeyhole, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { Check, LockKeyhole, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { products } from "@/lib/vendor-products";
+import api from "@/lib/axios";
 import { useCustomerCart } from "@/lib/customer-cart-store";
 
 const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
 export function CartPageClient() {
+  const [placing, setPlacing] = useState(false);
   const items = useCustomerCart((state) => state.items);
   const hydrated = useCustomerCart((state) => state.hydrated);
   const removeItem = useCustomerCart((state) => state.removeItem);
   const changeQuantity = useCustomerCart((state) => state.changeQuantity);
-  const cartLines = items.flatMap((item) => {
-    const product = products.find((entry) => entry.id === item.productId);
-    return product ? [{ ...item, product }] : [];
-  });
+  const cartLines = items.filter((item) => item.product);
   const itemCount = cartLines.reduce((count, item) => count + item.quantity, 0);
   const subtotal = cartLines.reduce((total, item) => total + item.product.price * (1 - item.product.discount / 100) * item.quantity, 0);
 
   if (!hydrated) {
-    return <main className="min-h-[60vh] bg-[#eaeded] px-4 pb-12 pt-36 sm:px-6 lg:px-8"><div className="mx-auto max-w-[1500px]"><div className="h-10 w-64 animate-pulse rounded bg-white" /><div className="mt-5 h-64 animate-pulse rounded bg-white" /></div></main>;
+    return <main className="min-h-[60vh] bg-[#eaeded] px-4 pb-12 pt-36 sm:px-6 lg:px-8"><div className="mx-auto max-w-375"><div className="h-10 w-64 animate-pulse rounded bg-white" /><div className="mt-5 h-64 animate-pulse rounded bg-white" /></div></main>;
   }
 
   if (cartLines.length === 0) {
     return (
       <main className="min-h-[60vh] bg-[#eaeded] px-4 pb-12 pt-36 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-[1500px] items-start gap-5 max-lg:flex-col">
+        <div className="mx-auto flex max-w-375 items-start gap-5 max-lg:flex-col">
           <section className="w-full bg-white p-6 sm:p-9">
             <h1 className="text-3xl font-normal tracking-tight text-[#0f1111] sm:text-4xl">Your Amazon-style cart</h1>
             <div className="mt-7 flex flex-col items-center border-t border-[#ddd] py-12 text-center">
               <span className="grid size-20 place-items-center rounded-full bg-[#fff4d6] text-[#c45500]"><ShoppingCart className="size-9" /></span>
               <h2 className="mt-5 text-2xl font-semibold text-[#0f1111]">Your cart is empty</h2>
               <p className="mt-2 max-w-md text-[#565959]">Ready to find something you love? Your picks will be waiting here.</p>
-              <Button render={<Link href="/customer/products" />} className="mt-6 h-11 rounded-full bg-[#ffd814] px-7 text-[#0f1111] shadow-sm hover:bg-[#f7ca00]">Explore products</Button>
+              <Button render={<Link href="/products" />} className="mt-6 h-11 rounded-full bg-[#ffd814] px-7 text-[#0f1111] shadow-sm hover:bg-[#f7ca00]">Explore products</Button>
             </div>
           </section>
           <SecureNote />
@@ -47,13 +46,13 @@ export function CartPageClient() {
 
   return (
     <main className="min-h-[60vh] bg-[#eaeded] px-4 pb-12 pt-36 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1500px]">
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_350px]">
+      <div className="mx-auto max-w-375">
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_350px]">
           <section className="min-w-0 bg-white px-5 py-6 sm:px-8 sm:py-8">
             <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#ddd] pb-4">
               <div>
                 <h1 className="text-3xl font-normal tracking-tight text-[#0f1111] sm:text-4xl">Shopping Cart</h1>
-                <Link href="/customer/products" className="mt-2 inline-flex text-sm text-[#007185] hover:text-[#c45500] hover:underline">Continue shopping</Link>
+                <Link href="/products" className="mt-2 inline-flex text-sm text-[#007185] hover:text-[#c45500] hover:underline">Continue shopping</Link>
               </div>
               <p className="pb-1 text-sm text-[#565959]">Price</p>
             </div>
@@ -63,12 +62,14 @@ export function CartPageClient() {
                 const unitPrice = product.price * (1 - product.discount / 100);
                 return (
                   <article key={product.id} className="grid gap-5 py-6 sm:grid-cols-[180px_minmax(0,1fr)_150px] sm:gap-6">
-                    <div className="relative mx-auto aspect-square w-full max-w-[180px] overflow-hidden rounded-sm bg-[#f7f7f7] sm:mx-0">
-                      <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 639px) 90vw, 180px" className="object-contain p-3" />
+                    <div className="relative mx-auto aspect-square w-full max-w-45 overflow-hidden rounded-sm bg-[#f7f7f7] sm:mx-0">
+                      {product.image && (
+                        <Image src={product.image} alt={product.name} fill sizes="(max-width: 639px) 90vw, 180px" className="object-contain p-3" />
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="text-lg font-medium leading-6 text-[#0f1111]">{product.name}</p>
-                      <p className="mt-1 text-sm text-[#565959]">Sold by <span className="text-[#007185]">{product.vendorCompanyName}</span></p>
+                      {product.vendorCompanyName && <p className="mt-1 text-sm text-[#565959]">Sold by <span className="text-[#007185]">{product.vendorCompanyName}</span></p>}
                       {product.color && <p className="mt-1 text-sm text-[#565959]">Color: {product.color}</p>}
                       <p className="mt-2 flex items-center gap-1 text-sm font-medium text-[#007600]"><Check className="size-4" /> In Stock</p>
                       {product.discount > 0 && <span className="mt-2 inline-block rounded-sm bg-[#cc0c39] px-2 py-1 text-xs font-semibold text-white">-{Math.round(product.discount)}% deal</span>}
@@ -98,7 +99,49 @@ export function CartPageClient() {
             <aside className="bg-white p-5 sm:p-6">
               <p className="flex items-center gap-2 text-sm font-medium text-[#007600]"><Check className="size-4" /> Shipping calculated at checkout</p>
               <p className="mt-3 text-xl text-[#0f1111]">Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"}): <strong className="font-bold">{currency.format(subtotal)}</strong></p>
-              <Button className="mt-5 h-11 w-full rounded-full bg-[#ffd814] text-sm font-medium text-[#0f1111] shadow-sm hover:bg-[#f7ca00]" onClick={() => toast("Checkout is coming soon", { description: "Your cart is saved. Checkout will be available here soon.", duration: 4000 })}>Proceed to checkout</Button>
+              <Button
+                className="mt-5 h-11 w-full rounded-full bg-[#ffd814] text-sm font-medium text-[#0f1111] shadow-sm hover:bg-[#f7ca00] disabled:opacity-60"
+                disabled={placing}
+                onClick={async () => {
+                  setPlacing(true);
+                  try {
+                    const response = await api.post("/checkout", {
+                      shippingAddress: {},
+                      CartItems: items.map((item) => ({
+                        productID: item.productId,
+                        quantity: item.quantity,
+                      })),
+                      paymentMethod: "Stripe_Card",
+                    });
+                    const url = response.data?.url;
+                    if (url) {
+                      window.location.href = url;
+                      return;
+                    }
+                    toast.error("Could not start checkout. Please try again.");
+                  } catch (error) {
+                    toast.error(
+                      error instanceof Error
+                        ? error.message
+                        : "Could not start checkout. Please try again.",
+                    );
+                  } finally {
+                    setPlacing(false);
+                  }
+                }}
+              >
+                {placing ? "Redirecting to Stripe..." : "Proceed to checkout"}
+              </Button>
+              <Button
+                variant="ghost"
+                className="mt-3 h-9 w-full text-sm font-normal text-[#007185] hover:bg-transparent hover:text-[#c45500] hover:underline"
+                onClick={() => {
+                  useCustomerCart.setState({ items: [] });
+                  toast.success("Cart cleared");
+                }}
+              >
+                <Trash2 className="mr-1.5 size-3.5" /> Clear cart
+              </Button>
               <p className="mt-3 text-center text-xs text-[#565959]">Secure transaction</p>
             </aside>
             <SecureNote />

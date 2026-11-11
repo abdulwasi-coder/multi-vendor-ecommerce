@@ -123,7 +123,7 @@ export default async function CustomerDealsPage({
                           <span className="text-xs text-[#565959]">List: <span className="line-through">{currency.format(product.price)}</span></span>
                         </div>
                         <p className="mt-1 line-clamp-1 text-xs text-[#565959]">Save {currency.format(product.price - dealPrice)} · {product.color}</p>
-                        <div className="mt-auto w-full  [&>button]:h-9 [&>button]:px-2 [&>button]:text-xs"><AddToCartButton productId={product.id} productName={product.name} stock={product.stock} /></div>
+                        <div className="mt-auto w-full  [&>button]:h-9 [&>button]:px-2 [&>button]:text-xs"><AddToCartButton product={{ id: product.id, name: product.name, price: product.price, discount: product.discount, stock: product.stock, color: product.color, image: product.images?.[0], brand: product.brand }} /></div>
                       </div>
                     </article>
                   );
