@@ -926,7 +926,7 @@ export function ProductForm({ productId }: { productId?: string }) {
               }
               ControlName="price"
               placeholder="0.00"
-              InputParts={{ type: "number", min: "0" }}
+              InputParts={{ type: "number", min: "0", step: "0.01" }}
             />
             <HandleAddingFields
               fieldLabel="Available stock"
@@ -963,12 +963,7 @@ export function ProductForm({ productId }: { productId?: string }) {
                 </>
               }
               placeholder="0"
-              InputParts={{
-                type: "number",
-                min: "0",
-                max: "99",
-                step: "0.01",
-              }}
+              InputParts={{ type: "number", min: "0", max: "99", step: "0.01" }}
             />
             {selectedCategoryId && (
               <section className="space-y-4 rounded-xl border bg-muted/20 p-4 sm:col-span-2 sm:p-5">
