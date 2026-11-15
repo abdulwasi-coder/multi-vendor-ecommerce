@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VendorProductGallery } from "@/components/ui/vendor/vendor-product-gallery";
+import { ProductReviews } from "@/components/ui/customer/product-reviews";
 
 interface ProductAttribute {
   key: string;
@@ -21,6 +22,8 @@ interface CustomerProductDetails {
   sku: string;
   price: number;
   stock: number;
+  rating?: number;
+  reviewCount?: number;
   description: string;
   attributes: ProductAttribute[];
   images: ProductImage[];
@@ -156,6 +159,12 @@ export default async function CustomerProductDetailPage({
                 )}
               </div>
             )}
+
+            <ProductReviews
+              productId={data.id}
+              initialRating={data.rating ?? 0}
+              initialCount={data.reviewCount ?? 0}
+            />
           </div>
         </section>
       </div>
