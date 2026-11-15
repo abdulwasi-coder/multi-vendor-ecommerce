@@ -47,6 +47,7 @@ export function MobileCustomerNav() {
               <SheetClose
                 key={label}
                 render={<Link href={href} onClick={() => setOpen(false)} />}
+                nativeButton={false}
                 className="flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950"
               >
                 <Icon className="size-4 text-zinc-500" aria-hidden="true" />

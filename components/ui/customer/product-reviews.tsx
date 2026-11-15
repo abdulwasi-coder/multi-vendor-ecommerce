@@ -227,7 +227,7 @@ export function ProductReviews({
 
           {data && data.reviews.length === 0 && (
             <p className="py-4 text-sm text-muted-foreground">
-              No reviews yet — be the first to share your experience.
+              No reviews yet. Only customers who purchased this product can write a review.
             </p>
           )}
 

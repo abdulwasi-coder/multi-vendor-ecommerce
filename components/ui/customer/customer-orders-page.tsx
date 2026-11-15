@@ -207,9 +207,6 @@ export function CustomerOrdersPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  // returning from Stripe success_url: refresh orders + empty the cart.
-  // The webhook updates paymentStatus asynchronously (often 1-5s after the
-  // redirect), so retry invalidation a few times until the new order appears.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("payment") !== "success") return;

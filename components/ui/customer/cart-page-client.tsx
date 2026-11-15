@@ -34,7 +34,7 @@ export function CartPageClient() {
               <span className="grid size-20 place-items-center rounded-full bg-[#fff4d6] text-[#c45500]"><ShoppingCart className="size-9" /></span>
               <h2 className="mt-5 text-2xl font-semibold text-[#0f1111]">Your cart is empty</h2>
               <p className="mt-2 max-w-md text-[#565959]">Ready to find something you love? Your picks will be waiting here.</p>
-              <Button render={<Link href="/products" />} className="mt-6 h-11 rounded-full bg-[#ffd814] px-7 text-[#0f1111] shadow-sm hover:bg-[#f7ca00]">Explore products</Button>
+              <Button render={<Link href="/products" />} nativeButton={false} className="mt-6 h-11 rounded-full bg-[#ffd814] px-7 text-[#0f1111] shadow-sm hover:bg-[#f7ca00]">Explore products</Button>
             </div>
           </section>
           <SecureNote />

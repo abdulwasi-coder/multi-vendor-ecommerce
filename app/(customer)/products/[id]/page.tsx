@@ -76,29 +76,17 @@ export default async function CustomerProductDetailPage({
 
   return (
     <main className="min-h-[calc(100dvh-2rem)] bg-muted/20">
-      <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl px-4 pb-4 pt-36 sm:px-6 sm:pt-32 lg:px-8">
         <header className="mb-5 flex items-center justify-between gap-4 border-b pb-4">
-          <div className="min-w-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mb-1 h-7 -ml-2 text-muted-foreground"
-              render={<Link href="/products" />}
-            >
-              <ArrowLeft /> Products
-            </Button>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                {data.name}
-              </h1>
-              <Badge variant="outline" className="font-mono">
-                {data.sku}
-              </Badge>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {data.category?.name}
-            </p>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 -ml-2 text-muted-foreground"
+            render={<Link href="/products" />}
+            nativeButton={false}
+          >
+            <ArrowLeft /> Products
+          </Button>
         </header>
 
         <section className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
@@ -112,17 +100,31 @@ export default async function CustomerProductDetailPage({
           </div>
 
           <div>
-            <div className="flex flex-col gap-1 border-y py-4">
-              <span className="text-2xl font-semibold">
+            <div className="border-b pb-3">
+              <h1 className="text-lg font-semibold tracking-tight">
+                {data.name}
+              </h1>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="font-mono">
+                  {data.sku}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {data.category?.name}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-baseline justify-between gap-3 border-b py-2.5">
+              <span className="text-xl font-semibold">
                 {formatPrice(data.price)}
               </span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {data.stock > 0 ? `${data.stock} in stock` : "Out of stock"}
               </span>
             </div>
 
             {data.attributes?.length > 0 && (
-              <div className="flex flex-col gap-1 border-y py-4">
+              <div className="flex flex-col gap-1 border-b py-4">
                 <span className="text-sm font-semibold">Specifications</span>
                 <dl className="flex flex-col gap-1.5 text-xs">
                   {data.attributes.map((attribute) => (
@@ -142,7 +144,7 @@ export default async function CustomerProductDetailPage({
               </div>
             )}
 
-            <div className="flex flex-col gap-3 border-y py-4">
+            <div className="flex flex-col gap-3 py-4">
               <span className="text-sm font-semibold">About The Item</span>
               <p className="whitespace-pre-wrap wrap-break-word text-sm text-muted-foreground">
                 {data.description}

@@ -16,7 +16,7 @@ export default function VendorLogisticsPage() {
             Monitor product availability and spot items that need a restock.
           </p>
         </div>
-        <Button render={<Link href="/vendor/products" />}>
+        <Button render={<Link href="/vendor/products" />} nativeButton={false}>
           Manage products <ArrowRight className="ml-2 size-4" />
         </Button>
       </header>

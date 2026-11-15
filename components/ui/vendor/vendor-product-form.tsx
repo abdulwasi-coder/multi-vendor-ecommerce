@@ -590,7 +590,7 @@ export function ProductForm({ productId }: { productId?: string }) {
           <Button type="button" variant="outline" onClick={() => void productQuery.refetch()}>
             Try again
           </Button>
-          <Button variant="ghost" render={<Link href="/vendor/products" />}>
+          <Button variant="ghost" render={<Link href="/vendor/products" />} nativeButton={false}>
             Back to products
           </Button>
         </div>
@@ -606,6 +606,7 @@ export function ProductForm({ productId }: { productId?: string }) {
           size="sm"
           className="mb-2 -ml-2 text-muted-foreground"
           render={<Link href="/vendor/products" />}
+          nativeButton={false}
         >
           <ArrowLeft /> Back to products
         </Button>

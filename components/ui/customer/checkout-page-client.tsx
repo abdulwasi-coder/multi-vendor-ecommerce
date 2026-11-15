@@ -60,7 +60,7 @@ export function CheckoutPageClient() {
         <div className="mx-auto max-w-375 bg-white p-10 text-center">
           <h1 className="text-2xl font-semibold text-[#0f1111]">Nothing to check out</h1>
           <p className="mt-2 text-[#565959]">Your cart is empty.</p>
-          <Button render={<Link href="/products" />} className="mt-6 h-11 rounded-full bg-[#ffd814] px-7 text-[#0f1111] hover:bg-[#f7ca00]">
+          <Button render={<Link href="/products" />} nativeButton={false} className="mt-6 h-11 rounded-full bg-[#ffd814] px-7 text-[#0f1111] hover:bg-[#f7ca00]">
             Explore products
           </Button>
         </div>

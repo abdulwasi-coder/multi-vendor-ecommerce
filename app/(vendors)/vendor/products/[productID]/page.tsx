@@ -67,6 +67,7 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
               size="sm"
               className="mb-1 h-7 -ml-2 text-muted-foreground"
               render={<Link href="/vendor/products" />}
+              nativeButton={false}
             >
               <ArrowLeft /> Products
             </Button>
@@ -86,6 +87,7 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
           </div>
           <Button
             render={<Link href={`/vendor/create?productID=${product._id}`} />}
+            nativeButton={false}
           >
             <Pencil /> Edit product
           </Button>
@@ -168,6 +170,7 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
             <Button
               className="my-3"
               render={<Link href={`/vendor/create?productID=${product._id}`} />}
+              nativeButton={false}
             >
               Edit Product
             </Button>
