@@ -81,7 +81,11 @@ api.interceptors.response.use(
         typeof window !== "undefined" &&
         window.location.pathname !== "/login"
       ) {
-       window.location.replace("/login");
+        const returnTo =
+          window.location.pathname + window.location.search;
+        window.location.replace(
+          `/login?redirect=${encodeURIComponent(returnTo)}`,
+        );
       }
       return Promise.reject(refreshError);
     } finally {

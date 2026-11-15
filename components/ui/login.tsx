@@ -50,18 +50,23 @@ export default function LoginFunction() {
         }
       );
 
-      if (response.data.success && response.data.role === "vendor") {
+      if (!response.data.success) return;
+
+      const redirectParam = new URLSearchParams(window.location.search).get(
+        "redirect",
+      );
+      const returnTo =
+        redirectParam && redirectParam.startsWith("/") ? redirectParam : null;
+
+      if (response.data.role === "vendor" && !returnTo) {
         router.push("/vendor/dashboard");
         return;
       }
-      if (response.data.success && response.data.role === "admin") {
+      if (response.data.role === "admin" && !returnTo) {
         router.push("/admin/dashboard");
         return;
       }
-      if (response.data.success) {
-        router.push("/");
-        return;
-      }
+      router.push(returnTo ?? "/");
     } catch (error:any) {
       console.log(error)
       if(error.reponse){
