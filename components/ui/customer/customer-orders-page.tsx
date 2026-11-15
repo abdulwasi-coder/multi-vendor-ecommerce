@@ -207,13 +207,22 @@ export function CustomerOrdersPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  // returning from Stripe success_url: refresh orders + empty the cart
+  // returning from Stripe success_url: refresh orders + empty the cart.
+  // The webhook updates paymentStatus asynchronously (often 1-5s after the
+  // redirect), so retry invalidation a few times until the new order appears.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("payment") !== "success") return;
-    queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+
     useCustomerCart.getState().clearCart();
     window.history.replaceState(null, "", window.location.pathname);
+
+    const invalidate = () =>
+      queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+
+    invalidate();
+    const timers = [3000, 8000, 15000].map((ms) => setTimeout(invalidate, ms));
+    return () => timers.forEach(clearTimeout);
   }, [queryClient]);
 
   const { data: user, isPending: isProfilePending } = useQuery({
