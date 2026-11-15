@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { CreditCard, Banknote, LockKeyhole } from "lucide-react";
@@ -19,6 +20,7 @@ const inputClass =
 
 export function CheckoutPageClient() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [placing, setPlacing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("Stripe_Card");
   const [form, setForm] = useState({
@@ -97,6 +99,7 @@ export function CheckoutPageClient() {
         toast.error("Could not start checkout. Please try again.");
       } else {
         useCustomerCart.setState({ items: [] });
+        queryClient.invalidateQueries({ queryKey: ["my-orders"] });
         toast.success("Order placed! Pay on delivery.");
         router.push("/orders");
       }

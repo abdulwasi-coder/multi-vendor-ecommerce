@@ -27,6 +27,7 @@ type CustomerCartState = {
   addItem: (product: CartProductSnapshot) => boolean;
   removeItem: (productId: string) => void;
   changeQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
   markHydrated: () => void;
 };
 
@@ -86,6 +87,7 @@ export const useCustomerCart = create<CustomerCartState>()(
                   item.productId === productId ? { ...item, quantity } : item,
                 ),
         })),
+      clearCart: () => set({ items: [] }),
       markHydrated: () => set({ hydrated: true }),
     }),
     {

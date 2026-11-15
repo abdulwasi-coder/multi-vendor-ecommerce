@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowRight, ChevronDown, ChevronRight, PackageCheck, RotateCcw, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
+import { useCustomerCart } from "@/lib/customer-cart-store";
 
 type OrderStatus = "Delivered" | "Shipped" | "Cancelled" | "Processing";
 
@@ -204,6 +205,16 @@ export function CustomerOrdersPage() {
   const [year, setYear] = useState(() => String(new Date().getFullYear()));
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  // returning from Stripe success_url: refresh orders + empty the cart
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("payment") !== "success") return;
+    queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+    useCustomerCart.getState().clearCart();
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [queryClient]);
 
   const { data: user, isPending: isProfilePending } = useQuery({
     queryKey: ["customer-account-profile"],
