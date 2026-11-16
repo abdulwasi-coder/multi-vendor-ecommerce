@@ -90,7 +90,7 @@ export default async function CustomerProductDetailPage({
         </header>
 
         <section className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
-          <div className="h-[min(48vh,400px)] min-h-70 md:h-[min(50vh,460px)] md:min-h-[95vh]">
+          <div className="h-[min(40vh,340px)] min-h-64 sm:h-[min(45vh,400px)] sm:min-h-80 lg:h-[min(50vh,440px)] lg:min-h-96">
             <VendorProductGallery
               images={productImages}
               name={data.name}

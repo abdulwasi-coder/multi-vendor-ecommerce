@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp, Star } from "lucide-react";
@@ -30,7 +32,7 @@ type ReviewsResponse = {
 
 type UserProfileResponse = {
   success?: boolean;
-  userData?: { name?: string };
+  userData?: { _id?: string; name?: string };
 };
 
 async function getCustomerProfile() {
@@ -76,9 +78,15 @@ export function ProductReviews({
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editRating, setEditRating] = useState(0);
+  const [editComment, setEditComment] = useState("");
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({
+  const pathname = usePathname();
+  const { data: user, isPending: isProfilePending } = useQuery({
     queryKey: ["customer-account-profile"],
     queryFn: getCustomerProfile,
     staleTime: 60_000,
@@ -86,7 +94,7 @@ export function ProductReviews({
 
   const { data, isPending, isError } = useQuery({
     queryKey: ["product-reviews", productId, page],
-    enabled: expanded,
+    enabled: expanded && !!user,
     staleTime: 60_000,
     queryFn: async () => {
       const response = await api.get<ReviewsResponse>(
@@ -116,11 +124,62 @@ export function ProductReviews({
       queryClient.invalidateQueries({ queryKey: ["product-reviews", productId] });
     } catch (error) {
       const apiMessage = (
-        error as { response?: { data?: { message?: string } } }
-      )?.response?.data?.message;
-      toast.error(apiMessage ?? "Could not post your review.");
+        error as { response?: { status?: number; data?: { message?: string } } }
+      )?.response;
+      if (apiMessage?.status === 409) {
+        toast.info("You already reviewed this product — use Edit on your review below.");
+      } else {
+        toast.error(apiMessage?.data?.message ?? "Could not post your review.");
+      }
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  function startEdit(review: ApiReview) {
+    setEditingId(review._id);
+    setEditRating(review.rating);
+    setEditComment(review.comment ?? "");
+  }
+
+  async function submitEdit() {
+    if (!editingId || editRating < 1) {
+      toast.error("Please select a star rating.");
+      return;
+    }
+    setEditSubmitting(true);
+    try {
+      await api.patch(`/user/reviews/${editingId}`, {
+        rating: editRating,
+        comment: editComment.trim() || "",
+      });
+      toast.success("Review updated.");
+      setEditingId(null);
+      queryClient.invalidateQueries({ queryKey: ["product-reviews", productId] });
+    } catch (error) {
+      const apiMessage = (
+        error as { response?: { data?: { message?: string } } }
+      )?.response?.data?.message;
+      toast.error(apiMessage ?? "Could not update your review.");
+    } finally {
+      setEditSubmitting(false);
+    }
+  }
+
+  async function removeReview(reviewId: string) {
+    if (!window.confirm("Delete your review?")) return;
+    setDeletingId(reviewId);
+    try {
+      await api.delete(`/user/reviews/${reviewId}`);
+      toast.success("Review deleted.");
+      queryClient.invalidateQueries({ queryKey: ["product-reviews", productId] });
+    } catch (error) {
+      const apiMessage = (
+        error as { response?: { data?: { message?: string } } }
+      )?.response?.data?.message;
+      toast.error(apiMessage ?? "Could not delete your review.");
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -211,11 +270,25 @@ export function ProductReviews({
             </div>
           )}
 
-          {isPending && (
+          {(isProfilePending || (user && isPending)) && (
             <div className="space-y-3">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="h-16 animate-pulse rounded-md bg-muted/50" />
               ))}
+            </div>
+          )}
+
+          {!isProfilePending && !user && (
+            <div className="rounded-md border bg-muted/30 px-4 py-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Sign in to view and write reviews.
+              </p>
+              <Link
+                href={`/login?redirect=${encodeURIComponent(pathname)}`}
+                className="mt-3 inline-flex h-9 items-center rounded-full bg-[#ffd814] px-4 text-sm font-normal text-[#0f1111] hover:bg-[#f7ca00]"
+              >
+                Sign in
+              </Link>
             </div>
           )}
 
@@ -233,7 +306,13 @@ export function ProductReviews({
 
           {data && data.reviews.length > 0 && (
             <ul className="space-y-4">
-              {data.reviews.map((review) => (
+              {data.reviews.map((review) => {
+                const isOwner =
+                  !!user?._id &&
+                  typeof review.user === "object" &&
+                  review.user?._id === user._id;
+                const editing = editingId === review._id;
+                return (
                 <li key={review._id} className="border-b pb-4 last:border-0 last:pb-0">
                   <div className="flex items-center gap-2">
                     <Stars value={review.rating} />
@@ -245,12 +324,79 @@ export function ProductReviews({
                         day: "numeric",
                       })}
                     </span>
+                    {isOwner && !editing && (
+                      <span className="ml-auto flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => startEdit(review)}
+                          className="text-xs font-medium text-[#007185] hover:text-[#c45500] hover:underline"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeReview(review._id)}
+                          disabled={deletingId === review._id}
+                          className="text-xs font-medium text-[#007185] hover:text-[#c45500] hover:underline disabled:opacity-50"
+                        >
+                          {deletingId === review._id ? "Deleting..." : "Delete"}
+                        </button>
+                      </span>
+                    )}
                   </div>
-                  {review.comment && (
-                    <p className="mt-1.5 text-sm text-muted-foreground">{review.comment}</p>
+                  {editing ? (
+                    <div className="mt-2 rounded-md border bg-muted/30 p-3">
+                      <div className="mb-2 flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setEditRating(star)}
+                            aria-label={`${star} star${star === 1 ? "" : "s"}`}
+                            className="p-0.5"
+                          >
+                            <Star
+                              size={18}
+                              className={editRating >= star ? "fill-[#e77600] text-[#e77600]" : "fill-[#e3e6e6] text-[#e3e6e6]"}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                      <Textarea
+                        value={editComment}
+                        onChange={(e) => setEditComment(e.target.value)}
+                        placeholder="Share your experience (optional)"
+                        maxLength={1000}
+                        rows={2}
+                        className="mb-2"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={submitEdit}
+                          disabled={editSubmitting}
+                          className="h-8 rounded-full bg-[#ffd814] px-3 text-xs font-normal text-[#0f1111] hover:bg-[#f7ca00]"
+                        >
+                          {editSubmitting ? "Saving..." : "Save"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setEditingId(null)}
+                          className="h-8 rounded-full text-xs"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    review.comment && (
+                      <p className="mt-1.5 text-sm text-muted-foreground">{review.comment}</p>
+                    )
                   )}
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
 

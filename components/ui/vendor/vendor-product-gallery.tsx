@@ -35,12 +35,12 @@ export function VendorProductGallery({
     if (!stage || !photo || !photo.naturalWidth || !photo.naturalHeight) return;
 
     const bounds = stage.getBoundingClientRect();
-    const coverScale = Math.max(
+    const containScale = Math.min(
       bounds.width / photo.naturalWidth,
       bounds.height / photo.naturalHeight,
     );
-    const photoWidth = photo.naturalWidth * coverScale;
-    const photoHeight = photo.naturalHeight * coverScale;
+    const photoWidth = photo.naturalWidth * containScale;
+    const photoHeight = photo.naturalHeight * containScale;
     const photoLeft = (bounds.width - photoWidth) / 2;
     const photoTop = (bounds.height - photoHeight) / 2;
     const localX = event.clientX - bounds.left;
@@ -73,7 +73,7 @@ export function VendorProductGallery({
     lens.style.top = `${pointY}px`;
     lens.style.width = `${lensWidth}px`;
     lens.style.height = `${lensHeight}px`;
-    zoomImage.style.backgroundSize = `${photo.naturalWidth * coverScale * ZOOM_FACTOR}px ${photo.naturalHeight * coverScale * ZOOM_FACTOR}px`;
+    zoomImage.style.backgroundSize = `${photo.naturalWidth * containScale * ZOOM_FACTOR}px ${photo.naturalHeight * containScale * ZOOM_FACTOR}px`;
     zoomImage.style.backgroundPosition = `${panelWidth / 2 - imageX * photoWidth * ZOOM_FACTOR}px ${panelHeight / 2 - imageY * photoHeight * ZOOM_FACTOR}px`;
   }
 
@@ -105,7 +105,7 @@ export function VendorProductGallery({
 
       <div
         ref={stageRef}
-        className={`relative min-h-0 min-w-0 flex-1 bg-background ${zoomOpen ? "cursor-none" : "cursor-crosshair"}`}
+        className={`relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border bg-background ${zoomOpen ? "cursor-none" : "cursor-crosshair"}`}
         onMouseLeave={() => setZoomOpen(false)}
         onMouseMove={trackPointer}
       >
@@ -114,7 +114,7 @@ export function VendorProductGallery({
             ref={imageRef}
             src={image}
             alt={name}
-            className="size-full object-cover"
+            className="size-full object-contain p-2"
           />
         ) : (
           <div className="flex size-full items-center justify-center">
