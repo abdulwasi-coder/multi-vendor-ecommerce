@@ -8,6 +8,7 @@ import {
   PendingLabel,
   PendingRadio,
 } from "@/components/ui/customer/pending-filter";
+import { CategoryStrip } from "@/components/ui/customer/category-strip";
 
 interface DealProduct {
   id: string;
@@ -32,6 +33,7 @@ interface TopDiscountsResponse {
   totalProducts: number;
   products: DealProduct[];
   departments: { id: string; name: string }[];
+  siblings: { id: string; name: string }[];
   brands: { name: string; count: number }[];
 }
 
@@ -92,6 +94,7 @@ export default async function CustomerDealsPage({
 
   const deals = data?.products ?? [];
   const departments = data?.departments ?? [];
+  const siblings = data?.siblings ?? [];
   const brands = data?.brands ?? [];
   const minDiscount = data?.minDiscount ?? 15;
   const totalPages = data?.totalPages ?? 1;
@@ -105,23 +108,16 @@ export default async function CustomerDealsPage({
     <main className="min-h-screen bg-white pb-14 pt-40 text-[#0f1111] sm:pt-32">
       <div className="mx-auto max-w-[1600px]">
         <h1 className="sr-only">Today&apos;s Deals</h1>
-        <nav aria-label="Deal categories" className="flex gap-2 overflow-x-auto border-b border-[#d5d9d9] px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/top-discounts" scroll={false} aria-current={!category ? "page" : undefined}
-            className={`shrink-0 rounded-md border px-5 py-2.5 text-sm ${!category ? "border-[#007185] bg-[#eaf6f7] font-bold ring-1 ring-[#007185]" : "border-[#d5d9d9] font-medium hover:bg-[#f7fafa]"}`}>
-            <PendingLabel>All Departments</PendingLabel>
-          </Link>
-          {departments.map((department) => {
-            const selected = category === department.id;
-            return (
-              <Link key={department.id} href={filterHref({ category: department.id, brand, page: 1 })} scroll={false} aria-current={selected ? "page" : undefined}
-                className={`shrink-0 rounded-md border px-5 py-2.5 text-sm ${selected ? "border-[#007185] bg-[#eaf6f7] font-bold ring-1 ring-[#007185]" : "border-[#d5d9d9] font-medium hover:bg-[#f7fafa]"}`}>
-                <PendingLabel>{department.name}</PendingLabel>
-              </Link>
-            );
-          })}
-        </nav>
+        <CategoryStrip
+          basePath="/top-discounts"
+          params={brand ? { brand } : {}}
+          items={departments}
+          selectedId={category}
+          allLabel="All Categories"
+        />
 
-        <div className="grid gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[225px_minmax(0,1fr)] lg:px-8 lg:py-7">
+        <div className={`grid gap-5 px-4 py-5 sm:px-6 lg:gap-5 lg:px-8 lg:py-7 ${category ? "lg:grid-cols-[180px_minmax(0,1fr)]" : ""}`}>
+          {category && (
           <aside className="h-fit border-b border-[#d5d9d9] pb-4 lg:border-0 lg:pb-0">
             <details className="group" open>
               <summary className="cursor-pointer list-none text-lg font-bold lg:hidden">Filters</summary>
@@ -139,10 +135,10 @@ export default async function CustomerDealsPage({
 
                 <section className="border-t border-[#d5d9d9] pt-4">
                   <h2 className="text-base font-bold">Categories</h2>
-                  {departments.map((department) => (
-                    <Link key={department.id} href={filterHref({ category: department.id, brand, page: 1 })} scroll={false} className="mt-2 flex items-center gap-2 text-sm hover:text-[#c45500]" aria-current={category === department.id ? "true" : undefined}>
-                      <PendingRadio selected={category === department.id} />
-                      <PendingLabel>{department.name}</PendingLabel>
+                  {siblings.map((sibling) => (
+                    <Link key={sibling.id} href={filterHref({ category: sibling.id, brand, page: 1 })} scroll={false} className="mt-2 flex items-center gap-2 text-sm hover:text-[#c45500]" aria-current={category === sibling.id ? "true" : undefined}>
+                      <PendingRadio selected={category === sibling.id} />
+                      <PendingLabel>{sibling.name}</PendingLabel>
                     </Link>
                   ))}
                 </section>
@@ -166,6 +162,7 @@ export default async function CustomerDealsPage({
               </div>
             </details>
           </aside>
+          )}
 
           <section className="min-w-0">
             <div className="flex flex-wrap items-end justify-between gap-2 pb-3">

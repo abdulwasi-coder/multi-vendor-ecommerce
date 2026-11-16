@@ -271,7 +271,7 @@ export default function ProductCatalogView({
           </form>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-[215px_minmax(0,1fr)] lg:gap-6">
+        <div className="grid gap-5 lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-5">
           <aside className="h-fit border-b border-[#ddd] pb-4 lg:border-0 lg:pb-0">
             <details className="group lg:block" open>
               <summary className="cursor-pointer list-none text-lg font-bold lg:hidden">
