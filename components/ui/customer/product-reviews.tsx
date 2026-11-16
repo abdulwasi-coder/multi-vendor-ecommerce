@@ -22,8 +22,7 @@ type ApiReview = {
 
 type ReviewsResponse = {
   success: boolean;
-  rating: number;
-  reviewCount: number;
+  viewerId: string;
   currentPage: number;
   totalPages: number;
   total: number;
@@ -89,13 +88,16 @@ export function ProductReviews({
   const { data: user, isPending: isProfilePending } = useQuery({
     queryKey: ["customer-account-profile"],
     queryFn: getCustomerProfile,
-    staleTime: 60_000,
+    enabled: expanded,
+    staleTime: 300_000,
+    refetchOnWindowFocus: false,
   });
 
   const { data, isPending, isError } = useQuery({
     queryKey: ["product-reviews", productId, page],
     enabled: expanded && !!user,
     staleTime: 60_000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const response = await api.get<ReviewsResponse>(
         `/user/products/${productId}/reviews`,
@@ -183,8 +185,8 @@ export function ProductReviews({
     }
   }
 
-  const displayRating = data?.rating ?? initialRating;
-  const displayCount = data?.reviewCount ?? initialCount;
+  const displayRating = initialRating;
+  const displayCount = initialCount;
 
   return (
     <div className="mt-4 rounded-lg border">
