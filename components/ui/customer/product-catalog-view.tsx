@@ -175,6 +175,7 @@ function FilterOption({
     <Link
       href={href}
       scroll={false}
+      prefetch={false}
       aria-current={selected ? "true" : undefined}
       className={`flex items-center gap-2 py-1 text-sm leading-5 hover:text-[#c45500] ${
         selected && !checkbox ? "font-semibold text-[#c45500]" : ""
@@ -596,6 +597,7 @@ export default function ProductCatalogView({
                 </p>
                 <Link
                   href="/products"
+                  prefetch={false}
                   className="mt-4 inline-flex rounded-full bg-[#f4c967] px-5 py-2 text-sm font-semibold hover:bg-[#f7d982]"
                 >
                   Clear filters
@@ -612,7 +614,7 @@ export default function ProductCatalogView({
                   <Button
                     variant="outline"
                     render={
-                      <Link href={pageHref(params, feed.currentPage - 1)} />
+                      <Link href={pageHref(params, feed.currentPage - 1)} prefetch={false} />
                     }
                     nativeButton={false}
                   >
@@ -630,7 +632,7 @@ export default function ProductCatalogView({
                   <Button
                     variant="outline"
                     render={
-                      <Link href={pageHref(params, feed.currentPage + 1)} />
+                      <Link href={pageHref(params, feed.currentPage + 1)} prefetch={false} />
                     }
                     nativeButton={false}
                   >

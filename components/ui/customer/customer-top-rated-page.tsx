@@ -126,13 +126,13 @@ export default async function CustomerTopRatedPage({
                     {selectedDepartment && <span className="rounded-full border border-[#007185] bg-[#eaf6f7] px-3 py-1 text-xs font-semibold">{selectedDepartment.name}</span>}
                     {selectedBrand && <span className="rounded-full border border-[#007185] bg-[#eaf6f7] px-3 py-1 text-xs font-semibold">{selectedBrand}</span>}
                   </div>
-                  <Link href={filterHref({ category })} scroll={false} className="mt-3 inline-block text-sm text-[#007185] hover:text-[#c45500] hover:underline">Clear filters</Link>
+                  <Link href={filterHref({ category })} scroll={false} prefetch={false} className="mt-3 inline-block text-sm text-[#007185] hover:text-[#c45500] hover:underline">Clear filters</Link>
                 </section>
 
                 <section className="border-t border-[#d5d9d9] pt-4">
                   <h2 className="text-base font-bold">Categories</h2>
                   {siblings.map((sibling) => (
-                    <Link key={sibling.id} href={filterHref({ category: sibling.id, brand, page: 1 })} scroll={false} className="mt-2 flex items-center gap-2 text-sm hover:text-[#c45500]" aria-current={category === sibling.id ? "true" : undefined}>
+                    <Link key={sibling.id} href={filterHref({ category: sibling.id, brand, page: 1 })} scroll={false} prefetch={false} className="mt-2 flex items-center gap-2 text-sm hover:text-[#c45500]" aria-current={category === sibling.id ? "true" : undefined}>
                       <PendingRadio selected={category === sibling.id} />
                       <PendingLabel>{sibling.name}</PendingLabel>
                     </Link>
@@ -146,7 +146,7 @@ export default async function CustomerTopRatedPage({
                       {brands.map((item) => {
                         const checked = selectedBrand === item.name;
                         return (
-                          <Link key={item.name} href={filterHref({ category, brand: checked ? undefined : item.name, page: 1 })} scroll={false} className="flex items-center gap-2 text-sm hover:text-[#c45500]" aria-current={checked ? "true" : undefined}>
+                          <Link key={item.name} href={filterHref({ category, brand: checked ? undefined : item.name, page: 1 })} scroll={false} prefetch={false} className="flex items-center gap-2 text-sm hover:text-[#c45500]" aria-current={checked ? "true" : undefined}>
                             <PendingCheckbox selected={checked} className="size-[17px]" />
                             <PendingLabel>{item.name}</PendingLabel>
                           </Link>
@@ -206,12 +206,12 @@ export default async function CustomerTopRatedPage({
 
                 {totalPages > 1 && (
                   <div className="mt-6 flex items-center justify-center gap-3">
-                    <Link href={filterHref({ category, brand, page: currentPage - 1 })} scroll={false} aria-disabled={currentPage <= 1}
+                    <Link href={filterHref({ category, brand, page: currentPage - 1 })} scroll={false} prefetch={false} aria-disabled={currentPage <= 1}
                       className={`inline-flex h-9 items-center rounded-full border border-[#d5d9d9] bg-white px-4 text-sm shadow-sm ${currentPage <= 1 ? "pointer-events-none opacity-50" : "hover:bg-[#f7fafa]"}`}>
                       <ChevronRight className="size-4 rotate-180" /> Previous
                     </Link>
                     <span className="text-sm text-[#565959]">Page {currentPage} of {totalPages}</span>
-                    <Link href={filterHref({ category, brand, page: currentPage + 1 })} scroll={false} aria-disabled={currentPage >= totalPages}
+                    <Link href={filterHref({ category, brand, page: currentPage + 1 })} scroll={false} prefetch={false} aria-disabled={currentPage >= totalPages}
                       className={`inline-flex h-9 items-center rounded-full border border-[#d5d9d9] bg-white px-4 text-sm shadow-sm ${currentPage >= totalPages ? "pointer-events-none opacity-50" : "hover:bg-[#f7fafa]"}`}>
                       Next <ChevronRight className="size-4" />
                     </Link>

@@ -73,6 +73,7 @@ export function CategoryStrip({
         <Link
           href={hrefFor("")}
           scroll={false}
+          prefetch={false}
           aria-current={!selectedId ? "page" : undefined}
           className={chipClass(!selectedId)}
         >
@@ -85,6 +86,7 @@ export function CategoryStrip({
               key={item.id}
               href={hrefFor(item.id)}
               scroll={false}
+              prefetch={false}
               aria-current={selected ? "page" : undefined}
               className={chipClass(selected)}
             >
