@@ -19,7 +19,7 @@ const links = [
   { label: "Products", href: "/customer/products", icon: ShoppingBag },
   { label: "Sell", href: "/customer/sell", icon: Store },
   { label: "Top discounts", href: "/customer/top-discounts", icon: Tag },
-  { label: "Top rated", href: "/customer/top-rated", icon: TrendingUp },
+  { label: "Top rated", href: "/top-rated", icon: TrendingUp },
   { label: "Orders", href: "/customer/orders", icon: UserRound },
 ];
 

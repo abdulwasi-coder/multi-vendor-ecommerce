@@ -1,7 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { AddToCartButton } from "@/components/ui/customer/add-to-cart-button";
+import {
+  PendingCheckbox,
+  PendingLabel,
+} from "@/components/ui/customer/pending-filter";
 import { Button } from "@/components/ui/button";
 
 type SearchValue = string | string[] | undefined;
@@ -170,23 +174,14 @@ function FilterOption({
   return (
     <Link
       href={href}
+      scroll={false}
       aria-current={selected ? "true" : undefined}
       className={`flex items-center gap-2 py-1 text-sm leading-5 hover:text-[#c45500] ${
         selected && !checkbox ? "font-semibold text-[#c45500]" : ""
       }`}
     >
-      {checkbox && (
-        <span
-          className={`grid size-4.25 shrink-0 place-items-center rounded-[3px] border ${
-            selected
-              ? "border-[#007185] bg-[#007185] text-white"
-              : "border-[#888c8c] bg-white"
-          }`}
-        >
-          {selected && <Check className="size-3.5" aria-hidden="true" />}
-        </span>
-      )}
-      {label}
+      {checkbox && <PendingCheckbox selected={selected} />}
+      <PendingLabel>{label}</PendingLabel>
     </Link>
   );
 }
@@ -619,6 +614,7 @@ export default function ProductCatalogView({
                     render={
                       <Link href={pageHref(params, feed.currentPage - 1)} />
                     }
+                    nativeButton={false}
                   >
                     Previous
                   </Button>
@@ -636,6 +632,7 @@ export default function ProductCatalogView({
                     render={
                       <Link href={pageHref(params, feed.currentPage + 1)} />
                     }
+                    nativeButton={false}
                   >
                     Next
                   </Button>
