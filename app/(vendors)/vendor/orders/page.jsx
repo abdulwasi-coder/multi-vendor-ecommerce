@@ -156,7 +156,7 @@ function StatusSelect({ orderId, status }) {
 
 function OrderDetails({ order }) {
   return (
-    <div className="grid gap-5 bg-muted/30 px-4 py-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-5 bg-muted/30 px-4 py-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] lg:gap-x-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Shipping address
@@ -177,7 +177,7 @@ function OrderDetails({ order }) {
         </div>
       </div>
 
-      <div className="sm:col-span-2 lg:col-span-1">
+      <div className="sm:col-span-2 lg:col-span-1 lg:border-l lg:border-border/60 lg:pl-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Items ({order.items.length})
         </p>
@@ -201,7 +201,7 @@ function OrderDetails({ order }) {
         </div>
       </div>
 
-      <div>
+      <div className="sm:col-span-2 lg:col-span-1 lg:border-l lg:border-border/60 lg:pl-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Payout
         </p>
