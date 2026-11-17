@@ -33,10 +33,12 @@ function redirectToLogin(request: NextRequest) {
   return NextResponse.redirect(loginUrl);
 }
 
-function getRequiredRole(pathname: string) {
-  if (pathname.startsWith("/admin/") || pathname === "/admin") return "admin";
-  if (pathname.startsWith("/checkout") || pathname.startsWith("/orders")) return "user";
-  return "vendor";
+function getRequiredRoles(pathname: string) {
+  if (pathname.startsWith("/admin/") || pathname === "/admin") return ["admin"];
+  if (pathname.startsWith("/checkout") || pathname.startsWith("/orders")) {
+    return ["user", "vendor", "admin"];
+  }
+  return ["vendor"];
 }
 
 function getSetCookieValue(setCookieHeaders: string[], cookieName: string) {
@@ -150,7 +152,7 @@ export async function proxy(request: NextRequest) {
     return response ?? NextResponse.next();
   }
 
-  if (typeof role !== "string" || role.toLowerCase() !== getRequiredRole(request.nextUrl.pathname)) {
+  if (typeof role !== "string" || !getRequiredRoles(request.nextUrl.pathname).includes(role.toLowerCase())) {
     const unauthorizedResponse = redirectTo(request, "/unauthorized");
     for (const setCookie of refreshedCookies) {
       unauthorizedResponse.headers.append("set-cookie", setCookie);
