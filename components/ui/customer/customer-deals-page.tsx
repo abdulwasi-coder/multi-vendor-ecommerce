@@ -175,7 +175,7 @@ export default async function CustomerDealsPage({
 
             {deals.length ? (
               <>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-2 lg:grid-cols-4 xl:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-2 lg:grid-cols-5 xl:grid-cols-6">
                   {deals.map((product) => {
                     const discount = product.discount ?? 0;
                     const dealPrice = product.price * (1 - discount / 100);

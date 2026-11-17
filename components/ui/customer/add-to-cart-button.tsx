@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Check, CheckCircle2, ShoppingBag, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import {
   useCustomerCart,
   type CartProductSnapshot,
 } from "@/lib/customer-cart-store";
+import { getCustomerProfile } from "@/lib/customer-profile";
 
 export function AddToCartButton({
   product,
@@ -16,12 +18,33 @@ export function AddToCartButton({
   product: CartProductSnapshot;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
   const addItem = useCustomerCart((state) => state.addItem);
   const [added, setAdded] = useState(false);
+  const [checking, setChecking] = useState(false);
   const productName = product.name;
   const stock = product.stock;
 
-  function handleAdd() {
+  async function ensureSignedIn() {
+    const cached = queryClient.getQueryData(["customer-account-profile"]);
+    if (cached !== undefined) return Boolean(cached);
+    const profile = await getCustomerProfile();
+    queryClient.setQueryData(["customer-account-profile"], profile);
+    return Boolean(profile);
+  }
+
+  async function handleAdd() {
+    setChecking(true);
+    try {
+      if (!(await ensureSignedIn())) {
+        router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+        return;
+      }
+    } finally {
+      setChecking(false);
+    }
+
     const wasAdded = addItem(product);
 
     if (!wasAdded) {
@@ -58,12 +81,12 @@ export function AddToCartButton({
     <Button
       type="button"
       onClick={handleAdd}
-      disabled={stock < 1}
+      disabled={stock < 1 || checking}
       variant="outline"
       className="mt-4 h-11 w-full rounded-full border-[#e5b24f] bg-[#f4c967] text-sm font-semibold text-[#24211a] shadow-sm hover:bg-[#f7d982] sm:text-base"
     >
       {added ? <Check className="size-4" aria-hidden="true" /> : <ShoppingBag className="size-4" aria-hidden="true" />}
-      {stock < 1 ? "Out of stock" : added ? "Added to cart" : "Add to cart"}
+      {stock < 1 ? "Out of stock" : checking ? "Checking..." : added ? "Added to cart" : "Add to cart"}
     </Button>
   );
 }

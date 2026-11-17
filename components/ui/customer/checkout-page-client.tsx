@@ -86,6 +86,7 @@ export function CheckoutPageClient() {
         CartItems: cartLines.map((item) => ({
           productID: item.productId,
           quantity: item.quantity,
+          color: item.product.color || undefined,
         })),
         paymentMethod,
       });
@@ -200,6 +201,7 @@ export function CheckoutPageClient() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-[#0f1111]">{product.name}</p>
+                      {product.color && <p className="text-xs text-[#565959]">Color: {product.color}</p>}
                       <p className="text-xs text-[#565959]">Qty: {quantity}</p>
                     </div>
                     <p className="text-sm font-semibold text-[#0f1111]">{currency.format(unitPrice * quantity)}</p>

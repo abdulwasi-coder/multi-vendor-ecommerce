@@ -17,9 +17,13 @@ export type CartProductSnapshot = {
 
 type CartItem = {
   productId: string;
+  lineId: string;
   quantity: number;
   product: CartProductSnapshot;
 };
+
+const lineIdFor = (product: CartProductSnapshot) =>
+  `${product.id}::${product.color ?? ""}`;
 
 type CustomerCartState = {
   items: CartItem[];
@@ -39,24 +43,26 @@ export const useCustomerCart = create<CustomerCartState>()(
       addItem: (product) => {
         if (product.stock < 1) return false;
 
-        const existingItem = get().items.find(
-          (item) => item.productId === product.id,
-        );
-        if (existingItem && existingItem.quantity >= product.stock)
-          return false;
+        const lineId = lineIdFor(product);
+        const sameProductQuantity = get().items
+          .filter((item) => item.productId === product.id)
+          .reduce((sum, item) => sum + item.quantity, 0);
+        if (sameProductQuantity >= product.stock) return false;
 
         set((state) => {
-          const item = state.items.find(
-            (entry) => entry.productId === product.id,
-          );
+          const item = state.items.find((entry) => entry.lineId === lineId);
 
           if (item) {
             return {
               items: state.items.map((entry) =>
-                entry.productId === product.id
+                entry.lineId === lineId
                   ? {
                       ...entry,
-                      quantity: Math.min(entry.quantity + 1, product.stock),
+                      quantity: Math.min(
+                        entry.quantity + 1,
+                        product.stock -
+                          (sameProductQuantity - entry.quantity),
+                      ),
                       product,
                     }
                   : entry,
@@ -67,24 +73,24 @@ export const useCustomerCart = create<CustomerCartState>()(
           return {
             items: [
               ...state.items,
-              { productId: product.id, quantity: 1, product },
+              { productId: product.id, lineId, quantity: 1, product },
             ],
           };
         });
 
         return true;
       },
-      removeItem: (productId) =>
+      removeItem: (lineId) =>
         set((state) => ({
-          items: state.items.filter((item) => item.productId !== productId),
+          items: state.items.filter((item) => item.lineId !== lineId),
         })),
-      changeQuantity: (productId, quantity) =>
+      changeQuantity: (lineId, quantity) =>
         set((state) => ({
           items:
             quantity < 1
-              ? state.items.filter((item) => item.productId !== productId)
+              ? state.items.filter((item) => item.lineId !== lineId)
               : state.items.map((item) =>
-                  item.productId === productId ? { ...item, quantity } : item,
+                  item.lineId === lineId ? { ...item, quantity } : item,
                 ),
         })),
       clearCart: () => set({ items: [] }),
@@ -98,11 +104,13 @@ export const useCustomerCart = create<CustomerCartState>()(
         if (state) {
           const merged = new Map<string, CartItem>();
           for (const item of state.items) {
-            const existing = merged.get(item.productId);
+            const lineId =
+              item.lineId ?? lineIdFor(item.product ?? ({ id: item.productId } as CartProductSnapshot));
+            const existing = merged.get(lineId);
             if (existing) {
               existing.quantity += item.quantity;
             } else {
-              merged.set(item.productId, { ...item });
+              merged.set(lineId, { ...item, lineId });
             }
           }
           state.items = [...merged.values()];

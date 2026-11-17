@@ -27,16 +27,16 @@ function redirectTo(request: NextRequest, path: string) {
 function redirectToLogin(request: NextRequest) {
   const loginUrl = new URL("/login", request.url);
   loginUrl.searchParams.set(
-    "callbackUrl",
+    "redirect",
     `${request.nextUrl.pathname}${request.nextUrl.search}`,
   );
   return NextResponse.redirect(loginUrl);
 }
 
 function getRequiredRole(pathname: string) {
-  return pathname.startsWith("/admin/") || pathname === "/admin"
-    ? "admin"
-    : "vendor";
+  if (pathname.startsWith("/admin/") || pathname === "/admin") return "admin";
+  if (pathname.startsWith("/checkout") || pathname.startsWith("/orders")) return "user";
+  return "vendor";
 }
 
 function getSetCookieValue(setCookieHeaders: string[], cookieName: string) {
@@ -127,7 +127,7 @@ export async function proxy(request: NextRequest) {
   const role = claims?.role;
   const normalizedRole = typeof role === "string" ? role.toLowerCase() : null;
   const pathname = request.nextUrl.pathname;
-  const isCreateRoute = pathname === "/VendorSignUp" || pathname.startsWith("/VendorSignUp/");
+  const isCreateRoute = pathname === "/vendorsignup" || pathname.startsWith("/vendorsignup/");
 
   if (isCreateRoute) {
     const redirectPath =
@@ -162,5 +162,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/vendor/:path*", "/create/:path*"],
+  matcher: ["/admin/:path*", "/vendor/:path*", "/create/:path*", "/checkout/:path*", "/orders/:path*"],
 };

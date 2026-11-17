@@ -57,6 +57,7 @@ type ApiOrderItem = {
   quantity: number;
   price: number;
   subtotal: number;
+  color?: string;
 };
 
 type ApiSubOrder = {
@@ -185,7 +186,7 @@ function OrderItems({ orderId }: { orderId: string }) {
                       </Link>
                       <div className="min-w-0">
                         <Link href={`/products/${product._id}`} className="block truncate text-sm font-medium text-[#007185] hover:text-[#c45500] hover:underline">{product.name}</Link>
-                        <p className="text-xs text-[#565959]">Qty: {item.quantity} · {currency.format(unitPrice)} each</p>
+                        <p className="text-xs text-[#565959]">Qty: {item.quantity} · {currency.format(unitPrice)} each{item.color ? ` · Color: ${item.color}` : ""}</p>
                       </div>
                       <div className="text-right text-sm font-bold">{currency.format(item.subtotal)}</div>
                     </div>

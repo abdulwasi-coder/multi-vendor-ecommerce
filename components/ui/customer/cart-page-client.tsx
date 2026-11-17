@@ -57,10 +57,10 @@ export function CartPageClient() {
             </div>
 
             <div className="divide-y divide-[#ddd]">
-              {cartLines.map(({ product, quantity }) => {
+              {cartLines.map(({ product, quantity, lineId }) => {
                 const unitPrice = product.price * (1 - product.discount / 100);
                 return (
-                  <article key={product.id} className="grid gap-5 py-6 sm:grid-cols-[180px_minmax(0,1fr)_150px] sm:gap-6">
+                  <article key={lineId} className="grid gap-5 py-6 sm:grid-cols-[180px_minmax(0,1fr)_150px] sm:gap-6">
                     <div className="relative mx-auto aspect-square w-full max-w-45 overflow-hidden rounded-sm bg-[#f7f7f7] sm:mx-0">
                       {product.image && (
                         <Image src={product.image} alt={product.name} fill sizes="(max-width: 639px) 90vw, 180px" className="object-contain p-3" />
@@ -74,12 +74,12 @@ export function CartPageClient() {
                       {product.discount > 0 && <span className="mt-2 inline-block rounded-sm bg-[#cc0c39] px-2 py-1 text-xs font-semibold text-white">-{Math.round(product.discount)}% deal</span>}
                       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
                         <div className="inline-flex h-9 items-center rounded-full border border-[#d5d9d9] bg-[#f0f2f2] shadow-sm">
-                          <Button variant="ghost" size="icon" aria-label={`Decrease ${product.name} quantity`} className="size-8 rounded-full hover:bg-[#e3e6e6]" onClick={() => changeQuantity(product.id, quantity - 1)}><Minus className="size-3.5" /></Button>
+                          <Button variant="ghost" size="icon" aria-label={`Decrease ${product.name} quantity`} className="size-8 rounded-full hover:bg-[#e3e6e6]" onClick={() => changeQuantity(lineId, quantity - 1)}><Minus className="size-3.5" /></Button>
                           <span className="min-w-7 text-center text-sm font-semibold tabular-nums">{quantity}</span>
-                          <Button variant="ghost" size="icon" aria-label={`Increase ${product.name} quantity`} className="size-8 rounded-full hover:bg-[#e3e6e6]" disabled={quantity >= product.stock} onClick={() => changeQuantity(product.id, Math.min(quantity + 1, product.stock))}><Plus className="size-3.5" /></Button>
+                          <Button variant="ghost" size="icon" aria-label={`Increase ${product.name} quantity`} className="size-8 rounded-full hover:bg-[#e3e6e6]" disabled={quantity >= product.stock} onClick={() => changeQuantity(lineId, Math.min(quantity + 1, product.stock))}><Plus className="size-3.5" /></Button>
                         </div>
                         <span className="h-5 border-l border-[#ddd]" />
-                        <Button variant="ghost" size="sm" className="h-8 px-1 text-sm font-normal text-[#007185] hover:bg-transparent hover:text-[#c45500] hover:underline" onClick={() => removeItem(product.id)}><Trash2 className="mr-1 size-3.5" />Delete</Button>
+                        <Button variant="ghost" size="sm" className="h-8 px-1 text-sm font-normal text-[#007185] hover:bg-transparent hover:text-[#c45500] hover:underline" onClick={() => removeItem(lineId)}><Trash2 className="mr-1 size-3.5" />Delete</Button>
                       </div>
                     </div>
                     <div className="text-left sm:text-right">

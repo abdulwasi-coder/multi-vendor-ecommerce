@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VendorProductGallery } from "@/components/ui/vendor/vendor-product-gallery";
 import { ProductReviews } from "@/components/ui/customer/product-reviews";
+import { ProductPurchasePanel } from "@/components/ui/customer/product-purchase-panel";
 
 interface ProductAttribute {
   key: string;
@@ -24,6 +25,9 @@ interface CustomerProductDetails {
   stock: number;
   rating?: number;
   reviewCount?: number;
+  discount?: number;
+  brand?: string;
+  colors?: string[];
   description: string;
   attributes: ProductAttribute[];
   images: ProductImage[];
@@ -73,10 +77,15 @@ export default async function CustomerProductDetailPage({
   if (!response!.ok || !data!.success) notFound();
 
   const productImages = (data.images ?? []).map((image) => image.publicId);
+  const productColors = (data.colors ?? []).filter(
+    (color) => color && color !== "ANY",
+  );
+  const discount = data.discount ?? 0;
+  const salePrice = data.price * (1 - discount / 100);
 
   return (
     <main className="min-h-[calc(100dvh-2rem)] bg-muted/20">
-      <div className="mx-auto w-full max-w-7xl px-4 pb-4 pt-36 sm:px-6 sm:pt-32 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl px-4 pb-4 pt-45 sm:px-6 sm:pt-32 lg:px-8">
         <header className="mb-5 flex items-center justify-between gap-4 border-b pb-4">
           <Button
             variant="ghost"
@@ -111,17 +120,48 @@ export default async function CustomerProductDetailPage({
                 <span className="text-xs text-muted-foreground">
                   {data.category?.name}
                 </span>
+                {data.brand && (
+                  <span className="text-xs text-muted-foreground">
+                    {data.brand}
+                  </span>
+                )}
               </div>
             </div>
 
             <div className="flex items-baseline justify-between gap-3 border-b py-2.5">
-              <span className="text-xl font-semibold">
-                {formatPrice(data.price)}
+              <span className="flex items-baseline gap-2">
+                <span className="text-xl font-semibold">
+                  {formatPrice(salePrice)}
+                </span>
+                {discount > 0 && (
+                  <>
+                    <span className="text-sm text-muted-foreground line-through">
+                      {formatPrice(data.price)}
+                    </span>
+                    <span className="text-xs font-semibold text-[#cc0c39]">
+                      -{discount}%
+                    </span>
+                  </>
+                )}
               </span>
               <span className="text-xs text-muted-foreground">
                 {data.stock > 0 ? `${data.stock} in stock` : "Out of stock"}
               </span>
             </div>
+
+            <ProductPurchasePanel
+              colors={productColors}
+              product={{
+                id: data.id,
+                name: data.name,
+                price: data.price,
+                discount,
+                stock: data.stock,
+                image: productImages[0],
+                brand: data.brand,
+                vendorCompanyName: data.store?.name,
+              }}
+            />
 
             {data.attributes?.length > 0 && (
               <div className="flex flex-col gap-1 border-b py-4">
