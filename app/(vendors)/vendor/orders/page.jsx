@@ -1,8 +1,17 @@
 "use client";
 
-import { useDeferredValue, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, ChevronLeft, ChevronRight, Download, MapPin, Package, Search } from "lucide-react";
+import { Fragment, useDeferredValue, useState } from "react";
+import {
+  CalendarDays,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Download,
+  MapPin,
+  Package,
+  Search,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,7 +57,6 @@ const statusStyles = {
 };
 
 const statusOptions = ["Processing", "Shipped", "Delivered", "Cancelled"];
-const updatableStatuses = ["Processing", "Shipped", "Delivered", "Cancelled"];
 
 function formatDate(value) {
   if (!value) return "—";
@@ -72,9 +80,11 @@ function normalizeOrder(order) {
     (typeof order.customerID === "object" ? order.customerID?.name : null) ??
     "Customer";
   const address = order.ParentorderID?.shippingAddress ?? {};
+  const items = order.items ?? [];
   return {
     id: order._id,
     customerName,
+    itemCount: items.reduce((sum, item) => sum + (item.quantity ?? 0), 0),
     shippingAddress: {
       name: customerName,
       street: address.address ?? "",
@@ -82,7 +92,7 @@ function normalizeOrder(order) {
       country: address.country ?? "",
       phone: address.phone ?? "",
     },
-    items: (order.items ?? []).map((item, index) => ({
+    items: items.map((item, index) => ({
       key: `${order._id}-${index}`,
       name: item.productID?.name ?? "Product",
       sku: item.productID?.sku ?? "—",
@@ -102,15 +112,6 @@ function normalizeOrder(order) {
 function StatusSelect({ orderId, status }) {
   const updateStatus = useUpdateOrderStatus();
   const normalized = status.toLowerCase();
-  const canUpdate = updatableStatuses.includes(status) || status === "Pending";
-
-  if (!canUpdate) {
-    return (
-      <Badge variant="outline" className={statusStyles[status] ?? ""}>
-        {status}
-      </Badge>
-    );
-  }
 
   return (
     <Select
@@ -121,10 +122,13 @@ function StatusSelect({ orderId, status }) {
         updateStatus.mutate(
           { id: orderId, status: value },
           {
-            onSuccess: () => toast.success(`Order marked as ${capitalizeStatus(value)}.`),
+            onSuccess: () =>
+              toast.success(`Order marked as ${capitalizeStatus(value)}.`),
             onError: (error) =>
               toast.error(
-                error instanceof Error ? error.message : "Could not update status.",
+                error instanceof Error
+                  ? error.message
+                  : "Could not update status.",
               ),
           },
         );
@@ -133,19 +137,92 @@ function StatusSelect({ orderId, status }) {
       <SelectTrigger
         aria-label={`Update status for order ${orderId}`}
         className={`h-8 w-32 text-xs font-medium ${statusStyles[status] ?? ""}`}
+        onClick={(event) => event.stopPropagation()}
       >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {statusOptions
-          .filter((option) => option !== "Pending" || status === "Pending")
-          .map((option) => (
+        {(status === "Pending" ? ["Pending", ...statusOptions] : statusOptions).map(
+          (option) => (
             <SelectItem key={option} value={option.toLowerCase()}>
               {option}
             </SelectItem>
-          ))}
+          ),
+        )}
       </SelectContent>
     </Select>
+  );
+}
+
+function OrderDetails({ order }) {
+  return (
+    <div className="grid gap-5 bg-muted/30 px-4 py-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Shipping address
+        </p>
+        <div className="mt-2 flex gap-2">
+          <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div className="space-y-0.5 text-sm">
+            <p className="font-medium">{order.shippingAddress.name}</p>
+            <p className="text-xs leading-5 text-muted-foreground">
+              {order.shippingAddress.street}
+              {order.shippingAddress.street ? <br /> : null}
+              {order.shippingAddress.city}
+              {order.shippingAddress.city ? <br /> : null}
+              {order.shippingAddress.country}
+              {order.shippingAddress.phone ? <><br />{order.shippingAddress.phone}</> : null}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="sm:col-span-2 lg:col-span-1">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Items ({order.items.length})
+        </p>
+        <div className="mt-2 space-y-2.5">
+          {order.items.map((item) => (
+            <div key={item.key} className="flex gap-2.5">
+              <Package className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{item.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  SKU {item.sku} · Qty {item.quantity} ·{" "}
+                  {currency.format(item.price)} each
+                  {item.color ? ` · ${item.color}` : ""}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Subtotal {currency.format(item.subtotal)}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Payout
+        </p>
+        <dl className="mt-2 space-y-1.5 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Suborder total</dt>
+            <dd className="font-medium">{currency.format(order.suborderTotal)}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Net earned</dt>
+            <dd className="font-medium text-emerald-700">
+              {currency.format(order.vendorNetEarned)}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Payout release</dt>
+            <dd>{order.payoutReleaseDate}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
   );
 }
 
@@ -154,6 +231,7 @@ export default function VendorOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSizeOption, setPageSizeOption] = useState("10");
+  const [expandedId, setExpandedId] = useState(null);
   const deferredSearch = useDeferredValue(search.trim());
   const isSearching = deferredSearch.length > 0;
 
@@ -175,16 +253,19 @@ export default function VendorOrdersPage() {
   function updateSearch(value) {
     setSearch(value);
     setCurrentPage(1);
+    setExpandedId(null);
   }
 
   function updateStatus(value) {
     setStatusFilter(value);
     setCurrentPage(1);
+    setExpandedId(null);
   }
 
   function updatePageSize(value) {
     setPageSizeOption(value);
     setCurrentPage(1);
+    setExpandedId(null);
   }
 
   function exportOrders() {
@@ -244,7 +325,7 @@ export default function VendorOrdersPage() {
               <div className="space-y-1">
                 <CardTitle>All orders</CardTitle>
                 <CardDescription>
-                  Search by order ID, or filter by status.
+                  Search by order ID, or filter by status. Select a row for details.
                 </CardDescription>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -270,7 +351,6 @@ export default function VendorOrdersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="processing">Processing</SelectItem>
                   <SelectItem value="shipped">Shipped</SelectItem>
                   <SelectItem value="delivered">Delivered</SelectItem>
@@ -309,149 +389,94 @@ export default function VendorOrdersPage() {
               </div>
             )}
 
-            <CardContent className="space-y-3 px-4 pb-0 sm:px-6">
-              {isPending && (
-                <div className="space-y-3 py-2" aria-label="Loading orders">
-                  {[0, 1, 2].map((i) => (
-                    <div key={i} className="h-28 animate-pulse rounded-lg bg-muted/60" />
-                  ))}
-                </div>
-              )}
-
-              {!isPending && orders.map((order) => (
-                <article key={order.id} className="space-y-4 rounded-lg border bg-background p-4 2xl:hidden">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="break-all font-mono text-xs font-semibold">#{order.id}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Created {order.createdAt}</p>
-                    </div>
-                    <StatusSelect orderId={order.id} status={order.status} />
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex gap-2.5">
-                      <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                      <div className="min-w-0 space-y-0.5">
-                        <p className="text-sm font-medium">{order.shippingAddress.name}</p>
-                        <p className="text-xs leading-5 text-muted-foreground">
-                          {order.shippingAddress.street}<br />
-                          {order.shippingAddress.city}<br />
-                          {order.shippingAddress.country}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      {order.items.map((item) => (
-                        <div key={item.key} className="flex gap-2.5">
-                          <Package className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium">{item.name}</p>
-                            <p className="text-xs leading-5 text-muted-foreground">
-                              SKU {item.sku} · Qty {item.quantity} · {currency.format(item.price)} each
-                              {item.color ? ` · ${item.color}` : ""}
-                            </p>
-                            <p className="text-xs text-muted-foreground">Subtotal {currency.format(item.subtotal)}</p>
-                          </div>
-                        </div>
+            <CardContent className="px-0 sm:px-6">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/40 hover:bg-muted/40">
+                      <TableHead className="h-11 w-10 pl-4" />
+                      <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Order</TableHead>
+                      <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Customer</TableHead>
+                      <TableHead className="hidden h-11 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground md:table-cell">Items</TableHead>
+                      <TableHead className="h-11 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total</TableHead>
+                      <TableHead className="hidden h-11 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:table-cell">Net earned</TableHead>
+                      <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</TableHead>
+                      <TableHead className="hidden h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:table-cell">Created</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isPending &&
+                      [0, 1, 2].map((i) => (
+                        <TableRow key={i}>
+                          <TableCell colSpan={8} className="px-4 py-3">
+                            <div className="h-9 animate-pulse rounded-md bg-muted/60" />
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 border-t pt-3 text-sm sm:grid-cols-4">
-                    <div><p className="text-xs text-muted-foreground">Suborder total</p><p className="mt-1 font-medium">{currency.format(order.suborderTotal)}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Net earned</p><p className="mt-1 font-medium text-emerald-700">{currency.format(order.vendorNetEarned)}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Payout release</p><p className="mt-1">{order.payoutReleaseDate}</p></div>
-                  </div>
-                </article>
-              ))}
-              {!isPending && orders.length === 0 && !isError && (
-                <div className="py-10 text-center text-sm text-muted-foreground 2xl:hidden">
-                  {isSearching ? "No order found with that ID." : "No orders yet."}
-                </div>
-              )}
-            </CardContent>
 
-            <div className="hidden w-full min-w-0 border-y border-border/70 2xl:block">
-            <Table className="min-w-[1180px]">
-              <TableHeader>
-                <TableRow className="bg-muted/40 hover:bg-muted/40">
-                  <TableHead className="h-11 pl-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Order</TableHead>
-                  <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Shipping address</TableHead>
-                  <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Items</TableHead>
-                  <TableHead className="h-11 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Suborder total</TableHead>
-                  <TableHead className="h-11 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Net earned</TableHead>
-                  <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</TableHead>
-                  <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Created</TableHead>
-                  <TableHead className="h-11 pr-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Payout release</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.map((order) => (
-                  <TableRow key={order.id} className="align-top hover:bg-muted/30">
-                    <TableCell className="pl-4 pt-5 font-medium">
-                      <span className="font-mono text-xs">#{order.id}</span>
-                    </TableCell>
-                    <TableCell className="min-w-56 whitespace-normal">
-                      <div className="flex gap-2.5 py-2">
-                        <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                        <div className="space-y-0.5">
-                          <p className="font-medium">{order.shippingAddress.name}</p>
-                          <p className="text-xs leading-5 text-muted-foreground">
-                            {order.shippingAddress.street}<br />
-                            {order.shippingAddress.city}<br />
-                            {order.shippingAddress.country}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="min-w-64 whitespace-normal">
-                      <div className="space-y-3 py-2">
-                        {order.items.map((item) => (
-                          <div key={item.key} className="flex gap-2.5">
-                            <Package className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                            <div className="min-w-0 space-y-0.5">
-                              <p className="font-medium">{item.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                SKU {item.sku} · Qty {item.quantity} · {currency.format(item.price)} each
-                                {item.color ? ` · ${item.color}` : ""}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Subtotal {currency.format(item.subtotal)}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {currency.format(order.suborderTotal)}
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-emerald-700">
-                      {currency.format(order.vendorNetEarned)}
-                    </TableCell>
-                    <TableCell>
-                      <StatusSelect orderId={order.id} status={order.status} />
-                    </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                        <CalendarDays className="size-3.5" /> {order.createdAt}
-                      </span>
-                    </TableCell>
-                    <TableCell className="pr-4">
-                      <span className="text-sm text-muted-foreground">
-                        {order.payoutReleaseDate}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {!isPending && orders.length === 0 && !isError && (
-                  <TableRow>
-                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
-                      {isSearching ? "No order found with that ID." : "No orders yet."}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-            </div>
+                    {!isPending &&
+                      orders.map((order) => {
+                        const expanded = expandedId === order.id;
+                        return (
+                          <Fragment key={order.id}>
+                            <TableRow
+                              className="cursor-pointer align-middle hover:bg-muted/30"
+                              onClick={() => setExpandedId(expanded ? null : order.id)}
+                              aria-expanded={expanded}
+                            >
+                              <TableCell className="pl-4">
+                                {expanded ? (
+                                  <ChevronUp className="size-4 text-muted-foreground" />
+                                ) : (
+                                  <ChevronDown className="size-4 text-muted-foreground" />
+                                )}
+                              </TableCell>
+                              <TableCell className="font-mono text-xs font-medium">
+                                #{order.id.slice(-8)}
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {order.customerName}
+                              </TableCell>
+                              <TableCell className="hidden text-right text-sm text-muted-foreground md:table-cell">
+                                {order.itemCount}
+                              </TableCell>
+                              <TableCell className="text-right font-medium">
+                                {currency.format(order.suborderTotal)}
+                              </TableCell>
+                              <TableCell className="hidden text-right font-medium text-emerald-700 lg:table-cell">
+                                {currency.format(order.vendorNetEarned)}
+                              </TableCell>
+                              <TableCell onClick={(event) => event.stopPropagation()}>
+                                <StatusSelect orderId={order.id} status={order.status} />
+                              </TableCell>
+                              <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
+                                <span className="inline-flex items-center gap-1.5">
+                                  <CalendarDays className="size-3.5" /> {order.createdAt}
+                                </span>
+                              </TableCell>
+                            </TableRow>
+                            {expanded && (
+                              <TableRow className="hover:bg-transparent">
+                                <TableCell colSpan={8} className="p-0">
+                                  <OrderDetails order={order} />
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </Fragment>
+                        );
+                      })}
+
+                    {!isPending && !isError && orders.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                          {isSearching ? "No order found with that ID." : "No orders yet."}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
 
           <div className="flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p className="text-sm text-muted-foreground" aria-live="polite">
