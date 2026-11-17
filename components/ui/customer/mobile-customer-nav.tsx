@@ -15,12 +15,12 @@ import {
 } from "@/components/ui/sheet";
 
 const links = [
-  { label: "Home", href: "/customer", icon: Store },
-  { label: "Products", href: "/customer/products", icon: ShoppingBag },
-  { label: "Sell", href: "/customer/sell", icon: Store },
-  { label: "Top discounts", href: "/customer/top-discounts", icon: Tag },
+  { label: "Home", href: "/", icon: Store },
+  { label: "Products", href: "/products", icon: ShoppingBag },
+  { label: "Sell", href: "/sell", icon: Store },
+  { label: "Top discounts", href: "/top-discounts", icon: Tag },
   { label: "Top rated", href: "/top-rated", icon: TrendingUp },
-  { label: "Orders", href: "/customer/orders", icon: UserRound },
+  { label: "Orders", href: "/orders", icon: UserRound },
 ];
 
 export function MobileCustomerNav() {
