@@ -168,8 +168,22 @@ export function ProductReviews({
     }
   }
 
+  function confirmDelete(reviewId: string) {
+    toast("Delete your review?", {
+      description: "This cannot be undone.",
+      duration: 6000,
+      action: {
+        label: "Delete",
+        onClick: () => void removeReview(reviewId),
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+    });
+  }
+
   async function removeReview(reviewId: string) {
-    if (!window.confirm("Delete your review?")) return;
     setDeletingId(reviewId);
     try {
       await api.delete(`/user/reviews/${reviewId}`);
@@ -337,7 +351,7 @@ export function ProductReviews({
                         </button>
                         <button
                           type="button"
-                          onClick={() => removeReview(review._id)}
+                          onClick={() => confirmDelete(review._id)}
                           disabled={deletingId === review._id}
                           className="text-xs font-medium text-[#007185] hover:text-[#c45500] hover:underline disabled:opacity-50"
                         >
