@@ -17,12 +17,30 @@ export interface VendorFinanceBucket {
   cancelledOrders: number;
 }
 
+export interface VendorPayoutOrderItem {
+  productID?: string | { name?: string };
+  quantity?: number;
+  price?: number;
+  subtotal?: number;
+}
+
+export interface VendorPayoutOrder {
+  _id: string;
+  items?: VendorPayoutOrderItem[];
+  vendorNetEarned: number;
+  subOrderTotal: number;
+  platformComissionCut: number;
+  productData?: { name?: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 interface VendorFinanceResponse {
   success: boolean;
   message?: string;
   current?: VendorFinanceBucket[];
   previous?: VendorFinanceBucket[];
-  lastPaidOrders?: unknown[];
+  lastPaidOrders?: VendorPayoutOrder[];
 }
 
 export type VendorFinanceRange =

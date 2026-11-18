@@ -17,6 +17,7 @@ import {
   ArrowDownRight,
   CircleDollarSign,
   ClipboardList,
+  Clock,
   PackageCheck,
   ShoppingBag,
 } from "lucide-react";
@@ -53,6 +54,7 @@ import {
   useVendorFinance,
   type VendorFinanceBucket,
   type VendorFinanceRange,
+  type VendorPayoutOrder,
 } from "@/Otherfiles/tanstack/vendor-finance";
 import {
   useVendorOrders,
@@ -122,6 +124,13 @@ function buildDailySeries(
   return series;
 }
 
+function payoutItemCount(payout: VendorPayoutOrder) {
+  return (payout.items ?? []).reduce(
+    (total, item) => total + (item.quantity ?? 1),
+    0,
+  );
+}
+
 export function VendorDashboard() {
   const [range, setRange] = useState<VendorFinanceRange>(
     DEFAULT_DASHBOARD_RANGE,
@@ -167,6 +176,12 @@ export function VendorDashboard() {
       icon: PackageCheck,
     },
     {
+      label: "Pending orders",
+      value: String(current.pendingOrders),
+      change: percentChange(current.pendingOrders, previous.pendingOrders),
+      icon: Clock,
+    },
+    {
       label: "Fulfilled orders",
       value: String(current.deliveredOrders),
       change: percentChange(
@@ -197,6 +212,7 @@ export function VendorDashboard() {
 
   const chartData = buildDailySeries(financeQuery.data?.current, days);
   const recentOrders = ordersQuery.data?.orders ?? [];
+  const payouts = financeQuery.data?.lastPaidOrders ?? [];
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-400 space-y-6 bg-muted/30 px-4 py-6 sm:px-6 lg:px-8">
@@ -255,7 +271,7 @@ export function VendorDashboard() {
 
       <section
         aria-label="Marketplace overview"
-        className="grid gap-4 xl:gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+        className="grid gap-4 xl:gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7"
       >
         {summary.map((metric) => {
           const Icon = metric.icon;
@@ -381,6 +397,90 @@ export function VendorDashboard() {
       <Card className="overflow-hidden rounded-2xl border-border/70 shadow-sm">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
+            <CardTitle>Recent payouts</CardTitle>
+            <CardDescription className="mt-1">
+              Your latest vendor payouts from delivered orders.
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="px-0 sm:px-6">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="pl-6">Order</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead className="hidden md:table-cell">Items</TableHead>
+                  <TableHead className="hidden lg:table-cell">Order total</TableHead>
+                  <TableHead>Payout</TableHead>
+                  <TableHead className="hidden md:table-cell">Date</TableHead>
+                  <TableHead className="pr-6">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {financeQuery.isPending &&
+                  [0, 1, 2].map((i) => (
+                    <TableRow key={i}>
+                      <TableCell colSpan={7} className="px-6 py-3">
+                        <div className="h-8 animate-pulse rounded bg-muted/60" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                {!financeQuery.isPending &&
+                  payouts.map((payout: VendorPayoutOrder) => {
+                    const productName = payout.productData?.name ?? "Product";
+                    const itemCount = payoutItemCount(payout);
+                    return (
+                      <TableRow key={payout._id}>
+                        <TableCell className="pl-6 font-mono text-xs font-medium">
+                          #{String(payout._id).slice(-8)}
+                        </TableCell>
+                        <TableCell className="max-w-48 truncate">
+                          {productName}
+                        </TableCell>
+                        <TableCell className="hidden text-muted-foreground md:table-cell">
+                          {itemCount}
+                        </TableCell>
+                        <TableCell className="hidden text-muted-foreground lg:table-cell">
+                          {currency.format(payout.subOrderTotal ?? 0)}
+                        </TableCell>
+                        <TableCell className="font-medium text-emerald-700">
+                          {currency.format(payout.vendorNetEarned ?? 0)}
+                        </TableCell>
+                        <TableCell className="hidden text-muted-foreground md:table-cell">
+                          {formatDate(payout.updatedAt ?? payout.createdAt)}
+                        </TableCell>
+                        <TableCell className="pr-6">
+                          <Badge
+                            variant="outline"
+                            className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                          >
+                            Paid
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                {!financeQuery.isPending && payouts.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="py-10 text-center text-sm text-muted-foreground"
+                    >
+                      No payouts yet — they'll appear here once your
+                      earnings are released.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="overflow-hidden rounded-2xl border-border/70 shadow-sm">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
             <CardTitle>Recent orders</CardTitle>
             <CardDescription className="mt-1">
               Track and fulfill your latest sales.
@@ -461,7 +561,7 @@ export function VendorDashboard() {
                       colSpan={6}
                       className="py-10 text-center text-sm text-muted-foreground"
                     >
-                      No orders yet — they&apos;ll appear here once customers
+                      No orders yet — they'll appear here once customers
                       buy your products.
                     </TableCell>
                   </TableRow>
