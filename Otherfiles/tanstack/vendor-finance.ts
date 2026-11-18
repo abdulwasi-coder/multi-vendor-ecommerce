@@ -33,6 +33,9 @@ export interface VendorPayoutOrder {
   productData?: { name?: string } | null;
   createdAt?: string;
   updatedAt?: string;
+  payoutReleaseDate?: string;
+  isPaidOutToVendor?: boolean;
+  status?: string;
 }
 
 interface VendorFinanceResponse {

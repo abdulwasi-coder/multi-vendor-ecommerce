@@ -6,6 +6,7 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -95,29 +96,44 @@ function percentChange(current: number, previous: number) {
   return ((current - previous) / previous) * 100;
 }
 
-function buildDailySeries(
-  buckets: VendorFinanceBucket[] | undefined,
+function buildComparisonSeries(
+  current: VendorFinanceBucket[] | undefined,
+  previous: VendorFinanceBucket[] | undefined,
   days: number,
 ) {
-  const byDate = new Map<string, number>();
-  for (const bucket of buckets ?? []) {
-    const key = bucket._id ?? {};
-    const date = new Date(
-      Date.UTC(Number(key.year), Number(key.month) - 1, Number(key.day)),
-    );
-    if (Number.isNaN(date.getTime())) continue;
-    const iso = date.toISOString().slice(0, 10);
-    byDate.set(iso, (byDate.get(iso) ?? 0) + (bucket.totalGrossSales ?? 0));
-  }
-  const series: { date: string; sales: number }[] = [];
+  const toSalesByDate = (buckets: VendorFinanceBucket[] | undefined) => {
+    const byDate = new Map<string, number>();
+    for (const bucket of buckets ?? []) {
+      const key = bucket._id ?? {};
+      const date = new Date(
+        Date.UTC(Number(key.year), Number(key.month) - 1, Number(key.day)),
+      );
+      if (Number.isNaN(date.getTime())) continue;
+      const iso = date.toISOString().slice(0, 10);
+      byDate.set(
+        iso,
+        (byDate.get(iso) ?? 0) + (bucket.totalGrossSales ?? 0),
+      );
+    }
+    return byDate;
+  };
+
+  const currentByDate = toSalesByDate(current);
+  const previousByDate = toSalesByDate(previous);
+  const isoKey = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+  const series: { date: string; current: number; previous: number }[] = [];
   const today = new Date();
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const prev = new Date(d);
+    prev.setDate(prev.getDate() - days);
     series.push({
       date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      sales: byDate.get(key) ?? 0,
+      current: currentByDate.get(isoKey(d)) ?? 0,
+      previous: previousByDate.get(isoKey(prev)) ?? 0,
     });
   }
   return series;
@@ -203,7 +219,11 @@ export function VendorDashboard() {
     },
   ];
 
-  const chartData = buildDailySeries(financeQuery.data?.current, days);
+  const chartData = buildComparisonSeries(
+    financeQuery.data?.current,
+    financeQuery.data?.previous,
+    days,
+  );
   const recentOrders = ordersQuery.data?.orders ?? [];
   const payouts = financeQuery.data?.lastPaidOrders ?? [];
 
@@ -317,7 +337,8 @@ export function VendorDashboard() {
             <div className="grid flex-1 gap-1">
               <CardTitle>Sales — last {days} days</CardTitle>
               <CardDescription>
-                Gross sales per day, excluding cancelled orders.
+                Gross sales per day vs the previous period, excluding
+                cancelled orders.
               </CardDescription>
             </div>
             {financeQuery.isFetching && !financeQuery.isPending && (
@@ -376,14 +397,29 @@ export function VendorDashboard() {
                       width={60}
                     />
                     <Tooltip
-                      formatter={(value) => [
+                      formatter={(value, name) => [
                         currency.format(Number(value)),
-                        "Sales",
+                        name === "current" ? "Current period" : "Previous period",
                       ]}
+                    />
+                    <Legend
+                      formatter={(value) =>
+                        value === "current" ? "Current period" : "Previous period"
+                      }
                     />
                     <Area
                       type="monotone"
-                      dataKey="sales"
+                      dataKey="previous"
+                      name="previous"
+                      stroke="var(--muted-foreground)"
+                      strokeWidth={2}
+                      strokeDasharray="5 4"
+                      fill="none"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="current"
+                      name="current"
                       stroke="var(--primary)"
                       strokeWidth={2.5}
                       fill="url(#vendorSalesFill)"
@@ -401,7 +437,7 @@ export function VendorDashboard() {
           <div>
             <CardTitle>Recent payouts</CardTitle>
             <CardDescription className="mt-1">
-              Your latest vendor payouts from delivered orders.
+              Orders whose payout release date has passed.
             </CardDescription>
           </div>
         </CardHeader>
@@ -415,7 +451,7 @@ export function VendorDashboard() {
                   <TableHead className="hidden md:table-cell">Items</TableHead>
                   <TableHead className="hidden lg:table-cell">Order total</TableHead>
                   <TableHead>Payout</TableHead>
-                  <TableHead className="hidden md:table-cell">Date</TableHead>
+                  <TableHead className="hidden md:table-cell">Release date</TableHead>
                   <TableHead className="pr-6">Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -450,14 +486,14 @@ export function VendorDashboard() {
                           {currency.format(payout.vendorNetEarned ?? 0)}
                         </TableCell>
                         <TableCell className="hidden text-muted-foreground md:table-cell">
-                          {formatDate(payout.updatedAt ?? payout.createdAt)}
+                          {formatDate(payout.payoutReleaseDate)}
                         </TableCell>
                         <TableCell className="pr-6">
                           <Badge
                             variant="outline"
                             className="border-emerald-200 bg-emerald-50 text-emerald-700"
                           >
-                            Paid
+                            Released
                           </Badge>
                         </TableCell>
                       </TableRow>
@@ -469,7 +505,7 @@ export function VendorDashboard() {
                       colSpan={7}
                       className="py-10 text-center text-sm text-muted-foreground"
                     >
-                      No payouts yet — they'll appear here once your
+                      No payouts yet — they&apos;ll appear here once your
                       earnings are released.
                     </TableCell>
                   </TableRow>
@@ -563,7 +599,7 @@ export function VendorDashboard() {
                       colSpan={6}
                       className="py-10 text-center text-sm text-muted-foreground"
                     >
-                      No orders yet — they'll appear here once customers
+                      No orders yet — they&apos;ll appear here once customers
                       buy your products.
                     </TableCell>
                   </TableRow>
