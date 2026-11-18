@@ -223,24 +223,32 @@ export function VendorLogisticsTable() {
       value: query.data?.totalProducts,
       detail: "Active products in your inventory",
       icon: Boxes,
+      iconColor: "#a6d2f5",
+      iconBackground: "rgba(75, 127, 181, .22)",
     },
     {
       label: "Urgent stock",
       value: query.data?.statuses.urgentCount,
       detail: "5 units or fewer",
       icon: CircleAlert,
+      iconColor: "#e4a9a1",
+      iconBackground: "rgba(171, 90, 82, .18)",
     },
     {
       label: "Medium stock",
       value: query.data?.statuses.mediumCount,
       detail: "6–15 units remaining",
       icon: ArrowDownToLine,
+      iconColor: "#e4c68b",
+      iconBackground: "rgba(177, 139, 63, .18)",
     },
     {
       label: "Healthy stock",
       value: query.data?.statuses.healthyCount,
       detail: "More than 15 units",
       icon: PackageCheck,
+      iconColor: "#8fd5dd",
+      iconBackground: "rgba(57, 137, 154, .2)",
     },
   ];
 
@@ -272,7 +280,7 @@ export function VendorLogisticsTable() {
         {metrics.map((metric) => {
           const Icon = metric.icon;
           return (
-            <Card key={metric.label} className="gap-4 py-5">
+            <Card key={metric.label} className="group vendor-summary-card gap-4 py-5">
               <CardHeader className="flex flex-row items-start justify-between space-y-0 px-5">
                 <div>
                   <CardDescription>{metric.label}</CardDescription>
@@ -282,8 +290,8 @@ export function VendorLogisticsTable() {
                       : metric.value ?? 0}
                   </CardTitle>
                 </div>
-                <span className="rounded-lg bg-muted p-2.5">
-                  <Icon className="size-4 text-muted-foreground" />
+                <span style={{ backgroundColor: metric.iconBackground }} className="vendor-summary-icon rounded-lg p-2.5">
+                  <Icon style={{ color: metric.iconColor }} className="size-4" />
                 </span>
               </CardHeader>
               <CardFooter className="bg-background px-5 text-xs text-muted-foreground">

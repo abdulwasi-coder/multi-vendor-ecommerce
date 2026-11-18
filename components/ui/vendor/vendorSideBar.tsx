@@ -67,16 +67,16 @@ export function AppSidebar() {
     <Sidebar
       collapsible="icon"
       hoverExpanded={hoverExpanded}
-      className="text-slate-400"
+      className="vendor-sidebar-surface text-slate-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
 
-      <SidebarHeader className="border-b border-slate-800!">
+      <SidebarHeader className="border-b border-sky-100/15! px-3 py-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              className="flex gap-2 items-center"
+              className="flex items-center gap-2 rounded-xl transition-colors duration-150 hover:bg-white/[0.06] hover:text-white"
               size="lg"
               render={<Link href="/vendor/dashboard" onClick={handleNavigation} />}
             >
@@ -90,7 +90,7 @@ export function AppSidebar() {
                     className="h-full w-full rounded-md object-cover"
                   />
                 ) : (
-                  <Store className="size-5" aria-hidden="true" />
+                  <Store className="size-5 text-sky-300" aria-hidden="true" />
                 )}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:grid">
@@ -106,7 +106,7 @@ export function AppSidebar() {
      
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
+          <SidebarGroupLabel className="text-slate-300/80 text-[10px] font-semibold tracking-[0.16em] uppercase">
             Dashboard
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -116,7 +116,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      className={`flex gap-1.5 items-center transition-all duration-200 ease-in-out `}
+                      className="vendor-sidebar-link flex items-center gap-1.5 rounded-xl transition-colors duration-150 hover:bg-white/[0.06] hover:text-white data-[active=true]:bg-sky-300/10 data-[active=true]:text-sky-100 data-[active=true]:shadow-[inset_2px_0_0_#8ab8e8]"
                       isActive={isActive}
                       render={
                         <Link
@@ -137,7 +137,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
+          <SidebarGroupLabel className="text-slate-300/80 text-[10px] font-semibold tracking-[0.16em] uppercase">
             Create Product
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -147,7 +147,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      className={`flex gap-1.5 items-center transition-all duration-200 ease-in-out `}
+                      className="vendor-sidebar-link flex items-center gap-1.5 rounded-xl transition-colors duration-150 hover:bg-white/[0.06] hover:text-white data-[active=true]:bg-sky-300/10 data-[active=true]:text-sky-100 data-[active=true]:shadow-[inset_2px_0_0_#8ab8e8]"
                       isActive={isActive}
                       render={
                         <Link
@@ -177,7 +177,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              className="flex  gap-2 items-center "
+              className="flex items-center gap-2 rounded-xl transition-colors duration-150 hover:bg-white/[0.06] hover:text-white"
               size="lg"
               render={<Link href="/vendor/profile" onClick={handleNavigation} />}
             >
