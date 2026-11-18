@@ -13,7 +13,6 @@ import {
   Search,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -53,10 +52,9 @@ const statusStyles = {
   Processing: "border-amber-200 bg-amber-50 text-amber-700",
   Shipped: "border-blue-200 bg-blue-50 text-blue-700",
   Delivered: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  Cancelled: "border-rose-200 bg-rose-50 text-rose-700",
 };
 
-const statusOptions = ["Processing", "Shipped", "Delivered", "Cancelled"];
+const statusOptions = ["Processing", "Shipped", "Delivered"];
 
 function formatDate(value) {
   if (!value) return "—";
@@ -218,7 +216,7 @@ function OrderDetails({ order }) {
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Payout release</dt>
-            <dd>{order.payoutReleaseDate}</dd>
+            <dd>{order.createdAt}</dd>
           </div>
         </dl>
       </div>
@@ -354,7 +352,6 @@ export default function VendorOrdersPage() {
                   <SelectItem value="processing">Processing</SelectItem>
                   <SelectItem value="shipped">Shipped</SelectItem>
                   <SelectItem value="delivered">Delivered</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={pageSizeOption} onValueChange={updatePageSize} disabled={isSearching}>
@@ -401,7 +398,7 @@ export default function VendorOrdersPage() {
                       <TableHead className="h-11 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total</TableHead>
                       <TableHead className="hidden h-11 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:table-cell">Net earned</TableHead>
                       <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</TableHead>
-                      <TableHead className="hidden h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:table-cell">Created</TableHead>
+                      <TableHead className="hidden h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:table-cell">Release Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -431,8 +428,11 @@ export default function VendorOrdersPage() {
                                   <ChevronDown className="size-4 text-muted-foreground" />
                                 )}
                               </TableCell>
-                              <TableCell className="font-mono text-xs font-medium">
-                                #{order.id.slice(-8)}
+                              <TableCell
+                                className="font-mono text-xs font-medium"
+                                title={order.id}
+                              >
+                                #{order.id.slice(-8)}...
                               </TableCell>
                               <TableCell className="font-medium">
                                 {order.customerName}
@@ -451,7 +451,7 @@ export default function VendorOrdersPage() {
                               </TableCell>
                               <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
                                 <span className="inline-flex items-center gap-1.5">
-                                  <CalendarDays className="size-3.5" /> {order.createdAt}
+                                  <CalendarDays className="size-3.5" /> {order.payoutReleaseDate}
                                 </span>
                               </TableCell>
                             </TableRow>
