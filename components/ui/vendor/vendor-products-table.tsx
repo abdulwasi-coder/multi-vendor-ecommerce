@@ -179,24 +179,32 @@ export function VendorProductsTable() {
       value: summary?.totalProducts,
       note: "Across your catalog",
       icon: Package,
+      iconColor: "#a6d2f5",
+      iconBackground: "rgba(75, 127, 181, .22)",
     },
     {
       label: "Total stock units",
       value: summary?.totalStock,
       note: "Sum of stock across all products",
       icon: SlidersHorizontal,
+      iconColor: "#8fd5dd",
+      iconBackground: "rgba(57, 137, 154, .2)",
     },
     {
       label: "Archived products",
       value: summary?.archivedProducts,
       note: "Not currently listed for sale",
       icon: Archive,
+      iconColor: "#a8c8ef",
+      iconBackground: "rgba(94, 131, 182, .2)",
     },
     {
       label: "Low stock",
       value: summary?.lowStockProducts,
       note: "Fewer than 10 units",
       icon: ArrowDown,
+      iconColor: "#e4c68b",
+      iconBackground: "rgba(177, 139, 63, .18)",
     },
   ];
 
@@ -225,7 +233,7 @@ export function VendorProductsTable() {
         {summaryCards.map((item) => {
           const Icon = item.icon;
           return (
-            <Card key={item.label} className="gap-4 py-5">
+            <Card key={item.label} className="group vendor-summary-card gap-4 py-5">
               <CardHeader className="flex flex-row items-start justify-between space-y-0 px-5">
                 <div>
                   <CardDescription>{item.label}</CardDescription>
@@ -235,8 +243,8 @@ export function VendorProductsTable() {
                       : (item.value ?? 0)}
                   </CardTitle>
                 </div>
-                <span className="rounded-lg bg-muted p-2.5">
-                  <Icon className="size-4 text-muted-foreground" />
+                <span style={{ backgroundColor: item.iconBackground }} className="vendor-summary-icon rounded-lg p-2.5">
+                  <Icon style={{ color: item.iconColor }} className="size-4" />
                 </span>
               </CardHeader>
               <CardFooter className="bg-background px-5 text-xs text-muted-foreground">

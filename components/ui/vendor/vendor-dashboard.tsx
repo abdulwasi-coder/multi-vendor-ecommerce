@@ -67,11 +67,11 @@ const currency = new Intl.NumberFormat("en-US", {
 });
 
 const statusStyles: Record<string, string> = {
-  Pending: "border-zinc-200 bg-zinc-50 text-zinc-600",
-  Processing: "border-amber-200 bg-amber-50 text-amber-700",
-  Shipped: "border-blue-200 bg-blue-50 text-blue-700",
-  Delivered: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  Cancelled: "border-rose-200 bg-rose-50 text-rose-700",
+  Pending: "border-sky-100/15 bg-sky-100/[0.06] text-sky-200",
+  Processing: "border-amber-300/20 bg-amber-300/10 text-amber-200",
+  Shipped: "border-sky-300/20 bg-sky-300/10 text-sky-200",
+  Delivered: "border-sky-300/20 bg-sky-300/10 text-sky-200",
+  Cancelled: "border-rose-300/20 bg-rose-300/10 text-rose-200",
 };
 
 function capitalizeStatus(status: string) {
@@ -174,6 +174,8 @@ export function VendorDashboard() {
       value: currency.format(current.totalGrossSales),
       change: salesChange,
       icon: CircleDollarSign,
+      iconColor: "#a6d2f5",
+      iconBackground: "rgba(75, 127, 181, .22)",
     },
     {
       label: "Total benefit",
@@ -183,12 +185,16 @@ export function VendorDashboard() {
         previous.totalNetEarnings,
       ),
       icon: ClipboardList,
+      iconColor: "#8fd5dd",
+      iconBackground: "rgba(57, 137, 154, .2)",
     },
     {
       label: "Total orders",
       value: String(current.totalOrders),
       change: ordersChange,
       icon: PackageCheck,
+      iconColor: "#a8c8ef",
+      iconBackground: "rgba(94, 131, 182, .2)",
     },
     {
       label: "Fulfilled orders",
@@ -198,6 +204,8 @@ export function VendorDashboard() {
         previous.deliveredOrders,
       ),
       icon: PackageCheck,
+      iconColor: "#b4c8f2",
+      iconBackground: "rgba(98, 119, 173, .2)",
     },
     {
       label: "Processing orders",
@@ -207,6 +215,8 @@ export function VendorDashboard() {
         previous.processingOrders,
       ),
       icon: ShoppingBag,
+      iconColor: "#e4c68b",
+      iconBackground: "rgba(177, 139, 63, .18)",
     },
     {
       label: "Cancelled orders",
@@ -216,6 +226,8 @@ export function VendorDashboard() {
         previous.cancelledOrders,
       ),
       icon: PackageCheck,
+      iconColor: "#e4a9a1",
+      iconBackground: "rgba(171, 90, 82, .18)",
     },
   ];
 
@@ -228,10 +240,10 @@ export function VendorDashboard() {
   const payouts = financeQuery.data?.lastPaidOrders ?? [];
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-400 space-y-6 bg-muted/30 px-4 py-6 sm:px-6 lg:px-8">
-      <header className="flex flex-col justify-between gap-4 border-b pb-5 sm:flex-row sm:items-end">
+    <main className="vendor-dashboard-surface mx-auto min-h-screen w-full max-w-400 space-y-6 px-4 py-6 text-slate-50 sm:px-6 lg:px-8">
+      <header className="vendor-dashboard-enter flex flex-col justify-between gap-4 border-b border-sky-100/10 pb-5 sm:flex-row sm:items-end">
         <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-slate-300">
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
               month: "long",
@@ -239,10 +251,10 @@ export function VendorDashboard() {
               year: "numeric",
             })}
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-50">
             Vendor dashboard
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-slate-300">
             A quick look at your store performance and latest activity.
           </p>
         </div>
@@ -256,7 +268,7 @@ export function VendorDashboard() {
           >
             <SelectTrigger
               aria-label="Select reporting period"
-              className="w-36"
+              className="w-36 rounded-xl border-sky-100/20 bg-[#1c3048] text-slate-50 transition-colors hover:border-sky-200/35 hover:bg-[#263d57]"
             >
               <SelectValue />
             </SelectTrigger>
@@ -269,7 +281,7 @@ export function VendorDashboard() {
             </SelectContent>
           </Select>
           <Link href="/vendor/create" className="w-fit">
-            <Button>
+            <Button className="rounded-xl bg-[#8ab8e8] text-[#102039] shadow-sm transition-colors duration-150 hover:bg-[#a7cbef]">
               Add a product <ArrowRight className="ml-2 size-4" />
             </Button>
           </Link>
@@ -277,7 +289,7 @@ export function VendorDashboard() {
       </header>
 
       {isError && (
-        <div className="rounded-xl border border-destructive/30 bg-background p-4 text-sm text-destructive">
+        <div className="rounded-xl border border-rose-200/20 bg-rose-950/30 p-4 text-sm text-rose-200">
           Could not load dashboard data. Please refresh to try again.
         </div>
       )}
@@ -291,21 +303,21 @@ export function VendorDashboard() {
           const change = metric.change;
           const up = change !== null && change >= 0;
           return (
-            <Card key={metric.label} className="grid grid-rows-[30_30_40]">
+            <Card key={metric.label} className="group vendor-dashboard-enter vendor-dashboard-card vendor-dashboard-metric grid grid-rows-[30_30_40] border-sky-100/15 bg-[#1c3048] text-slate-50">
               <CardHeader>
-                <CardTitle className="flex flex-row items-center justify-between text-sm font-medium text-muted-foreground">
+                <CardTitle className="flex flex-row items-center justify-between text-sm font-medium text-slate-300">
                   {metric.label}
-                  <Icon className="size-4" />
+                  <span style={{ color: metric.iconColor, backgroundColor: metric.iconBackground }} className="flex size-9 items-center justify-center rounded-xl transition-transform duration-150 group-hover:scale-110"><Icon className="size-4 transition-transform duration-150 group-hover:rotate-6" /></span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 px-5 text-2xl font-semibold tracking-tight">
+              <CardContent className="space-y-2 px-5 text-2xl font-semibold tracking-tight text-[#f3f6fb]">
                 {isLoading ? (
-                  <div className="h-8 w-20 animate-pulse rounded bg-muted" />
+                  <div className="h-8 w-20 animate-pulse rounded-lg bg-sky-100/[0.08]" />
                 ) : (
                   metric.value
                 )}
               </CardContent>
-              <CardFooter className="flex gap-0.5 overflow-visible border-0 bg-background pr-1 text-xs font-medium">
+              <CardFooter className="flex gap-0.5 overflow-visible border-0 bg-transparent pr-1 text-xs font-medium">
                 {change === null ? (
                   <span className="text-muted-foreground">
                     No data for previous period
@@ -313,11 +325,11 @@ export function VendorDashboard() {
                 ) : (
                   <>
                     {up ? (
-                      <ArrowUpRight className="size-3 text-emerald-700" />
+                    <ArrowUpRight className="size-3 text-sky-300" />
                     ) : (
-                      <ArrowDownRight className="size-3 text-rose-600" />
+                    <ArrowDownRight className="size-3 text-rose-300" />
                     )}
-                    <span className={up ? "text-emerald-700" : "text-rose-600"}>
+                    <span className={up ? "text-sky-300" : "text-rose-300"}>
                       {Math.abs(change).toFixed(1)}%
                     </span>
                     <span className="text-muted-foreground">
@@ -332,23 +344,23 @@ export function VendorDashboard() {
       </section>
 
       <section className="grid lg:grid-cols-1">
-        <Card className="pt-0">
-          <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+        <Card className="vendor-dashboard-enter vendor-dashboard-card border-sky-100/15 bg-[#1c3048] pt-0 text-slate-50">
+          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-sky-100/[0.08] py-5 sm:flex-row">
             <div className="grid flex-1 gap-1">
-              <CardTitle>Sales — last {days} days</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg font-semibold text-slate-50">Sales — last {days} days</CardTitle>
+              <CardDescription className="text-slate-300">
                 Gross sales per day vs the previous period, excluding
                 cancelled orders.
               </CardDescription>
             </div>
             {financeQuery.isFetching && !financeQuery.isPending && (
-              <span className="text-xs text-muted-foreground">Updating…</span>
+              <span className="text-xs text-slate-400">Updating…</span>
             )}
           </CardHeader>
           <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
             <div className="h-62.5 w-full">
               {isLoading ? (
-                <div className="h-full w-full animate-pulse rounded-lg bg-muted/60" />
+                <div className="h-full w-full animate-pulse rounded-xl bg-sky-100/[0.1]" />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
@@ -365,12 +377,12 @@ export function VendorDashboard() {
                       >
                         <stop
                           offset="0%"
-                          stopColor="var(--primary)"
-                          stopOpacity={0.22}
+                          stopColor="#8ab8e8"
+                          stopOpacity={0.16}
                         />
                         <stop
                           offset="95%"
-                          stopColor="var(--primary)"
+                          stopColor="#8ab8e8"
                           stopOpacity={0.01}
                         />
                       </linearGradient>
@@ -378,7 +390,7 @@ export function VendorDashboard() {
                     <CartesianGrid
                       vertical={false}
                       strokeDasharray="3 3"
-                      className="stroke-border"
+                      stroke="rgba(188,221,203,.10)"
                     />
                     <XAxis
                       dataKey="date"
@@ -386,17 +398,19 @@ export function VendorDashboard() {
                       axisLine={false}
                       tickMargin={8}
                       minTickGap={24}
-                      className="text-xs"
+                      tick={{ fill: "#bdcadd", fontSize: 11 }}
                     />
                     <YAxis
                       tickLine={false}
                       axisLine={false}
                       tickMargin={8}
                       tickFormatter={(value) => `$${value}`}
-                      className="text-xs"
+                      tick={{ fill: "#bdcadd", fontSize: 11 }}
                       width={60}
                     />
                     <Tooltip
+                      contentStyle={{ background: "#1a302a", border: "1px solid rgba(140,203,176,.2)", borderRadius: 10, color: "#e7f0eb" }}
+                      labelStyle={{ color: "#a9c1b5" }}
                       formatter={(value, name) => [
                         currency.format(Number(value)),
                         name === "current" ? "Current period" : "Previous period",
@@ -411,7 +425,8 @@ export function VendorDashboard() {
                       type="monotone"
                       dataKey="previous"
                       name="previous"
-                      stroke="var(--muted-foreground)"
+                      stroke="#8ab8e8"
+                      strokeOpacity={0.45}
                       strokeWidth={2}
                       strokeDasharray="5 4"
                       fill="none"
@@ -420,7 +435,7 @@ export function VendorDashboard() {
                       type="monotone"
                       dataKey="current"
                       name="current"
-                      stroke="var(--primary)"
+                      stroke="#8ab8e8"
                       strokeWidth={2.5}
                       fill="url(#vendorSalesFill)"
                     />
@@ -432,11 +447,11 @@ export function VendorDashboard() {
         </Card>
       </section>
 
-      <Card className="overflow-hidden rounded-2xl border-border/70 shadow-sm">
+      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-sky-100/15 bg-[#1c3048] text-slate-50">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Recent payouts</CardTitle>
-            <CardDescription className="mt-1">
+            <CardTitle className="text-lg font-semibold text-slate-50">Recent payouts</CardTitle>
+            <CardDescription className="mt-1 text-slate-300">
               Orders whose payout release date has passed.
             </CardDescription>
           </div>
@@ -445,7 +460,7 @@ export function VendorDashboard() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="border-sky-100/[0.08] hover:bg-transparent">
                   <TableHead className="pl-6">Order</TableHead>
                   <TableHead>Product</TableHead>
                   <TableHead className="hidden md:table-cell">Items</TableHead>
@@ -458,9 +473,9 @@ export function VendorDashboard() {
               <TableBody>
                 {financeQuery.isPending &&
                   [0, 1, 2].map((i) => (
-                    <TableRow key={i}>
+                    <TableRow key={i} className="border-sky-100/[0.06]">
                       <TableCell colSpan={7} className="px-6 py-3">
-                        <div className="h-8 animate-pulse rounded bg-muted/60" />
+                        <div className="h-8 animate-pulse rounded-lg bg-sky-100/[0.07]" />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -469,7 +484,7 @@ export function VendorDashboard() {
                     const productName = payout.productData?.name ?? "Product";
                     const itemCount = payoutItemCount(payout);
                     return (
-                      <TableRow key={payout._id}>
+                      <TableRow key={payout._id} className="border-sky-100/[0.06] transition-colors duration-150 hover:bg-sky-100/[0.035]">
                         <TableCell className="pl-6 font-mono text-xs font-medium">
                           #{String(payout._id).slice(-8)}
                         </TableCell>
@@ -482,7 +497,7 @@ export function VendorDashboard() {
                         <TableCell className="hidden text-muted-foreground lg:table-cell">
                           {currency.format(payout.subOrderTotal ?? 0)}
                         </TableCell>
-                        <TableCell className="font-medium text-emerald-700">
+                        <TableCell className="font-medium text-sky-200">
                           {currency.format(payout.vendorNetEarned ?? 0)}
                         </TableCell>
                         <TableCell className="hidden text-muted-foreground md:table-cell">
@@ -491,7 +506,7 @@ export function VendorDashboard() {
                         <TableCell className="pr-6">
                           <Badge
                             variant="outline"
-                            className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                            className="border-sky-200/15 bg-sky-300/10 text-sky-200"
                           >
                             Released
                           </Badge>
@@ -503,7 +518,7 @@ export function VendorDashboard() {
                   <TableRow>
                     <TableCell
                       colSpan={7}
-                      className="py-10 text-center text-sm text-muted-foreground"
+                      className="py-10 text-center text-sm text-slate-300"
                     >
                       No payouts yet — they&apos;ll appear here once your
                       earnings are released.
@@ -516,17 +531,17 @@ export function VendorDashboard() {
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden rounded-2xl border-border/70 shadow-sm">
+      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-sky-100/15 bg-[#1c3048] text-slate-50">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Recent orders</CardTitle>
-            <CardDescription className="mt-1">
+            <CardTitle className="text-lg font-semibold text-slate-50">Recent orders</CardTitle>
+            <CardDescription className="mt-1 text-slate-300">
               Track and fulfill your latest sales.
             </CardDescription>
           </div>
 
           <Link href="/vendor/orders">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="rounded-lg border-sky-100/15 bg-sky-100/[0.04] text-sky-50 transition-colors duration-150 hover:border-sky-200/30 hover:bg-sky-100/[0.09]">
               View all orders <ArrowRight className="ml-2 size-4" />
             </Button>
           </Link>
@@ -535,7 +550,7 @@ export function VendorDashboard() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="border-sky-100/[0.08] hover:bg-transparent">
                   <TableHead className="pl-6">Order</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead className="hidden md:table-cell">Date</TableHead>
@@ -547,9 +562,9 @@ export function VendorDashboard() {
               <TableBody>
                 {isLoading &&
                   [0, 1, 2].map((i) => (
-                    <TableRow key={i}>
+                    <TableRow key={i} className="border-sky-100/[0.06]">
                       <TableCell colSpan={6} className="px-6 py-3">
-                        <div className="h-8 animate-pulse rounded bg-muted/60" />
+                        <div className="h-8 animate-pulse rounded-lg bg-sky-100/[0.07]" />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -567,7 +582,7 @@ export function VendorDashboard() {
                     );
                     const status = capitalizeStatus(order.status);
                     return (
-                      <TableRow key={order._id}>
+                      <TableRow key={order._id} className="border-sky-100/[0.06] transition-colors duration-150 hover:bg-sky-100/[0.035]">
                         <TableCell className="pl-6 font-mono text-xs font-medium">
                           #{String(order._id).slice(-8)}
                         </TableCell>
@@ -597,7 +612,7 @@ export function VendorDashboard() {
                   <TableRow>
                     <TableCell
                       colSpan={6}
-                      className="py-10 text-center text-sm text-muted-foreground"
+                      className="py-10 text-center text-sm text-slate-300"
                     >
                       No orders yet — they&apos;ll appear here once customers
                       buy your products.

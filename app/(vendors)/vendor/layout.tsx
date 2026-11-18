@@ -17,8 +17,8 @@ export default async function VendorLayout({
     <HydrationBoundary state={dehydrate(queryClient)}>
       <SidebarProvider>
         <AppSidebar />
-        <main className="min-w-0 flex-1">
-          <SidebarTrigger />
+        <main className="vendor-workspace min-w-0 flex-1">
+          <SidebarTrigger className="ml-2 mt-2 rounded-lg text-slate-200 hover:bg-white/10 hover:text-white" />
           {children}
         </main>
       </SidebarProvider>

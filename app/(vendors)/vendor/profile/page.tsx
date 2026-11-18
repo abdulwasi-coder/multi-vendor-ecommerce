@@ -203,7 +203,7 @@ export default function VendorProfilePage() {
   }
 
   return (
-    <main className="min-h-screen space-y-5 bg-[#f5f6f4] px-2 py-4 sm:px-4 lg:px-6">
+    <main className="min-h-screen space-y-5 bg-background px-2 py-4 sm:px-4 lg:px-6">
       <header className="flex flex-col justify-between gap-3 border-b border-border/70 pb-4 sm:flex-row sm:items-center">
         <div className="space-y-1">
           <Link
@@ -531,7 +531,7 @@ export default function VendorProfilePage() {
             <Card className="border-[#dfe4df] shadow-sm shadow-[#192c25]/5">
               <CardHeader className="border-b">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-10 place-items-center rounded-xl bg-amber-500/10 text-amber-700">
+                  <span className="grid size-10 place-items-center rounded-xl bg-sky-300/10 text-sky-200">
                     <Store className="size-5" />
                   </span>
                   <div>
@@ -557,9 +557,9 @@ export default function VendorProfilePage() {
           </div>
 
           <Card className="overflow-hidden border-[#dfe4df] shadow-md shadow-[#192c25]/5">
-            <div className="h-24 bg-linear-to-br from-[#d8b975] via-[#f4e5c0] to-[#e4ebe5]" />
+            <div className="h-24 bg-linear-to-br from-[#172b43] via-[#284568] to-[#365d85]" />
             <CardContent className="relative">
-              <div className="-mt-10 grid size-16 place-items-center overflow-hidden rounded-2xl border-4 border-card bg-[#203b33] text-amber-100 shadow-md">
+              <div className="-mt-10 grid size-16 place-items-center overflow-hidden rounded-2xl border-4 border-card bg-[#203a58] text-sky-100 shadow-md">
                 {imageUrl ? (
                   imagePreview ? (
                     <img
