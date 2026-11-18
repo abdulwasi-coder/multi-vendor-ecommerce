@@ -4,6 +4,7 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  type QueryClient,
 } from "@tanstack/react-query";
 
 export interface VendorOrderItem {
@@ -60,6 +61,7 @@ function vendorOrdersQueryOptions(
   limit: number,
   status: string,
   search: string,
+  cookieHeader?: string,
 ) {
   return {
     queryKey: vendorOrdersQueryKey(page, limit, status, search),
@@ -69,6 +71,7 @@ function vendorOrdersQueryOptions(
         {
           params: { page, limit, status, search: search || undefined },
           signal,
+          headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
         },
       );
       if (!response.data.success || !Array.isArray(response.data.orders)) {
@@ -96,6 +99,19 @@ export function useVendorOrders(
   search: string,
 ) {
   return useQuery(vendorOrdersQueryOptions(page, limit, status, search));
+}
+
+export async function prefetchVendorOrdersPage(
+  queryClient: QueryClient,
+  page: number,
+  limit: number,
+  status: string,
+  search: string,
+  cookieHeader?: string,
+) {
+  await queryClient.prefetchQuery(
+    vendorOrdersQueryOptions(page, limit, status, search, cookieHeader),
+  );
 }
 
 export function useUpdateOrderStatus() {
