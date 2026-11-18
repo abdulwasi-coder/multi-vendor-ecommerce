@@ -75,18 +75,7 @@ api.interceptors.response.use(
       processQueue();
       return api(originalRequest);
     } catch (refreshError) {
-      console.log(refreshError)
       processQueue(refreshError);
-      if (
-        typeof window !== "undefined" &&
-        window.location.pathname !== "/login"
-      ) {
-        const returnTo =
-          window.location.pathname + window.location.search;
-        window.location.replace(
-          `/login?redirect=${encodeURIComponent(returnTo)}`,
-        );
-      }
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

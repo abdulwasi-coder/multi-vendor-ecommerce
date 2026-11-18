@@ -17,7 +17,6 @@ import {
   ArrowDownRight,
   CircleDollarSign,
   ClipboardList,
-  Clock,
   PackageCheck,
   ShoppingBag,
 } from "lucide-react";
@@ -92,7 +91,7 @@ function formatDate(value: string | Date | null | undefined) {
 }
 
 function percentChange(current: number, previous: number) {
-  if (previous <= 0) return current > 0 ? 100 : 0;
+  if (previous <= 0) return null;
   return ((current - previous) / previous) * 100;
 }
 
@@ -174,12 +173,6 @@ export function VendorDashboard() {
       value: String(current.totalOrders),
       change: ordersChange,
       icon: PackageCheck,
-    },
-    {
-      label: "Pending orders",
-      value: String(current.pendingOrders),
-      change: percentChange(current.pendingOrders, previous.pendingOrders),
-      icon: Clock,
     },
     {
       label: "Fulfilled orders",
@@ -271,11 +264,12 @@ export function VendorDashboard() {
 
       <section
         aria-label="Marketplace overview"
-        className="grid gap-4 xl:gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7"
+        className="grid gap-4 xl:gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6"
       >
         {summary.map((metric) => {
           const Icon = metric.icon;
-          const up = metric.change >= 0;
+          const change = metric.change;
+          const up = change !== null && change >= 0;
           return (
             <Card key={metric.label} className="grid grid-rows-[30_30_40]">
               <CardHeader>
@@ -292,17 +286,25 @@ export function VendorDashboard() {
                 )}
               </CardContent>
               <CardFooter className="flex gap-0.5 overflow-visible border-0 bg-background pr-1 text-xs font-medium">
-                {up ? (
-                  <ArrowUpRight className="size-3 text-emerald-700" />
+                {change === null ? (
+                  <span className="text-muted-foreground">
+                    No data for previous period
+                  </span>
                 ) : (
-                  <ArrowDownRight className="size-3 text-rose-600" />
+                  <>
+                    {up ? (
+                      <ArrowUpRight className="size-3 text-emerald-700" />
+                    ) : (
+                      <ArrowDownRight className="size-3 text-rose-600" />
+                    )}
+                    <span className={up ? "text-emerald-700" : "text-rose-600"}>
+                      {Math.abs(change).toFixed(1)}%
+                    </span>
+                    <span className="text-muted-foreground">
+                      vs previous period
+                    </span>
+                  </>
                 )}
-                <span className={up ? "text-emerald-700" : "text-rose-600"}>
-                  {Math.abs(metric.change).toFixed(1)}%
-                </span>
-                <span className="text-muted-foreground">
-                  vs previous period
-                </span>
               </CardFooter>
             </Card>
           );
@@ -330,7 +332,7 @@ export function VendorDashboard() {
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
                     data={chartData}
-                    margin={{ top: 10, right: 8, left: -18, bottom: 0 }}
+                    margin={{ top: 10, right: 8, left: 0, bottom: 0 }}
                   >
                     <defs>
                       <linearGradient
@@ -371,7 +373,7 @@ export function VendorDashboard() {
                       tickMargin={8}
                       tickFormatter={(value) => `$${value}`}
                       className="text-xs"
-                      width={56}
+                      width={60}
                     />
                     <Tooltip
                       formatter={(value) => [
