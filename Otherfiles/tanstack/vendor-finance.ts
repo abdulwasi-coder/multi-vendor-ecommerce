@@ -30,7 +30,7 @@ export interface VendorPayoutOrder {
   vendorNetEarned: number;
   subOrderTotal: number;
   platformComissionCut: number;
-  productData?: { name?: string } | null;
+  productNames?: string[];
   createdAt?: string;
   updatedAt?: string;
   payoutReleaseDate?: string;

@@ -481,7 +481,9 @@ export function VendorDashboard() {
                   ))}
                 {!financeQuery.isPending &&
                   payouts.map((payout: VendorPayoutOrder) => {
-                    const productName = payout.productData?.name ?? "Product";
+                    const productName =
+                      payout.productNames?.filter(Boolean).join(", ") ||
+                      "Product";
                     const itemCount = payoutItemCount(payout);
                     return (
                       <TableRow key={payout._id} className="border-sky-100/[0.06] transition-colors duration-150 hover:bg-sky-100/[0.035]">
