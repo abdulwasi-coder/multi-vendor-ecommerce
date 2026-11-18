@@ -4,7 +4,7 @@ import { CheckoutPageClient } from "@/components/ui/customer/checkout-page-clien
 
 export default async function CheckoutPage() {
   const store = await cookies();
-  if (!store.get("accesstoken")) {
+  if (!store.get("refreshtoken")) {
     redirect("/login?redirect=/checkout");
   }
   return <CheckoutPageClient />;

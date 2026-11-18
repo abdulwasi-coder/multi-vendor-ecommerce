@@ -1,4 +1,4 @@
-"use client";
+<|open|>argument key="content" type="string"<|sep|>"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { ChevronDown, ChevronUp, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
+import { getCustomerProfile } from "@/lib/customer-profile";
 
 type ReviewUser = { _id: string; name?: string } | string;
 
@@ -28,20 +29,6 @@ type ReviewsResponse = {
   total: number;
   reviews: ApiReview[];
 };
-
-type UserProfileResponse = {
-  success?: boolean;
-  userData?: { _id?: string; name?: string };
-};
-
-async function getCustomerProfile() {
-  const response = await fetch("/proxy-backend/user/userProfile", {
-    credentials: "include",
-  });
-  if (!response.ok) return null;
-  const result = (await response.json()) as UserProfileResponse;
-  return result.success ? (result.userData ?? null) : null;
-}
 
 function Stars({ value, size = 14 }: { value: number; size?: number }) {
   return (

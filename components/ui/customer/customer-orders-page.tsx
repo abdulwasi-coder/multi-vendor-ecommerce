@@ -9,6 +9,7 @@ import { ArrowRight, ChevronDown, ChevronRight, PackageCheck, RotateCcw, Truck }
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import { useCustomerCart } from "@/lib/customer-cart-store";
+import { getCustomerProfile } from "@/lib/customer-profile";
 
 type OrderStatus = "Delivered" | "Shipped" | "Cancelled" | "Processing";
 
@@ -116,20 +117,6 @@ function matchesTab(order: OrderCard, tab: OrderTab) {
 }
 
 const PAGE_SIZE = 5;
-
-type UserProfileResponse = {
-  success?: boolean;
-  userData?: { name?: string };
-};
-
-async function getCustomerProfile() {
-  const response = await fetch("/proxy-backend/user/userProfile", {
-    credentials: "include",
-  });
-  if (!response.ok) return null;
-  const result = (await response.json()) as UserProfileResponse;
-  return result.success ? (result.userData ?? null) : null;
-}
 
 function OrderItems({ orderId }: { orderId: string }) {
   const { data, isPending, isError } = useQuery({

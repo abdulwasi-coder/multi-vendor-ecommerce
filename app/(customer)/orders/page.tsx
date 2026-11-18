@@ -4,7 +4,7 @@ import { CustomerOrdersPage } from "@/components/ui/customer/customer-orders-pag
 
 export default async function CustomerOrdersRoute() {
   const store = await cookies();
-  if (!store.get("accesstoken")) {
+  if (!store.get("refreshtoken")) {
     redirect("/login?redirect=/orders");
   }
   return <CustomerOrdersPage />;

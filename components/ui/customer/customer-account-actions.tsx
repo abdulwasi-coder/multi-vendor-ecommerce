@@ -3,22 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { LogoutButton } from "@/components/ui/logout-button";
-
-interface UserProfileResponse {
-  success: boolean;
-  userData?: { name?: string };
-}
-
-async function getCustomerProfile() {
-  const response = await fetch("/proxy-backend/user/userProfile", {
-    credentials: "include",
-    cache: "no-store",
-  });
-  if (!response.ok) return null;
-
-  const result = (await response.json()) as UserProfileResponse;
-  return result.success ? result.userData ?? null : null;
-}
+import { getCustomerProfile } from "@/lib/customer-profile";
 
 export function CustomerAccountActions() {
   const { data: user } = useQuery({
