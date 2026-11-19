@@ -62,6 +62,7 @@ import {
   type VendorOrder,
 } from "@/Otherfiles/tanstack/vendor-orders";
 import { downloadCsv } from "@/lib/vendor-csv";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -174,6 +175,8 @@ export function VendorDashboard() {
     {
       label: "Total sales",
       value: currency.format(current.totalGrossSales),
+      rawValue: current.totalGrossSales,
+      currencyCode: "USD",
       change: salesChange,
       icon: CircleDollarSign,
       iconColor: "#60a5fa",
@@ -182,6 +185,8 @@ export function VendorDashboard() {
     {
       label: "Total benefit",
       value: currency.format(current.totalNetEarnings),
+      rawValue: current.totalNetEarnings,
+      currencyCode: "USD",
       change: percentChange(
         current.totalNetEarnings,
         previous.totalNetEarnings,
@@ -193,6 +198,8 @@ export function VendorDashboard() {
     {
       label: "Total orders",
       value: String(current.totalOrders),
+      rawValue: current.totalOrders,
+      currencyCode: undefined,
       change: ordersChange,
       icon: PackageCheck,
       iconColor: "#a78bfa",
@@ -201,6 +208,8 @@ export function VendorDashboard() {
     {
       label: "Fulfilled orders",
       value: String(current.deliveredOrders),
+      rawValue: current.deliveredOrders,
+      currencyCode: undefined,
       change: percentChange(
         current.deliveredOrders,
         previous.deliveredOrders,
@@ -212,6 +221,8 @@ export function VendorDashboard() {
     {
       label: "Processing orders",
       value: String(current.processingOrders),
+      rawValue: current.processingOrders,
+      currencyCode: undefined,
       change: percentChange(
         current.processingOrders,
         previous.processingOrders,
@@ -223,6 +234,8 @@ export function VendorDashboard() {
     {
       label: "Cancelled orders",
       value: String(current.cancelledOrders),
+      rawValue: current.cancelledOrders,
+      currencyCode: undefined,
       change: percentChange(
         current.cancelledOrders,
         previous.cancelledOrders,
@@ -364,7 +377,11 @@ export function VendorDashboard() {
                 {isLoading ? (
                   <div className="h-8 w-20 animate-pulse rounded-lg bg-white/[0.08]" />
                 ) : (
-                  metric.value
+                  <AnimatedNumber
+                    value={metric.rawValue}
+                    currency={metric.currencyCode}
+                    maximumFractionDigits={metric.currencyCode ? 2 : 0}
+                  />
                 )}
               </CardContent>
               <CardFooter className="mt-auto min-h-10 flex-wrap gap-x-1 gap-y-0 overflow-hidden border-0 bg-transparent px-5 pt-0 pb-4 text-xs leading-5 font-medium">

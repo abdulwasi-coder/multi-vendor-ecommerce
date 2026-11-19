@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { VendorAnalyzes, ViewingOrder } from "@/Otherfiles/Order_interactive";
 
 type MockOrder = {
@@ -60,11 +61,6 @@ const mockOrders: MockOrder[] = Array.from({ length: 60 }, (_, index) => {
   };
 });
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 2,
-});
 const totalVendorEarnings = mockOrders.reduce(
   (total, order) => total + order.vendorEarning,
   0,
@@ -82,31 +78,36 @@ const paidVendors = new Set(
 const stats = [
   {
     title: "Paid vendors",
-    value: paidVendors.toLocaleString(),
+    value: paidVendors,
+    currency: undefined,
     description: "Vendors with paid orders",
     icon: Store,
   },
   {
     title: "Average net earning",
-    value: currency.format(totalVendorEarnings / mockOrders.length),
+    value: totalVendorEarnings / mockOrders.length,
+    currency: "USD",
     description: "Average vendor share per order",
     icon: TrendingUp,
   },
   {
     title: "Total earnings",
-    value: currency.format(totalVendorEarnings + totalPlatformEarnings),
+    value: totalVendorEarnings + totalPlatformEarnings,
+    currency: "USD",
     description: "Vendor and platform earnings",
     icon: CircleDollarSign,
   },
   {
     title: "Orders processed",
-    value: mockOrders.length.toLocaleString(),
+    value: mockOrders.length,
+    currency: undefined,
     description: "Orders in this preview",
     icon: ClipboardList,
   },
   {
     title: "Total orders",
-    value: mockOrders.length.toLocaleString(),
+    value: mockOrders.length,
+    currency: undefined,
     description: "All orders in this preview",
     icon: BadgeDollarSign,
   },
@@ -143,7 +144,11 @@ export default function AdminOrdersPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="min-h-14 break-words px-5 py-2 text-2xl font-semibold leading-tight tracking-tight">
-                  {metric.value}
+                  <AnimatedNumber
+                    value={metric.value}
+                    currency={metric.currency}
+                    maximumFractionDigits={metric.currency ? 2 : 0}
+                  />
                 </CardContent>
                 <CardFooter className="min-h-10 border-0 bg-transparent px-5 pt-0 pb-4 text-xs leading-5 text-muted-foreground">
                   {metric.description}

@@ -27,12 +27,14 @@ import {
   PendingVendor,
 } from "@/Otherfiles/dash_interactive";
 import { ChartAreaInteractive } from "@/components/ui/chart-area-interactive";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import Link from "next/link";
 
 const metrics = [
   {
     label: "Gross sales",
-    value: "$48,294",
+    value: 48294,
+    currency: "USD",
     change: "+12.8%",
     detail: "vs. previous month",
     icon: CircleDollarSign,
@@ -42,7 +44,8 @@ const metrics = [
   },
   {
     label: "Total Benefit",
-    value: "1,284",
+    value: 1284,
+    currency: undefined,
     change: "+8.2%",
     detail: "vs. previous month",
     icon: ShoppingBag,
@@ -52,7 +55,8 @@ const metrics = [
   },
   {
     label: "Total Customers",
-    value: "86",
+    value: 86,
+    currency: undefined,
     change: "+4 new",
     detail: "this month",
     icon: Store,
@@ -62,7 +66,8 @@ const metrics = [
   },
   {
     label: "Total Vendors",
-    value: "3,642",
+    value: 3642,
+    currency: undefined,
     change: "+6.4%",
     detail: "vs. previous month",
     icon: Users,
@@ -72,7 +77,8 @@ const metrics = [
   },
   {
     label: "Pending payouts",
-    value: "$8,450",
+    value: 8450,
+    currency: "USD",
     change: "12 requests",
     detail: "awaiting review",
     icon: Banknote,
@@ -118,7 +124,11 @@ export default async function AdminDashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="min-h-14 break-words px-5 py-2 text-2xl font-semibold leading-tight tracking-tight">
-                {metric.value}
+                <AnimatedNumber
+                  value={metric.value}
+                  currency={metric.currency}
+                  maximumFractionDigits={0}
+                />
               </CardContent>
               <CardFooter
                 className={`min-h-10 border-0 bg-transparent px-5 pt-0 pb-4 text-xs leading-5 font-medium flex flex-wrap gap-x-0.5 gap-y-0 ${metric.positive ? "text-emerald-700 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}
