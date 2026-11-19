@@ -3,9 +3,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import {
   ArrowLeft,
-  Pencil,
   Star,
-  StarHalf,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,9 +56,9 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
   const productImages = product.images.map((image) => image.publicId);
 
   return (
-    <main className="min-h-[calc(100dvh-2rem)] bg-muted/20">
-      <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-        <header className="mb-5 flex items-center justify-between gap-4 border-b pb-4">
+    <main className="vendor-dashboard-surface min-h-[calc(100dvh-3.5rem)]">
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <header className="mb-6 flex items-center justify-between gap-4 border-b border-white/10 pb-5">
           <div className="min-w-0">
             <Button
               variant="ghost"
@@ -72,7 +70,7 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
               <ArrowLeft /> Products
             </Button>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-50">
                 {product.name}
               </h1>
               <Badge variant="outline" className="font-mono">
@@ -85,17 +83,14 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
               {product.categoryID}
             </p>
           </div>
-          <Button
-            render={<Link href={`/vendor/create?productID=${product._id}`} />}
-            nativeButton={false}
-          >
-            <Pencil /> Edit product
+          <Button className="bg-blue-400 text-slate-950 hover:bg-blue-300" render={<Link href={`/vendor/create?productID=${product._id}`} />} nativeButton={false}>
+            Edit product
           </Button>
         </header>
 
-        <section className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
-          <div className="space-y-4">
-            <div className="h-[min(48vh,400px)] min-h-70 md:h-[min(50vh,460px)] md:min-h-[95vh]">
+        <section className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.85fr)] xl:gap-8">
+          <div className="lg:sticky lg:top-20">
+            <div className="h-[min(52vh,440px)] min-h-72 rounded-2xl border border-white/10 bg-[#23262d] p-3">
               <VendorProductGallery
                 images={productImages}
                 name={product.name}
@@ -106,74 +101,35 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
           </div>
 
           <div>
-            <div className=" py-4 border-y flex flex-col gap-2">
-              <div className="flex flex-col gap-1 text-xs">
-                <span className="text-sm">{product.name}</span>
-                <div className="flex gap-0.5 text-[10px] items-center">
-                  {product.rating}
-                  {Array.from({ length: 4 }, (_, index) => (
-                    <Star
-                      key={index}
-                      size={12}
-                      className="fill-orange-500 text-orange-500"
-                    />
-                  ))}
-                  <StarHalf
-                    size={12}
-                    className="fill-orange-500 text-orange-500"
-                  />
-                  ({product.reviewCount})
+            <div className="rounded-2xl border border-white/10 bg-[#23262d] p-5 sm:p-6">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-4">
+                <p className="text-sm text-muted-foreground">Customer rating</p>
+                <Badge variant="outline" className="border-amber-400/20 bg-amber-400/10 text-amber-300">
+                  <Star className="size-3.5 fill-amber-400 text-amber-400" /> {product.rating.toFixed(1)} <span className="text-muted-foreground">({product.reviewCount})</span>
+                </Badge>
+              </div>
+
+              <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4 text-sm">
+                <div className="col-span-2 rounded-xl bg-white/[0.04] p-3">
+                  <dt className="text-xs font-medium text-muted-foreground">Price</dt>
+                  <dd className="mt-1 flex items-baseline gap-2">
+                    <span className="text-2xl font-semibold text-slate-50">${product.price.toFixed(2)}</span>
+                    {product.discount > 0 && <Badge className="bg-rose-400/10 text-rose-300">{product.discount}% off</Badge>}
+                  </dd>
                 </div>
+                <div><dt className="text-xs text-muted-foreground">Stock</dt><dd className="mt-1 font-medium text-slate-100">{product.stock} units</dd></div>
+                <div><dt className="text-xs text-muted-foreground">SKU</dt><dd className="mt-1 font-mono text-xs text-slate-200">{product.sku}</dd></div>
+                <div className="col-span-2"><dt className="text-xs text-muted-foreground">Colors</dt><dd className="mt-1 font-medium text-slate-100">{product.colors.join(", ") || "Not specified"}</dd></div>
+                <div className="col-span-2"><dt className="text-xs text-muted-foreground">Product ID</dt><dd className="mt-1 break-all font-mono text-xs text-slate-400">{product._id}</dd></div>
+              </dl>
+
+              <div className="mt-5 border-t border-white/10 pt-4">
+                <h3 className="text-sm font-semibold text-slate-100">Description</h3>
+                <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
+                  {product.description || "No description provided."}
+                </p>
               </div>
             </div>
-         
-            <div className="flex py-2 flex-col border-y gap-1">
-              <div className="flex flex-col gap-1 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">ID:</span>
-                  <span>{product._id}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">Price:</span>
-                  <span>${product.price}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">color:</span>
-                  <span>{product.colors.join(", ") || "Not specified"}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">brand:</span>
-                  <span>{product.brand}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">discount:</span>
-                  <span>{product.discount}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">Category:</span>
-                  <span>{product.categoryID}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">stock:</span>
-                  <span>{product.stock}</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex py-2 flex-col border-y gap-1">
-              <div className="flex flex-col gap-3 text-xs">
-                <span className="font-semibold text-sm">About The Item</span>
-                <span className="whitespace-pre-wrap break-words text-gray-500">
-                  {product.description}
-                </span>
-              </div>
-            </div>
-            <Button
-              className="my-3"
-              render={<Link href={`/vendor/create?productID=${product._id}`} />}
-              nativeButton={false}
-            >
-              Edit Product
-            </Button>
           </div>
         </section>
       </div>

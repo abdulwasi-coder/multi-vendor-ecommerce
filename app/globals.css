@@ -143,6 +143,9 @@
   --chart-5: #fb7185;
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.01em;
 }
 
 main.vendor-workspace > main {
@@ -159,8 +162,8 @@ main.vendor-workspace > main {
 }
 
 .vendor-workspace [data-slot="card"]:hover {
-  transform: translateY(-1px);
-  border-color: rgba(148, 163, 184, 0.28);
+  transform: none;
+  border-color: var(--border);
 }
 
 .vendor-workspace [data-slot="table-head"] {
@@ -205,9 +208,9 @@ main.vendor-workspace > main {
 }
 
 .vendor-dashboard-card:hover {
-  transform: translateY(-1px);
-  border-color: rgba(148, 163, 184, 0.28);
-  background-color: #292d34;
+  transform: none;
+  border-color: rgba(221, 226, 235, 0.11);
+  background-color: #23262d;
 }
 
 .vendor-sidebar-link svg {

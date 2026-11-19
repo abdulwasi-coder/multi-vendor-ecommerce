@@ -413,7 +413,7 @@ export default function VendorOrdersPage() {
 
             <CardContent className="px-0 sm:px-6">
               <div className="overflow-x-auto">
-                <Table>
+                <Table className="min-w-[900px]">
                   <TableHeader>
                     <TableRow className="border-white/[0.08] bg-white/[0.025] hover:bg-white/[0.025]">
                       <TableHead className="h-11 w-10 pl-4" />

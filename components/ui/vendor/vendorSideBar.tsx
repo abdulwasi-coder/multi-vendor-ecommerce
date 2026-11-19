@@ -10,6 +10,7 @@ import {
   PackagePlus,
   Truck,
   UserRound,
+  House,
 } from "lucide-react";
 import { LogoutButton } from "@/components/ui/logout-button";
 
@@ -31,6 +32,7 @@ import { useVendorProfile } from "@/Otherfiles/tanstack/vendor-profile";
 
 const workspaceItems = [
   { title: "Dashboard", href: "/vendor/dashboard", icon: LayoutDashboard, color: "blue" },
+  { title: "Store home", href: "/", icon: House, color: "emerald" },
   { title: "Orders", href: "/vendor/orders", icon: ShoppingCart, color: "violet" },
 ];
 const catalogItems = [
