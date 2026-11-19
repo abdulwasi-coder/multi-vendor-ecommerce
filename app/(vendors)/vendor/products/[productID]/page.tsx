@@ -101,36 +101,35 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
           </div>
 
           <div>
-            <div className="rounded-2xl border border-sky-300/15 bg-[#15233a] p-5 shadow-lg shadow-blue-950/15 sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-sky-200/10 pb-4">
+            <div className="rounded-2xl border border-sky-300/15 bg-[#1e3350] p-5 shadow-lg shadow-blue-950/15 sm:p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-200/10 pb-3">
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-50">Product details</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">Full listing information</p>
+                  <h2 className="text-lg font-semibold text-slate-50">Product details</h2>
                 </div>
                 <Badge variant="outline" className="border-amber-400/20 bg-amber-400/10 text-amber-300">
                   <Star className="size-3.5 fill-amber-400 text-amber-400" /> {product.rating.toFixed(1)} <span className="text-muted-foreground">({product.reviewCount})</span>
                 </Badge>
               </div>
 
-              <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 text-sm">
-                <div className="col-span-2 rounded-xl border border-sky-300/10 bg-[#1d3352] p-4 sm:col-span-1">
-                  <dt className="text-xs font-medium text-muted-foreground">Price</dt>
-                  <dd className="mt-1 flex items-baseline gap-2">
-                    <span className="text-2xl font-semibold text-sky-200">${(product.price * (1 - product.discount / 100)).toFixed(2)}</span>
-                    {product.discount > 0 && <><span className="text-sm text-slate-400 line-through">${product.price.toFixed(2)}</span><Badge className="bg-rose-400/10 text-rose-300">{product.discount}% off</Badge></>}
+              <dl className="mt-3 grid grid-cols-2 gap-x-6 text-sm">
+                <div className="col-span-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-sky-200/10 py-3 sm:col-span-1">
+                  <dt className="w-20 shrink-0 text-xs text-muted-foreground">Price</dt>
+                  <dd className="flex items-baseline gap-2">
+                    <span className="text-xl font-semibold text-sky-200">${(product.price * (1 - product.discount / 100)).toFixed(2)}</span>
+                    {product.discount > 0 && <><span className="text-xs text-slate-400 line-through">${product.price.toFixed(2)}</span><span className="text-xs font-medium text-rose-300">{product.discount}% off</span></>}
                   </dd>
                 </div>
-                <div className="rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Availability</dt><dd className="mt-1 font-medium text-slate-100">{product.stock} units in stock</dd></div>
-                <div className="rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Brand</dt><dd className="mt-1 font-medium text-slate-100">{product.brand || "Not specified"}</dd></div>
-                <div className="rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Category</dt><dd className="mt-1 font-medium text-slate-100">{product.categoryID || "Not specified"}</dd></div>
-                <div className="rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">SKU</dt><dd className="mt-1 break-all font-mono text-xs text-slate-200">{product.sku}</dd></div>
-                <div className="col-span-2 rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Available colors</dt><dd className="mt-1 font-medium text-slate-100">{product.colors.length ? product.colors.join(", ") : "Not specified"}</dd></div>
-                <div className="col-span-2 rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Product ID</dt><dd className="mt-1 break-all font-mono text-xs text-slate-300">{product._id}</dd></div>
+                <div className="flex items-baseline gap-2 border-b border-sky-200/10 py-2.5"><dt className="w-20 shrink-0 text-xs text-muted-foreground">Stock</dt><dd className="font-medium text-slate-100">{product.stock} units</dd></div>
+                <div className="flex items-baseline gap-2 border-b border-sky-200/10 py-2.5"><dt className="w-20 shrink-0 text-xs text-muted-foreground">Brand</dt><dd className="truncate font-medium text-slate-100">{product.brand || "Not specified"}</dd></div>
+                <div className="flex items-baseline gap-2 border-b border-sky-200/10 py-2.5"><dt className="w-20 shrink-0 text-xs text-muted-foreground">Category</dt><dd className="truncate font-medium text-slate-100">{product.categoryID || "Not specified"}</dd></div>
+                <div className="flex items-baseline gap-2 border-b border-sky-200/10 py-2.5"><dt className="w-20 shrink-0 text-xs text-muted-foreground">SKU</dt><dd className="truncate font-mono text-xs text-slate-200">{product.sku}</dd></div>
+                <div className="col-span-2 flex items-baseline gap-2 border-b border-sky-200/10 py-2.5"><dt className="w-20 shrink-0 text-xs text-muted-foreground">Colors</dt><dd className="font-medium text-slate-100">{product.colors.length ? product.colors.join(", ") : "Not specified"}</dd></div>
+                <div className="col-span-2 flex items-baseline gap-2 border-b border-sky-200/10 py-2.5"><dt className="w-20 shrink-0 text-xs text-muted-foreground">Product ID</dt><dd className="truncate font-mono text-xs text-slate-300" title={product._id}>{product._id}</dd></div>
               </dl>
 
-              <div className="mt-5 border-t border-sky-200/10 pt-5">
+              <div className="mt-3 pt-1">
                 <h3 className="text-sm font-semibold text-slate-100">Description</h3>
-                <p className="mt-2 min-h-20 whitespace-pre-wrap break-words text-sm leading-7 text-slate-300">
+                <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-slate-300">
                   {product.description || "No description provided."}
                 </p>
               </div>
