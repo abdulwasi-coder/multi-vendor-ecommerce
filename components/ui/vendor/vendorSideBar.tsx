@@ -30,15 +30,15 @@ import Image from "next/image";
 import { useVendorProfile } from "@/Otherfiles/tanstack/vendor-profile";
 
 const workspaceItems = [
-  { title: "Dashboard", href: "/vendor/dashboard", icon: LayoutDashboard },
-  { title: "Orders", href: "/vendor/orders", icon: ShoppingCart },
+  { title: "Dashboard", href: "/vendor/dashboard", icon: LayoutDashboard, color: "blue" },
+  { title: "Orders", href: "/vendor/orders", icon: ShoppingCart, color: "violet" },
 ];
 const catalogItems = [
-  { title: "Products", href: "/vendor/products", icon: Package },
-  { title: "Create Product", href: "/vendor/create", icon: PackagePlus },
+  { title: "Products", href: "/vendor/products", icon: Package, color: "emerald" },
+  { title: "Create Product", href: "/vendor/create", icon: PackagePlus, color: "amber" },
 ];
 const operationsItems = [
-  { title: "Logistics", href: "/vendor/logitics", icon: Truck },
+  { title: "Logistics", href: "/vendor/logitics", icon: Truck, color: "blue" },
 ];
 
 export function AppSidebar() {
@@ -120,6 +120,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.07] hover:text-white data-[active=true]:bg-blue-500/15 data-[active=true]:text-blue-200 data-[active=true]:shadow-[inset_2px_0_0_#60a5fa]"
+                      data-item-color={item.color}
                       isActive={isActive}
                       render={
                         <Link
@@ -151,6 +152,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.07] hover:text-white data-[active=true]:bg-blue-500/15 data-[active=true]:text-blue-200 data-[active=true]:shadow-[inset_2px_0_0_#60a5fa]"
+                      data-item-color={item.color}
                       isActive={isActive}
                       render={
                         <Link
@@ -182,6 +184,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.07] hover:text-white data-[active=true]:bg-blue-500/15 data-[active=true]:text-blue-200 data-[active=true]:shadow-[inset_2px_0_0_#60a5fa]"
+                      data-item-color={item.color}
                       isActive={isActive}
                       render={<Link onClick={handleNavigation} href={item.href} />}
                     >

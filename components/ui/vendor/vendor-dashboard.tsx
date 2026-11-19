@@ -174,8 +174,8 @@ export function VendorDashboard() {
       value: currency.format(current.totalGrossSales),
       change: salesChange,
       icon: CircleDollarSign,
-      iconColor: "#a6d2f5",
-      iconBackground: "rgba(75, 127, 181, .22)",
+      iconColor: "#60a5fa",
+      iconBackground: "rgba(59, 130, 246, .16)",
     },
     {
       label: "Total benefit",
@@ -185,16 +185,16 @@ export function VendorDashboard() {
         previous.totalNetEarnings,
       ),
       icon: ClipboardList,
-      iconColor: "#8fd5dd",
-      iconBackground: "rgba(57, 137, 154, .2)",
+      iconColor: "#2dd4bf",
+      iconBackground: "rgba(20, 184, 166, .15)",
     },
     {
       label: "Total orders",
       value: String(current.totalOrders),
       change: ordersChange,
       icon: PackageCheck,
-      iconColor: "#a8c8ef",
-      iconBackground: "rgba(94, 131, 182, .2)",
+      iconColor: "#a78bfa",
+      iconBackground: "rgba(139, 92, 246, .16)",
     },
     {
       label: "Fulfilled orders",
@@ -204,8 +204,8 @@ export function VendorDashboard() {
         previous.deliveredOrders,
       ),
       icon: PackageCheck,
-      iconColor: "#b4c8f2",
-      iconBackground: "rgba(98, 119, 173, .2)",
+      iconColor: "#34d399",
+      iconBackground: "rgba(16, 185, 129, .15)",
     },
     {
       label: "Processing orders",
@@ -215,8 +215,8 @@ export function VendorDashboard() {
         previous.processingOrders,
       ),
       icon: ShoppingBag,
-      iconColor: "#e4c68b",
-      iconBackground: "rgba(177, 139, 63, .18)",
+      iconColor: "#fbbf24",
+      iconBackground: "rgba(245, 158, 11, .15)",
     },
     {
       label: "Cancelled orders",
@@ -226,8 +226,8 @@ export function VendorDashboard() {
         previous.cancelledOrders,
       ),
       icon: PackageCheck,
-      iconColor: "#e4a9a1",
-      iconBackground: "rgba(171, 90, 82, .18)",
+      iconColor: "#fb7185",
+      iconBackground: "rgba(244, 63, 94, .15)",
     },
   ];
 
@@ -241,7 +241,7 @@ export function VendorDashboard() {
 
   return (
     <main className="vendor-dashboard-surface mx-auto min-h-screen w-full max-w-400 space-y-6 px-4 py-6 text-slate-50 sm:px-6 lg:px-8">
-      <header className="vendor-dashboard-enter flex flex-col justify-between gap-4 border-b border-sky-100/10 pb-5 sm:flex-row sm:items-end">
+      <header className="vendor-dashboard-enter flex flex-col justify-between gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-end">
         <div className="space-y-1">
           <p className="text-sm text-slate-300">
             {new Date().toLocaleDateString("en-US", {
@@ -268,7 +268,7 @@ export function VendorDashboard() {
           >
             <SelectTrigger
               aria-label="Select reporting period"
-              className="w-36 rounded-xl border-sky-100/20 bg-[#1c3048] text-slate-50 transition-colors hover:border-sky-200/35 hover:bg-[#263d57]"
+              className="w-36 rounded-xl border-white/15 bg-[#23262d] text-slate-50 transition-colors hover:border-white/25 hover:bg-[#2b2f36]"
             >
               <SelectValue />
             </SelectTrigger>
@@ -281,7 +281,7 @@ export function VendorDashboard() {
             </SelectContent>
           </Select>
           <Link href="/vendor/create" className="w-fit">
-            <Button className="rounded-xl bg-[#8ab8e8] text-[#102039] shadow-sm transition-colors duration-150 hover:bg-[#a7cbef]">
+            <Button className="rounded-xl bg-blue-400 text-slate-950 shadow-sm transition-colors duration-150 hover:bg-blue-300">
               Add a product <ArrowRight className="ml-2 size-4" />
             </Button>
           </Link>
@@ -303,16 +303,16 @@ export function VendorDashboard() {
           const change = metric.change;
           const up = change !== null && change >= 0;
           return (
-            <Card key={metric.label} className="group vendor-dashboard-enter vendor-dashboard-card vendor-dashboard-metric grid grid-rows-[30_30_40] border-sky-100/15 bg-[#1c3048] text-slate-50">
+            <Card key={metric.label} className="group vendor-dashboard-enter vendor-dashboard-card vendor-dashboard-metric grid grid-rows-[30_30_40] border-white/10 bg-[#23262d] text-slate-50">
               <CardHeader>
                 <CardTitle className="flex flex-row items-center justify-between text-sm font-medium text-slate-300">
                   {metric.label}
-                  <span style={{ color: metric.iconColor, backgroundColor: metric.iconBackground }} className="flex size-9 items-center justify-center rounded-xl transition-transform duration-150 group-hover:scale-110"><Icon className="size-4 transition-transform duration-150 group-hover:rotate-6" /></span>
+                  <span style={{ color: metric.iconColor, backgroundColor: metric.iconBackground }} className="flex size-9 items-center justify-center rounded-xl transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110"><Icon className="size-4 transition-transform duration-200 group-hover:rotate-12" /></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 px-5 text-2xl font-semibold tracking-tight text-[#f3f6fb]">
                 {isLoading ? (
-                  <div className="h-8 w-20 animate-pulse rounded-lg bg-sky-100/[0.08]" />
+                  <div className="h-8 w-20 animate-pulse rounded-lg bg-white/[0.08]" />
                 ) : (
                   metric.value
                 )}
@@ -344,8 +344,8 @@ export function VendorDashboard() {
       </section>
 
       <section className="grid lg:grid-cols-1">
-        <Card className="vendor-dashboard-enter vendor-dashboard-card border-sky-100/15 bg-[#1c3048] pt-0 text-slate-50">
-          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-sky-100/[0.08] py-5 sm:flex-row">
+        <Card className="vendor-dashboard-enter vendor-dashboard-card border-white/10 bg-[#23262d] pt-0 text-slate-50">
+          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-white/[0.08] py-5 sm:flex-row">
             <div className="grid flex-1 gap-1">
               <CardTitle className="text-lg font-semibold text-slate-50">Sales — last {days} days</CardTitle>
               <CardDescription className="text-slate-300">
@@ -360,7 +360,7 @@ export function VendorDashboard() {
           <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
             <div className="h-62.5 w-full">
               {isLoading ? (
-                <div className="h-full w-full animate-pulse rounded-xl bg-sky-100/[0.1]" />
+                <div className="h-full w-full animate-pulse rounded-xl bg-white/[0.08]" />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
@@ -447,7 +447,7 @@ export function VendorDashboard() {
         </Card>
       </section>
 
-      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-sky-100/15 bg-[#1c3048] text-slate-50">
+      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-white/10 bg-[#23262d] text-slate-50">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle className="text-lg font-semibold text-slate-50">Recent payouts</CardTitle>
@@ -460,7 +460,7 @@ export function VendorDashboard() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-sky-100/[0.08] hover:bg-transparent">
+                <TableRow className="border-white/[0.08] hover:bg-transparent">
                   <TableHead className="pl-6">Order</TableHead>
                   <TableHead>Product</TableHead>
                   <TableHead className="hidden md:table-cell">Items</TableHead>
@@ -473,9 +473,9 @@ export function VendorDashboard() {
               <TableBody>
                 {financeQuery.isPending &&
                   [0, 1, 2].map((i) => (
-                    <TableRow key={i} className="border-sky-100/[0.06]">
+                    <TableRow key={i} className="border-white/[0.06]">
                       <TableCell colSpan={7} className="px-6 py-3">
-                        <div className="h-8 animate-pulse rounded-lg bg-sky-100/[0.07]" />
+                        <div className="h-8 animate-pulse rounded-lg bg-white/[0.06]" />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -486,7 +486,7 @@ export function VendorDashboard() {
                       "Product";
                     const itemCount = payoutItemCount(payout);
                     return (
-                      <TableRow key={payout._id} className="border-sky-100/[0.06] transition-colors duration-150 hover:bg-sky-100/[0.035]">
+                      <TableRow key={payout._id} className="border-white/[0.06] transition-colors duration-150 hover:bg-white/[0.035]">
                         <TableCell className="pl-6 font-mono text-xs font-medium">
                           #{String(payout._id).slice(-8)}
                         </TableCell>
@@ -533,7 +533,7 @@ export function VendorDashboard() {
         </CardContent>
       </Card>
 
-      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-sky-100/15 bg-[#1c3048] text-slate-50">
+      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-white/10 bg-[#23262d] text-slate-50">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle className="text-lg font-semibold text-slate-50">Recent orders</CardTitle>
@@ -543,7 +543,7 @@ export function VendorDashboard() {
           </div>
 
           <Link href="/vendor/orders">
-            <Button variant="outline" size="sm" className="rounded-lg border-sky-100/15 bg-sky-100/[0.04] text-sky-50 transition-colors duration-150 hover:border-sky-200/30 hover:bg-sky-100/[0.09]">
+            <Button variant="outline" size="sm" className="rounded-lg border-white/10 bg-white/[0.04] text-slate-100 transition-colors duration-150 hover:border-white/20 hover:bg-white/[0.08]">
               View all orders <ArrowRight className="ml-2 size-4" />
             </Button>
           </Link>
@@ -552,7 +552,7 @@ export function VendorDashboard() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-sky-100/[0.08] hover:bg-transparent">
+                <TableRow className="border-white/[0.08] hover:bg-transparent">
                   <TableHead className="pl-6">Order</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead className="hidden md:table-cell">Date</TableHead>
@@ -564,9 +564,9 @@ export function VendorDashboard() {
               <TableBody>
                 {isLoading &&
                   [0, 1, 2].map((i) => (
-                    <TableRow key={i} className="border-sky-100/[0.06]">
+                    <TableRow key={i} className="border-white/[0.06]">
                       <TableCell colSpan={6} className="px-6 py-3">
-                        <div className="h-8 animate-pulse rounded-lg bg-sky-100/[0.07]" />
+                        <div className="h-8 animate-pulse rounded-lg bg-white/[0.06]" />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -584,7 +584,7 @@ export function VendorDashboard() {
                     );
                     const status = capitalizeStatus(order.status);
                     return (
-                      <TableRow key={order._id} className="border-sky-100/[0.06] transition-colors duration-150 hover:bg-sky-100/[0.035]">
+                      <TableRow key={order._id} className="border-white/[0.06] transition-colors duration-150 hover:bg-white/[0.035]">
                         <TableCell className="pl-6 font-mono text-xs font-medium">
                           #{String(order._id).slice(-8)}
                         </TableCell>
