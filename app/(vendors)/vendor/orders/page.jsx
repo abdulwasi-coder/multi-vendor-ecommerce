@@ -316,8 +316,7 @@ export default function VendorOrdersPage() {
               <ClipboardList className="size-5" />
             </span>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Store management</p>
-              <h1 className="text-3xl font-semibold tracking-tight">Orders</h1>
+              <h1 className="text-2xl font-semibold tracking-tight">Orders</h1>
               <p className="text-sm text-muted-foreground">
                 Review order items, delivery details, and your earnings.
               </p>
@@ -454,7 +453,7 @@ export default function VendorOrdersPage() {
                               <TableCell className="text-right font-medium">
                                 {currency.format(order.suborderTotal)}
                               </TableCell>
-                              <TableCell className="hidden text-right font-medium text-emerald-700 lg:table-cell">
+                              <TableCell className="hidden text-right font-medium text-emerald-300 lg:table-cell">
                                 {currency.format(order.vendorNetEarned)}
                               </TableCell>
                               <TableCell onClick={(event) => event.stopPropagation()}>

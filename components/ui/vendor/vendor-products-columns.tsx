@@ -84,8 +84,8 @@ export const vendorProductColumns: ColumnDef<DataTableFeatures, VendorProduct>[]
           variant={row.original.status === "active" ? "outline" : "secondary"}
           className={
             row.original.status === "active"
-              ? "text-emerald-700"
-              : "capitalize text-amber-700"
+              ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+              : "border-amber-400/20 bg-amber-400/10 capitalize text-amber-300"
           }
         >
           {statusLabel(row.original.status)}

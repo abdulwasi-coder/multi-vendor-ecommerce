@@ -1,10 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import {
-  ArrowLeft,
   Check,
   ChevronsUpDown,
   KeyRound,
@@ -203,16 +201,10 @@ export default function VendorProfilePage() {
   }
 
   return (
-    <main className="min-h-screen space-y-5 bg-background px-2 py-4 sm:px-4 lg:px-6">
-      <header className="flex flex-col justify-between gap-3 border-b border-border/70 pb-4 sm:flex-row sm:items-center">
+    <main className="vendor-dashboard-surface mx-auto min-h-screen w-full max-w-400 space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <header className="flex flex-col justify-between gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-center">
         <div className="space-y-1">
-          <Link
-            href="/vendor/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition hover:text-foreground"
-          >
-            <ArrowLeft className="size-3.5" /> Vendor dashboard
-          </Link>
-          <h1 className="text-xl font-semibold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-50">
             My vendor profile
           </h1>
           <p className="text-sm text-muted-foreground">

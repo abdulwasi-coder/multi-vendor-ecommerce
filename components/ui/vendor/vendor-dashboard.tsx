@@ -251,7 +251,7 @@ export function VendorDashboard() {
               year: "numeric",
             })}
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-50">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-50">
             Vendor dashboard
           </h1>
           <p className="text-sm text-slate-300">

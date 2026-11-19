@@ -209,19 +209,16 @@ export function VendorProductsTable() {
   ];
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-400 space-y-7 bg-muted/20 px-4 py-7 sm:px-7 lg:px-10">
-      <header className="flex flex-col justify-between gap-5 border-b pb-6 sm:flex-row sm:items-end">
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground">
-            Store management / Catalog
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight">Products</h1>
+    <main className="vendor-dashboard-surface mx-auto min-h-screen w-full max-w-400 space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <header className="flex flex-col justify-between gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-end">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-50">Products</h1>
           <p className="max-w-xl text-sm text-muted-foreground">
             Manage your catalog, keep an eye on stock, and make updates to your
             listings.
           </p>
         </div>
-        <Button render={<Link href="/vendor/create" />} nativeButton={false}>
+        <Button className="bg-blue-400 text-slate-950 hover:bg-blue-300" render={<Link href="/vendor/create" />} nativeButton={false}>
           Add product <Plus />
         </Button>
       </header>
@@ -255,7 +252,7 @@ export function VendorProductsTable() {
         })}
       </section>
 
-      <Card className="overflow-hidden rounded-2xl border-border/70 shadow-sm">
+      <Card className="overflow-hidden rounded-2xl border-white/10 bg-[#23262d] shadow-sm">
         <CardHeader className="gap-4 border-b sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>All products</CardTitle>
@@ -312,8 +309,8 @@ export function VendorProductsTable() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-muted/50">
+            <Table className="min-w-[900px]">
+              <TableHeader className="bg-[#1d2026]">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
@@ -337,7 +334,7 @@ export function VendorProductsTable() {
                   table.getRowModel().rows.map((row) => (
                     <TableRow
                       key={row.id}
-                      className="transition-colors hover:bg-muted/30"
+                      className="transition-colors hover:bg-white/[0.035]"
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id} className="py-3">

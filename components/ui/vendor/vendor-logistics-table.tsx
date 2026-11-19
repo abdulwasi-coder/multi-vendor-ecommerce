@@ -51,9 +51,9 @@ const DEFAULT_PAGE_SIZE = 10;
 const EMPTY_PRODUCTS: VendorLogisticsProduct[] = [];
 
 const statusStyles = {
-  Urgent: "border-red-200 bg-red-50 text-red-700",
-  Medium: "border-amber-200 bg-amber-50 text-amber-700",
-  Healthy: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  Urgent: "border-red-400/20 bg-red-400/10 text-red-300",
+  Medium: "border-amber-400/20 bg-amber-400/10 text-amber-300",
+  Healthy: "border-emerald-400/20 bg-emerald-400/10 text-emerald-300",
 } as const;
 
 function getStockStatus(stock: number) {
@@ -302,7 +302,7 @@ export function VendorLogisticsTable() {
         })}
       </section>
 
-      <Card className="overflow-hidden rounded-2xl border-border/70 shadow-sm">
+      <Card className="overflow-hidden rounded-2xl border-white/10 bg-[#23262d] shadow-sm">
         <CardHeader className="gap-4 border-b sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Product inventory</CardTitle>
@@ -318,14 +318,14 @@ export function VendorLogisticsTable() {
                 : `${query.data.totalMatches} matching products`}
           </Badge>
         </CardHeader>
-        <div className="border-b px-4 py-3">
+        <div className="border-b border-white/[0.08] bg-[#1d2026] px-4 py-3">
           <div className="flex flex-col gap-2 sm:flex-row">
             <label className="relative block w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 aria-label="Search inventory"
                 placeholder="Search inventory"
-                className="pl-9"
+                className="border-white/10 bg-[#252830] pl-9 placeholder:text-slate-500 focus-visible:ring-blue-400/40"
                 value={search}
                 onChange={(event) => {
                   setSearch(event.target.value);
@@ -344,7 +344,7 @@ export function VendorLogisticsTable() {
                 setPageIndex(0);
               }}
               aria-label="Rows per page"
-              className="w-full sm:w-24"
+              className="w-full border-white/10 bg-[#252830] sm:w-24"
             >
               <NativeSelectOption value="10">10</NativeSelectOption>
               <NativeSelectOption value="20">20</NativeSelectOption>
@@ -358,6 +358,7 @@ export function VendorLogisticsTable() {
               disabled={query.isFetching}
               aria-label="Refresh inventory"
               title="Refresh inventory"
+              className="border-white/10 bg-[#252830] hover:bg-white/[0.08]"
             >
               <RotateCw
                 aria-hidden="true"
@@ -368,8 +369,8 @@ export function VendorLogisticsTable() {
         </div>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-muted/50">
+            <Table className="min-w-[850px]">
+              <TableHeader className="bg-[#1d2026]">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
@@ -391,7 +392,7 @@ export function VendorLogisticsTable() {
               <TableBody>
                 {table.getRowModel().rows.length > 0 ? (
                   table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id} className="hover:bg-muted/30">
+                    <TableRow key={row.id} className="transition-colors hover:bg-white/[0.035]">
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id} className="py-3">
                           {flexRender(
