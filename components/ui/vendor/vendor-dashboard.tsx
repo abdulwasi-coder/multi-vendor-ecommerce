@@ -18,6 +18,7 @@ import {
   ArrowDownRight,
   CircleDollarSign,
   ClipboardList,
+  Download,
   PackageCheck,
   ShoppingBag,
 } from "lucide-react";
@@ -60,6 +61,7 @@ import {
   useVendorOrders,
   type VendorOrder,
 } from "@/Otherfiles/tanstack/vendor-orders";
+import { downloadCsv } from "@/lib/vendor-csv";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -139,7 +141,7 @@ function buildComparisonSeries(
   return series;
 }
 
-function payoutItemCount(payout: VendorPayoutOrder) {
+function payoutItemCount(payout: { items?: Array<{ quantity?: number }> | null }) {
   return (payout.items ?? []).reduce(
     (total, item) => total + (item.quantity ?? 1),
     0,
@@ -239,6 +241,49 @@ export function VendorDashboard() {
   const recentOrders = ordersQuery.data?.orders ?? [];
   const payouts = financeQuery.data?.lastPaidOrders ?? [];
 
+  function exportDashboard() {
+    const rows = [
+      ...summary.map((metric) => [
+        "Summary",
+        `Last ${days} days`,
+        "",
+        metric.label,
+        "",
+        "",
+        metric.value,
+        "",
+        "",
+      ]),
+      ...payouts.map((payout) => [
+        "Payout",
+        "",
+        payout._id,
+        payout.productNames?.filter(Boolean).join(", ") || "Product",
+        formatDate(payout.payoutReleaseDate),
+        payoutItemCount(payout),
+        payout.subOrderTotal ?? 0,
+        payout.vendorNetEarned ?? 0,
+        "Released",
+      ]),
+      ...recentOrders.map((order) => [
+        "Recent order",
+        "",
+        order._id,
+        typeof order.customerID === "object" ? order.customerID?.name ?? "Customer" : "Customer",
+        formatDate(order.createdAt),
+        payoutItemCount(order),
+        order.subOrderTotal ?? 0,
+        order.vendorNetEarned ?? 0,
+        capitalizeStatus(order.status),
+      ]),
+    ];
+    downloadCsv(
+      `vendor-dashboard-${days}-days.csv`,
+      ["Type", "Period", "ID", "Name", "Date", "Items", "Order total / value", "Net earned", "Status"],
+      rows,
+    );
+  }
+
   return (
     <main className="vendor-dashboard-surface mx-auto min-h-screen w-full max-w-400 space-y-6 px-4 py-6 text-slate-50 sm:px-6 lg:px-8">
       <header className="vendor-dashboard-enter flex flex-col justify-between gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-end">
@@ -252,14 +297,11 @@ export function VendorDashboard() {
             })}
           </p>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-50">
-            Vendor dashboard
+            Overview
           </h1>
-          <p className="text-sm text-slate-300">
-            A quick look at your store performance and latest activity.
-          </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <Select
             value={range}
             onValueChange={(value) => {
@@ -272,14 +314,22 @@ export function VendorDashboard() {
             >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border border-white/10 bg-[#23262d] text-slate-100 shadow-xl">
               {DASHBOARD_RANGES.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
+                <SelectItem key={item.value} value={item.value} className="text-slate-200 focus:bg-white/[0.08] focus:text-white">
                   {item.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          <Button
+            variant="outline"
+            onClick={exportDashboard}
+            disabled={isLoading || isError}
+            className="rounded-xl border-white/10 bg-[#23262d] text-slate-200 hover:bg-[#2b2f36]"
+          >
+            <Download aria-hidden="true" /> Export CSV
+          </Button>
           <Link href="/vendor/create" className="w-fit">
             <Button className="rounded-xl bg-blue-400 text-slate-950 shadow-sm transition-colors duration-150 hover:bg-blue-300">
               Add a product <ArrowRight className="ml-2 size-4" />

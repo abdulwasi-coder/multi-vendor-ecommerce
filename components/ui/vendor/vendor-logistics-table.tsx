@@ -13,6 +13,7 @@ import {
   ArrowDownToLine,
   Boxes,
   CircleAlert,
+  Download,
   PackageCheck,
   RotateCw,
   Search,
@@ -24,6 +25,9 @@ import {
   type VendorLogisticsProduct,
   vendorLogisticsQueryKey,
 } from "@/Otherfiles/tanstack/vendor-logistics";
+import api from "@/lib/axios";
+import { downloadCsv } from "@/lib/vendor-csv";
+import { toast } from "sonner";
 import { features, type DataTableFeatures } from "@/components/ui/admin/data_table_feature";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -148,6 +152,7 @@ export function VendorLogisticsTable() {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(
@@ -215,6 +220,45 @@ export function VendorLogisticsTable() {
       queryKey: vendorLogisticsQueryKey(pageIndex + 1, pageSize, debouncedSearch),
       exact: true,
     });
+  };
+
+  const handleExport = async () => {
+    if (isExporting || !query.data || query.isFetching || query.isPlaceholderData) return;
+    setIsExporting(true);
+    try {
+      const allProducts: VendorLogisticsProduct[] = [];
+      for (let page = 1; page <= query.data.totalPages; page += 1) {
+        const response = await api.get<{
+          success: boolean;
+          message?: string;
+          products?: VendorLogisticsProduct[];
+        }>("/vendor/LogisticData", {
+          params: { page, limit: pageSize, skip: (page - 1) * pageSize, search: debouncedSearch },
+        });
+        if (!response.data.success || !Array.isArray(response.data.products)) {
+          throw new Error(response.data.message ?? "Could not export inventory.");
+        }
+        allProducts.push(...response.data.products);
+      }
+      downloadCsv(
+        "inventory.csv",
+        ["Product", "SKU", "Category", "Stock", "Stock health", "Discount", "Rating"],
+        allProducts.map((product) => [
+          product.name,
+          product.sku,
+          product.Category,
+          product.stock,
+          getStockStatus(product.stock),
+          product.discount,
+          product.rating,
+        ]),
+      );
+      toast.success(`Exported ${allProducts.length} inventory items.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not export inventory.");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const metrics = [
@@ -350,6 +394,15 @@ export function VendorLogisticsTable() {
               <NativeSelectOption value="20">20</NativeSelectOption>
               <NativeSelectOption value="50">50</NativeSelectOption>
             </NativeSelect>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void handleExport()}
+              disabled={isExporting || query.isPending || query.isFetching || query.isPlaceholderData || query.isError || products.length === 0}
+              className="border-white/10 bg-[#252830] hover:bg-white/[0.08]"
+            >
+              <Download aria-hidden="true" /> {isExporting ? "Exporting..." : "Export CSV"}
+            </Button>
             <Button
               type="button"
               variant="outline"

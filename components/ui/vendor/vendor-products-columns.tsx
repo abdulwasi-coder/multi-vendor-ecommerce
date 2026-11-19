@@ -98,10 +98,11 @@ export const vendorProductColumns: ColumnDef<DataTableFeatures, VendorProduct>[]
       cell: ({ row, table }) => {
         const product = row.original;
         return (
-          <div className="flex items-center justify-end gap-1">
+          <div className="flex items-center justify-end gap-1.5">
             <Button
-              size="sm"
+              size="icon-sm"
               variant="outline"
+              className="border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.1] hover:text-white"
               render={
                 <Link
                   href={`/vendor/products/${product._id}`}
@@ -113,8 +114,9 @@ export const vendorProductColumns: ColumnDef<DataTableFeatures, VendorProduct>[]
               <Eye className="size-4" aria-hidden="true" />
             </Button>
             <Button
-              size="sm"
+              size="icon-sm"
               variant="outline"
+              className="border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.1] hover:text-white"
               render={
                 <Link
                   href={`/vendor/create?productID=${product._id}`}
@@ -126,12 +128,12 @@ export const vendorProductColumns: ColumnDef<DataTableFeatures, VendorProduct>[]
               <Pencil className="size-4" aria-hidden="true" />
             </Button>
             <Button
-              size="sm"
               variant="ghost"
+              size="icon-sm"
               onClick={() => table.options.meta?.onDelete?.(product._id)}
               aria-label={`Delete ${product.name}`}
               title={`Delete ${product.name}`}
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              className="text-rose-300 hover:bg-rose-400/10 hover:text-rose-200"
             >
               <Trash2 className="size-4" aria-hidden="true" />
             </Button>

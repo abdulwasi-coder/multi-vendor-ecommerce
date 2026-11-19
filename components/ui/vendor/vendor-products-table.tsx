@@ -12,6 +12,7 @@ import {
 import {
   Archive,
   ArrowDown,
+  Download,
   Package,
   Plus,
   RotateCw,
@@ -26,6 +27,7 @@ import {
   VENDOR_PRODUCTS_PAGE_SIZE,
 } from "@/Otherfiles/tanstack/vendor-products";
 import api from "@/lib/axios";
+import { downloadCsv } from "@/lib/vendor-csv";
 import { toast } from "sonner";
 import { features, type DataTableFeatures } from "@/components/ui/admin/data_table_feature";
 import { vendorProductColumns } from "@/components/ui/vendor/vendor-products-columns";
@@ -71,6 +73,7 @@ export function VendorProductsTable() {
     null,
   );
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(
@@ -139,6 +142,48 @@ export function VendorProductsTable() {
       queryKey: vendorProductsQueryKey(pageIndex + 1, pageSize, debouncedSearch),
       exact: true,
     });
+  };
+
+  const handleExport = async () => {
+    if (isExporting || !query.data || query.isFetching || query.isPlaceholderData) return;
+    setIsExporting(true);
+    try {
+      const allProducts: VendorProduct[] = [];
+      for (let page = 1; page <= query.data.totalPages; page += 1) {
+        const response = await api.get<{
+          success: boolean;
+          message?: string;
+          products?: VendorProduct[];
+        }>("/vendor/getProducts", {
+          params: { page, limit: pageSize, skip: (page - 1) * pageSize, search: debouncedSearch },
+        });
+        if (!response.data.success || !Array.isArray(response.data.products)) {
+          throw new Error(response.data.message ?? "Could not export products.");
+        }
+        allProducts.push(...response.data.products);
+      }
+      downloadCsv(
+        "products.csv",
+        ["Product", "SKU", "Brand", "Category", "Price", "Discount", "Stock", "Status"],
+        allProducts.map((product) => [
+          product.name,
+          product.sku,
+          product.brand,
+          typeof product.categoryID === "string" ? product.categoryID : product.categoryID.name,
+          product.price,
+          product.discount,
+          product.stock,
+          product.status === "archieved"
+            ? "Archived"
+            : product.status.charAt(0).toUpperCase() + product.status.slice(1),
+        ]),
+      );
+      toast.success(`Exported ${allProducts.length} products.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not export products.");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -294,6 +339,15 @@ export function VendorProductsTable() {
             <Button
               type="button"
               variant="outline"
+              onClick={() => void handleExport()}
+              disabled={isExporting || query.isPending || query.isFetching || query.isPlaceholderData || query.isError || products.length === 0}
+              className="border-white/10 bg-[#252830] hover:bg-white/[0.08]"
+            >
+              <Download aria-hidden="true" /> {isExporting ? "Exporting..." : "Export CSV"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
               size="icon"
               onClick={() => void handleRefresh()}
               disabled={query.isFetching}
@@ -316,7 +370,7 @@ export function VendorProductsTable() {
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className="h-11 whitespace-nowrap font-semibold text-muted-foreground"
+                        className={`h-11 whitespace-nowrap font-semibold text-muted-foreground ${header.column.id === "actions" ? "w-36 text-right" : ""}`}
                       >
                         {header.isPlaceholder
                           ? null
@@ -337,7 +391,7 @@ export function VendorProductsTable() {
                       className="transition-colors hover:bg-white/[0.035]"
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="py-3">
+                        <TableCell key={cell.id} className={`py-3 ${cell.column.id === "actions" ? "w-36 text-right" : ""}`}>
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),

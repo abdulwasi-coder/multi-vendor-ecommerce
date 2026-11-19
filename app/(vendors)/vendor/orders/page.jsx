@@ -31,6 +31,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import api from "@/lib/axios";
+import { downloadCsv } from "@/lib/vendor-csv";
 import {
   Select,
   SelectContent,
@@ -231,13 +233,14 @@ export default function VendorOrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSizeOption, setPageSizeOption] = useState("10");
   const [expandedId, setExpandedId] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
   const deferredSearch = useDeferredValue(search.trim());
   const isSearching = deferredSearch.length > 0;
 
   const pageSize =
     pageSizeOption === "all" ? 50 : Math.max(1, Number(pageSizeOption) || 10);
 
-  const { data, isPending, isError, error, refetch } = useVendorOrders(
+  const { data, isPending, isFetching, isError, error, refetch } = useVendorOrders(
     currentPage,
     pageSize,
     statusFilter,
@@ -267,41 +270,53 @@ export default function VendorOrdersPage() {
     setExpandedId(null);
   }
 
-  function exportOrders() {
+  async function exportOrders() {
+    if (isExporting || !data || isPending || isFetching || search.trim() !== deferredSearch) return;
+    setIsExporting(true);
     const headers = [
       "Order ID", "Customer", "Shipping address", "Shipping city", "Shipping country", "Shipping phone",
       "Item name", "SKU", "Color", "Quantity", "Price", "Item subtotal", "Suborder total",
       "Vendor net earned", "Status", "Created at", "Payout release date",
     ];
-    const escapeCsv = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`;
-    const rows = orders.flatMap((order) =>
-      order.items.map((item) => [
-        order.id,
-        order.shippingAddress.name,
-        order.shippingAddress.street,
-        order.shippingAddress.city,
-        order.shippingAddress.country,
-        order.shippingAddress.phone,
-        item.name,
-        item.sku,
-        item.color,
-        item.quantity,
-        item.price,
-        item.subtotal,
-        order.suborderTotal,
-        order.vendorNetEarned,
-        order.status,
-        order.createdAt,
-        order.payoutReleaseDate,
-      ].map(escapeCsv).join(",")),
-    );
-    const csv = [headers.map(escapeCsv).join(","), ...rows].join("\r\n");
-    const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "orders.csv";
-    link.click();
-    URL.revokeObjectURL(url);
+    try {
+      const exportedOrders = [];
+      for (let page = 1; page <= totalPages; page += 1) {
+        const response = await api.get("/vendor/vendorOrder", {
+          params: { page, limit: pageSize, status: statusFilter, search: deferredSearch || undefined },
+        });
+        if (!response.data.success || !Array.isArray(response.data.orders)) {
+          throw new Error(response.data.message ?? "Could not export orders.");
+        }
+        exportedOrders.push(...response.data.orders.map(normalizeOrder));
+      }
+      const rows = exportedOrders.flatMap((order) =>
+        order.items.map((item) => [
+          order.id,
+          order.shippingAddress.name,
+          order.shippingAddress.street,
+          order.shippingAddress.city,
+          order.shippingAddress.country,
+          order.shippingAddress.phone,
+          item.name,
+          item.sku,
+          item.color,
+          item.quantity,
+          item.price,
+          item.subtotal,
+          order.suborderTotal,
+          order.vendorNetEarned,
+          order.status,
+          order.createdAt,
+          order.payoutReleaseDate,
+        ]),
+      );
+      downloadCsv("orders.csv", headers, rows);
+      toast.success(`Exported ${exportedOrders.length} orders.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not export orders.");
+    } finally {
+      setIsExporting(false);
+    }
   }
 
   const showingFrom = orders.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
@@ -375,8 +390,8 @@ export default function VendorOrdersPage() {
                   <SelectItem value="all">Show all</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" onClick={exportOrders} disabled={orders.length === 0} className="border-white/10 bg-[#252830] hover:bg-white/[0.08]">
-                <Download /> Export
+              <Button variant="outline" onClick={() => void exportOrders()} disabled={isExporting || isPending || isFetching || search.trim() !== deferredSearch || orders.length === 0} className="border-white/10 bg-[#252830] hover:bg-white/[0.08]">
+                <Download /> {isExporting ? "Exporting..." : "Export CSV"}
               </Button>
             </div>
             </div>

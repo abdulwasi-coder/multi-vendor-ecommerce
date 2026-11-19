@@ -23,9 +23,6 @@ export default async function VendorLayout({
               aria-label="Toggle navigation sidebar"
               className="size-9 rounded-lg border border-white/10 bg-[#23262d] text-slate-300 shadow-sm transition-all duration-150 hover:-translate-y-px hover:border-white/20 hover:bg-[#2c3038] hover:text-white hover:shadow-md focus-visible:ring-blue-400/50 [&_svg]:size-4"
             />
-            <span className="ml-3 border-l border-white/10 pl-3 text-sm font-medium text-slate-300">
-              Seller workspace
-            </span>
           </div>
           {children}
         </main>
