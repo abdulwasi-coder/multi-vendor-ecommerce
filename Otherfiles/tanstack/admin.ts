@@ -1,18 +1,15 @@
 ﻿import api from "@/lib/axios";
-import { isAxiosError } from "axios";
 import {
   keepPreviousData,
   useQuery,
   type QueryClient,
   type QueryFunctionContext,
 } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import type { Category } from "@/components/ui/admin/columns";
 
 export const CATEGORY_PAGE_SIZE = 10;
 const CATEGORY_PAGE_STALE_TIME = 60_000;
 const CATEGORY_PAGE_GC_TIME = 10 * 60_000;
-const emptyCategories: Category[] = [];
 
 export interface CategoryPageData {
   categories: Category[];
@@ -82,62 +79,6 @@ export async function invalidateAdminCategoryQueries(
   ]);
 }
 
-export function useCategoryNameSearch(
-  search: string,
-  enabled = true,
-  minLength = 2,
-  leafOnly = false,
-) {
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const normalizedSearch = search.trim();
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(
-      () => setDebouncedSearch(normalizedSearch),
-      300,
-    );
-    return () => window.clearTimeout(timeoutId);
-  }, [normalizedSearch]);
-
-  const query = useQuery({
-    queryKey: leafOnly
-      ? adminCategoryQueryKeys.leafName(debouncedSearch)
-      : adminCategoryQueryKeys.name(debouncedSearch),
-    queryFn: async ({ signal }) => {
-      const response = await api.get<{ categories: Category[] }>(
-        "/admin/specificCategoryName",
-        {
-          params: {
-            name: debouncedSearch,
-            ...(leafOnly ? { leafOnly: true } : {}),
-          },
-          signal,
-        },
-      );
-      return response.data.categories ?? [];
-    },
-    enabled: enabled && debouncedSearch.length >= minLength,
-    staleTime: 60_000,
-  });
-
-  const isActive = normalizedSearch.length >= minLength;
-  const isCurrentSearch = normalizedSearch === debouncedSearch;
-  const isDebouncing = isActive && !isCurrentSearch;
-
-  return {
-    categories: isCurrentSearch ? query.data ?? emptyCategories : emptyCategories,
-    debouncedSearch,
-    errorMessage:
-      isActive && isCurrentSearch && query.error
-        ? isAxiosError(query.error)
-          ? query.error.response?.data?.message ?? "Could not search categories."
-          : "Could not search categories."
-        : "",
-    isActive,
-    isDebouncing,
-    isSearching: isDebouncing || (isActive && query.isFetching),
-  };
-}
 
 async function getUserData() {
   const res = await api.get("/user/userProfile", {

@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/dialog";
 import {
   invalidateAdminCategoryQueries,
-  useCategoryNameSearch,
 } from "@/Otherfiles/tanstack/admin";
+import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin-client";
 import {
   categoryAttributesFormSchema,
   toCategoryAttributeDefinition,

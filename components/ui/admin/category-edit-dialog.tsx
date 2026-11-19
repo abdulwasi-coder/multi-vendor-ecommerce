@@ -24,7 +24,7 @@ import {
   CategoryBrandsEditor,
   type CategoryBrandsControl,
 } from "@/components/ui/admin/category-brands-editor";
-import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin";
+import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin-client"; 
 import {
   categoryAttributesFormSchema,
   fromCategoryAttributeDefinition,

@@ -45,8 +45,9 @@ import {
   invalidateAdminCategoryQueries,
   prefetchAdminCategoryPage,
   useAdminCategoryPage,
-  useCategoryNameSearch,
 } from "@/Otherfiles/tanstack/admin";
+
+import { useCategoryNameSearch } from "@/Otherfiles/tanstack/admin-client";
 
 interface DataTableProps {
   onDataChange?: () => void;
@@ -190,8 +191,8 @@ export function DataTable({ onDataChange }: DataTableProps) {
     },
   });
   return (
-    <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#202020] shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-white/[0.08] bg-[#252525] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="overflow-hidden rounded-xl border border-white/8 bg-[#202020] shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-white/8 bg-[#252525] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <Input
           placeholder="Search all categories (3+ characters)"
           value={categorySearch}
