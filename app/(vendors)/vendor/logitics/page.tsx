@@ -13,7 +13,7 @@ export default function VendorLogisticsPage() {
             Monitor product availability and spot items that need a restock.
           </p>
         </div>
-        <Button className="bg-blue-400 text-slate-950 hover:bg-blue-300" render={<Link href="/vendor/products" />} nativeButton={false}>
+        <Button className="bg-sky-400 text-slate-950 hover:bg-sky-300" render={<Link href="/vendor/products" />} nativeButton={false}>
           Manage products <ArrowRight className="ml-2 size-4" />
         </Button>
       </header>

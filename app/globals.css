@@ -118,26 +118,26 @@
 }
 
 .vendor-workspace {
-  --background: #191b20;
-  --foreground: #eceef2;
-  --card: #23262d;
-  --card-foreground: #eceef2;
-  --popover: #292d35;
-  --popover-foreground: #f4f5f7;
-  --primary: #60a5fa;
-  --primary-foreground: #101827;
-  --secondary: #2c3038;
-  --secondary-foreground: #e4e7ec;
-  --muted: #292d34;
-  --muted-foreground: #aeb4bf;
-  --accent: #303640;
-  --accent-foreground: #f4f5f7;
+  --background: #0e1729;
+  --foreground: #edf4ff;
+  --card: #15233a;
+  --card-foreground: #edf4ff;
+  --popover: #1a2b46;
+  --popover-foreground: #f2f7ff;
+  --primary: #38bdf8;
+  --primary-foreground: #082033;
+  --secondary: #1d304c;
+  --secondary-foreground: #e3efff;
+  --muted: #1b2b44;
+  --muted-foreground: #a8bad3;
+  --accent: #203957;
+  --accent-foreground: #f2f7ff;
   --destructive: #f28b82;
-  --border: rgba(221, 226, 235, 0.11);
-  --input: rgba(221, 226, 235, 0.18);
-  --ring: #60a5fa;
-  --chart-1: #60a5fa;
-  --chart-2: #34d399;
+  --border: rgba(165, 194, 232, 0.15);
+  --input: rgba(165, 194, 232, 0.22);
+  --ring: #38bdf8;
+  --chart-1: #38bdf8;
+  --chart-2: #2dd4bf;
   --chart-3: #a78bfa;
   --chart-4: #fbbf24;
   --chart-5: #fb7185;
@@ -199,7 +199,7 @@ main.vendor-workspace > main {
 
 .vendor-dashboard-surface {
   color: #eceef2;
-  background: #191b20;
+  background: #0e1729;
 }
 
 .vendor-dashboard-card {
@@ -209,8 +209,8 @@ main.vendor-workspace > main {
 
 .vendor-dashboard-card:hover {
   transform: none;
-  border-color: rgba(221, 226, 235, 0.11);
-  background-color: #23262d;
+  border-color: rgba(165, 194, 232, 0.15);
+  background-color: var(--card);
 }
 
 .vendor-sidebar-link svg {
@@ -234,15 +234,15 @@ main.vendor-workspace > main {
 .vendor-dashboard-surface .text-muted-foreground { color: #aeb4bf; }
 
 .vendor-sidebar-surface {
-  --sidebar: #242830;
-  --sidebar-foreground: #e7e9ed;
-  --sidebar-primary: #60a5fa;
-  --sidebar-primary-foreground: #101827;
-  --sidebar-accent: rgba(255, 255, 255, 0.07);
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: rgba(255, 255, 255, 0.09);
-  --sidebar-ring: rgba(96, 165, 250, 0.45);
-  background: #242830;
+  --sidebar: #101c31;
+  --sidebar-foreground: #e7f0ff;
+  --sidebar-primary: #38bdf8;
+  --sidebar-primary-foreground: #082033;
+  --sidebar-accent: rgba(125, 183, 255, 0.1);
+  --sidebar-accent-foreground: #f2f7ff;
+  --sidebar-border: rgba(165, 194, 232, 0.14);
+  --sidebar-ring: rgba(56, 189, 248, 0.48);
+  background: #101c31;
 }
 
 @keyframes vendor-dashboard-in {

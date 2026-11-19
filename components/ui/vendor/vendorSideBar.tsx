@@ -121,7 +121,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.07] hover:text-white data-[active=true]:bg-blue-500/15 data-[active=true]:text-blue-200 data-[active=true]:shadow-[inset_2px_0_0_#60a5fa]"
+                      className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-sky-300/[0.08] hover:text-white data-[active=true]:bg-sky-400/15 data-[active=true]:text-sky-100 data-[active=true]:shadow-[inset_2px_0_0_#38bdf8]"
                       data-item-color={item.color}
                       isActive={isActive}
                       render={
@@ -153,7 +153,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.07] hover:text-white data-[active=true]:bg-blue-500/15 data-[active=true]:text-blue-200 data-[active=true]:shadow-[inset_2px_0_0_#60a5fa]"
+                      className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-sky-300/[0.08] hover:text-white data-[active=true]:bg-sky-400/15 data-[active=true]:text-sky-100 data-[active=true]:shadow-[inset_2px_0_0_#38bdf8]"
                       data-item-color={item.color}
                       isActive={isActive}
                       render={
@@ -185,7 +185,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.07] hover:text-white data-[active=true]:bg-blue-500/15 data-[active=true]:text-blue-200 data-[active=true]:shadow-[inset_2px_0_0_#60a5fa]"
+                      className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-sky-300/[0.08] hover:text-white data-[active=true]:bg-sky-400/15 data-[active=true]:text-sky-100 data-[active=true]:shadow-[inset_2px_0_0_#38bdf8]"
                       data-item-color={item.color}
                       isActive={isActive}
                       render={<Link onClick={handleNavigation} href={item.href} />}

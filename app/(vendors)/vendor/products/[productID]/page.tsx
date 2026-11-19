@@ -83,14 +83,14 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
               {product.categoryID}
             </p>
           </div>
-          <Button className="bg-blue-400 text-slate-950 hover:bg-blue-300" render={<Link href={`/vendor/create?productID=${product._id}`} />} nativeButton={false}>
+          <Button className="bg-sky-400 text-slate-950 hover:bg-sky-300" render={<Link href={`/vendor/create?productID=${product._id}`} />} nativeButton={false}>
             Edit product
           </Button>
         </header>
 
-        <section className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.85fr)] xl:gap-8">
+        <section className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)] xl:gap-8">
           <div className="lg:sticky lg:top-20">
-            <div className="h-[min(52vh,440px)] min-h-72 rounded-2xl border border-white/10 bg-[#23262d] p-3">
+            <div className="h-[min(72vh,680px)] min-h-[440px] rounded-2xl border border-sky-300/15 bg-[#152b49] p-4 shadow-xl shadow-blue-950/20">
               <VendorProductGallery
                 images={productImages}
                 name={product.name}
@@ -101,31 +101,36 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
           </div>
 
           <div>
-            <div className="rounded-2xl border border-white/10 bg-[#23262d] p-5 sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-4">
-                <p className="text-sm text-muted-foreground">Customer rating</p>
+            <div className="rounded-2xl border border-sky-300/15 bg-[#15233a] p-5 shadow-lg shadow-blue-950/15 sm:p-6">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-sky-200/10 pb-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-50">Product details</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Full listing information</p>
+                </div>
                 <Badge variant="outline" className="border-amber-400/20 bg-amber-400/10 text-amber-300">
                   <Star className="size-3.5 fill-amber-400 text-amber-400" /> {product.rating.toFixed(1)} <span className="text-muted-foreground">({product.reviewCount})</span>
                 </Badge>
               </div>
 
-              <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4 text-sm">
-                <div className="col-span-2 rounded-xl bg-white/[0.04] p-3">
+              <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 text-sm">
+                <div className="col-span-2 rounded-xl border border-sky-300/10 bg-[#1d3352] p-4 sm:col-span-1">
                   <dt className="text-xs font-medium text-muted-foreground">Price</dt>
                   <dd className="mt-1 flex items-baseline gap-2">
-                    <span className="text-2xl font-semibold text-slate-50">${product.price.toFixed(2)}</span>
-                    {product.discount > 0 && <Badge className="bg-rose-400/10 text-rose-300">{product.discount}% off</Badge>}
+                    <span className="text-2xl font-semibold text-sky-200">${(product.price * (1 - product.discount / 100)).toFixed(2)}</span>
+                    {product.discount > 0 && <><span className="text-sm text-slate-400 line-through">${product.price.toFixed(2)}</span><Badge className="bg-rose-400/10 text-rose-300">{product.discount}% off</Badge></>}
                   </dd>
                 </div>
-                <div><dt className="text-xs text-muted-foreground">Stock</dt><dd className="mt-1 font-medium text-slate-100">{product.stock} units</dd></div>
-                <div><dt className="text-xs text-muted-foreground">SKU</dt><dd className="mt-1 font-mono text-xs text-slate-200">{product.sku}</dd></div>
-                <div className="col-span-2"><dt className="text-xs text-muted-foreground">Colors</dt><dd className="mt-1 font-medium text-slate-100">{product.colors.join(", ") || "Not specified"}</dd></div>
-                <div className="col-span-2"><dt className="text-xs text-muted-foreground">Product ID</dt><dd className="mt-1 break-all font-mono text-xs text-slate-400">{product._id}</dd></div>
+                <div className="rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Availability</dt><dd className="mt-1 font-medium text-slate-100">{product.stock} units in stock</dd></div>
+                <div className="rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Brand</dt><dd className="mt-1 font-medium text-slate-100">{product.brand || "Not specified"}</dd></div>
+                <div className="rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Category</dt><dd className="mt-1 font-medium text-slate-100">{product.categoryID || "Not specified"}</dd></div>
+                <div className="rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">SKU</dt><dd className="mt-1 break-all font-mono text-xs text-slate-200">{product.sku}</dd></div>
+                <div className="col-span-2 rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Available colors</dt><dd className="mt-1 font-medium text-slate-100">{product.colors.length ? product.colors.join(", ") : "Not specified"}</dd></div>
+                <div className="col-span-2 rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Product ID</dt><dd className="mt-1 break-all font-mono text-xs text-slate-400">{product._id}</dd></div>
               </dl>
 
-              <div className="mt-5 border-t border-white/10 pt-4">
+              <div className="mt-5 border-t border-sky-200/10 pt-5">
                 <h3 className="text-sm font-semibold text-slate-100">Description</h3>
-                <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
+                <p className="mt-2 min-h-20 whitespace-pre-wrap break-words text-sm leading-7 text-slate-300">
                   {product.description || "No description provided."}
                 </p>
               </div>

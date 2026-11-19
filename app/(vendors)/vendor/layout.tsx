@@ -18,10 +18,10 @@ export default async function VendorLayout({
       <SidebarProvider>
         <AppSidebar />
         <main className="vendor-workspace min-w-0 flex-1">
-          <div className="sticky top-0 z-20 flex h-14 items-center border-b border-white/[0.08] bg-[#191b20]/95 px-4 backdrop-blur-sm">
+          <div className="sticky top-0 z-20 flex h-14 items-center border-b border-sky-200/10 bg-[#0e1729]/95 px-4 backdrop-blur-sm">
             <SidebarTrigger
               aria-label="Toggle navigation sidebar"
-              className="size-9 rounded-lg border border-white/10 bg-[#23262d] text-slate-300 shadow-sm transition-all duration-150 hover:-translate-y-px hover:border-white/20 hover:bg-[#2c3038] hover:text-white hover:shadow-md focus-visible:ring-blue-400/50 [&_svg]:size-4"
+              className="size-9 rounded-lg border border-sky-200/15 bg-[#15233a] text-slate-300 shadow-sm transition-all duration-150 hover:-translate-y-px hover:border-sky-200/25 hover:bg-[#1d3352] hover:text-white hover:shadow-md focus-visible:ring-sky-400/50 [&_svg]:size-4"
             />
           </div>
           {children}

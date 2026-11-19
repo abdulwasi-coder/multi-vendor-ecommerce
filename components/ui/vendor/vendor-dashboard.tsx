@@ -310,11 +310,11 @@ export function VendorDashboard() {
           >
             <SelectTrigger
               aria-label="Select reporting period"
-              className="w-36 rounded-xl border-white/15 bg-[#23262d] text-slate-50 transition-colors hover:border-white/25 hover:bg-[#2b2f36]"
+              className="w-36 rounded-xl border-sky-200/15 bg-[#15233a] text-slate-50 transition-colors hover:border-sky-200/25 hover:bg-[#1d3352]"
             >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="border border-white/10 bg-[#23262d] text-slate-100 shadow-xl">
+            <SelectContent className="border border-sky-200/15 bg-[#152b49] text-slate-100 shadow-xl">
               {DASHBOARD_RANGES.map((item) => (
                 <SelectItem key={item.value} value={item.value} className="text-slate-200 focus:bg-white/[0.08] focus:text-white">
                   {item.label}
@@ -326,12 +326,12 @@ export function VendorDashboard() {
             variant="outline"
             onClick={exportDashboard}
             disabled={isLoading || isError}
-            className="rounded-xl border-white/10 bg-[#23262d] text-slate-200 hover:bg-[#2b2f36]"
+            className="rounded-xl border-sky-200/15 bg-[#15233a] text-slate-200 hover:bg-[#1d3352]"
           >
             <Download aria-hidden="true" /> Export CSV
           </Button>
           <Link href="/vendor/create" className="w-fit">
-            <Button className="rounded-xl bg-blue-400 text-slate-950 shadow-sm transition-colors duration-150 hover:bg-blue-300">
+            <Button className="rounded-xl bg-sky-400 text-slate-950 shadow-sm transition-colors duration-150 hover:bg-sky-300">
               Add a product <ArrowRight className="ml-2 size-4" />
             </Button>
           </Link>

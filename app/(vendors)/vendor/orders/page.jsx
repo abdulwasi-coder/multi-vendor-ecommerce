@@ -157,7 +157,7 @@ function StatusSelect({ orderId, status }) {
 
 function OrderDetails({ order }) {
   return (
-    <div className="grid gap-5 border-t border-white/[0.07] bg-[#1d2026] px-4 py-5 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] lg:gap-x-6">
+    <div className="grid gap-5 border-t border-sky-200/10 bg-[#12213a] px-4 py-5 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] lg:gap-x-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Shipping address
@@ -343,7 +343,7 @@ export default function VendorOrdersPage() {
         </header>
 
         <section aria-label="Orders">
-          <Card className="vendor-dashboard-card overflow-hidden rounded-2xl border-white/10 bg-[#23262d] shadow-sm">
+          <Card className="vendor-dashboard-card overflow-hidden rounded-2xl border-sky-200/10 bg-[#15233a] shadow-sm">
             <CardHeader className="flex flex-col gap-2 pb-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
                 <CardTitle>All orders</CardTitle>
@@ -356,7 +356,7 @@ export default function VendorOrdersPage() {
               </span>
             </CardHeader>
 
-            <div className="mx-4 mb-4 flex flex-col gap-3 rounded-xl border border-white/[0.07] bg-[#1d2026] p-3 sm:mx-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mx-4 mb-4 flex flex-col gap-3 rounded-xl border border-sky-200/10 bg-[#12213a] p-3 sm:mx-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-md">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -364,12 +364,12 @@ export default function VendorOrdersPage() {
                 onChange={(event) => updateSearch(event.target.value)}
                 placeholder="Search by order ID..."
                 aria-label="Search orders by ID"
-                className="border-white/10 bg-[#252830] pl-9 placeholder:text-slate-500 focus-visible:ring-blue-400/40"
+                className="border-sky-200/15 bg-[#172944] pl-9 placeholder:text-slate-500 focus-visible:ring-sky-400/40"
               />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <Select value={statusFilter} onValueChange={updateStatus} disabled={isSearching}>
-                <SelectTrigger aria-label="Filter orders by status" className="w-full border-white/10 bg-[#252830] sm:w-40">
+                <SelectTrigger aria-label="Filter orders by status" className="w-full border-sky-200/15 bg-[#172944] sm:w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -380,7 +380,7 @@ export default function VendorOrdersPage() {
                 </SelectContent>
               </Select>
               <Select value={pageSizeOption} onValueChange={updatePageSize} disabled={isSearching}>
-                <SelectTrigger aria-label="Choose how many orders to show" className="w-full border-white/10 bg-[#252830] sm:w-36">
+                <SelectTrigger aria-label="Choose how many orders to show" className="w-full border-sky-200/15 bg-[#172944] sm:w-36">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -390,7 +390,7 @@ export default function VendorOrdersPage() {
                   <SelectItem value="all">Show all</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" onClick={() => void exportOrders()} disabled={isExporting || isPending || isFetching || search.trim() !== deferredSearch || orders.length === 0} className="border-white/10 bg-[#252830] hover:bg-white/[0.08]">
+              <Button variant="outline" onClick={() => void exportOrders()} disabled={isExporting || isPending || isFetching || search.trim() !== deferredSearch || orders.length === 0} className="border-sky-200/15 bg-[#172944] hover:bg-[#203957]">
                 <Download /> {isExporting ? "Exporting..." : "Export CSV"}
               </Button>
             </div>

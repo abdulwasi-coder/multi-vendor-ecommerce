@@ -263,7 +263,7 @@ export function VendorProductsTable() {
             listings.
           </p>
         </div>
-        <Button className="bg-blue-400 text-slate-950 hover:bg-blue-300" render={<Link href="/vendor/create" />} nativeButton={false}>
+        <Button className="bg-sky-400 text-slate-950 hover:bg-sky-300" render={<Link href="/vendor/create" />} nativeButton={false}>
           Add product <Plus />
         </Button>
       </header>
