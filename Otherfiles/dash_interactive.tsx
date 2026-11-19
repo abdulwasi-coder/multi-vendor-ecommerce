@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export const orders = [
   {
@@ -92,8 +92,22 @@ const currency = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
-export function DropdownMenuCustom({ data = [] }: { data?: string[] }) {
-  const [current, setCurrent] = useState("1 Year");
+export interface DropdownMenuCustomOption {
+  value: string;
+  label: string;
+}
+
+export function DropdownMenuCustom({
+  options = [],
+  value,
+  onValueChange,
+}: {
+  options?: DropdownMenuCustomOption[];
+  value: string;
+  onValueChange: (value: string) => void;
+}) {
+  const current =
+    options.find((option) => option.value === value)?.label ?? value;
 
   return (
     <div className="flex items-center gap-2">
@@ -104,13 +118,13 @@ export function DropdownMenuCustom({ data = [] }: { data?: string[] }) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent side="bottom" align="end" className="w-44">
-          {data.map((item: string) => (
+          {options.map((item) => (
             <DropdownMenuItem
-              key={item}
-              onClick={() => setCurrent(item)}
+              key={item.value}
+              onClick={() => onValueChange(item.value)}
               className="cursor-pointer"
             >
-              {item}
+              {item.label}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -264,7 +278,7 @@ export function PendingVendor() {
                   <TableCell className="hidden md:table-cell">
                     {vendor.createdAt
                       ? new Date(vendor.createdAt).toLocaleDateString()
-                      : "—"}
+                      : "â€”"}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
@@ -295,7 +309,7 @@ export function PendingVendor() {
         <div className="flex items-center justify-between px-6 pt-4 text-xs text-muted-foreground">
           <span>
             Page {page} of {totalPages}
-            {vendorsQuery.data ? ` · ${vendorsQuery.data.totalVendors} pending` : ""}
+            {vendorsQuery.data ? ` Â· ${vendorsQuery.data.totalVendors} pending` : ""}
           </span>
           <div className="flex items-center gap-1">
             <Button

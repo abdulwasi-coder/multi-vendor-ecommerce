@@ -2,6 +2,7 @@ import AdminDashboard from "@/components/ui/admin/admin-dashboard";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { cookies } from "next/headers";
 import {
+  DEFAULT_ADMIN_DASHBOARD_RANGE,
   prefetchAdminDashboard,
   prefetchAdminPendingVendors,
   prefetchAdminVendorBalanceLedger,
@@ -15,7 +16,7 @@ export default async function AdminDashboardPage() {
   const cookieHeader = (await cookies()).toString();
 
   await Promise.all([
-    prefetchAdminDashboard(queryClient, cookieHeader),
+    prefetchAdminDashboard(queryClient, DEFAULT_ADMIN_DASHBOARD_RANGE, cookieHeader),
     prefetchAdminPendingVendors(
       queryClient,
       1,

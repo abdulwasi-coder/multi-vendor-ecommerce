@@ -79,7 +79,6 @@ export async function invalidateAdminCategoryQueries(
   ]);
 }
 
-
 async function getUserData() {
   const res = await api.get("/user/userProfile", {
     withCredentials: true,
@@ -100,27 +99,54 @@ export interface AdminDashboardChartPoint {
   monthlyEarning: number;
 }
 
+export type AdminDashboardRange = "3Months" | "6Months" | "12Months";
+
+export const ADMIN_DASHBOARD_RANGES: {
+  value: AdminDashboardRange;
+  label: string;
+  months: number;
+}[] = [
+  { value: "3Months", label: "3 Months", months: 3 },
+  { value: "6Months", label: "6 Months", months: 6 },
+  { value: "12Months", label: "1 Year", months: 12 },
+];
+
+export const DEFAULT_ADMIN_DASHBOARD_RANGE: AdminDashboardRange = "12Months";
+
+export function adminDashboardMonths(range: AdminDashboardRange): number {
+  return (
+    ADMIN_DASHBOARD_RANGES.find((item) => item.value === range)?.months ?? 12
+  );
+}
+
 export interface AdminDashboardData {
   success: boolean;
+  range?: AdminDashboardRange;
   summary: AdminDashboardSummary;
   PendingVendors: unknown[];
   chartData?: AdminDashboardChartPoint[];
+  previousChartData?: AdminDashboardChartPoint[];
   pendingPayout?: { PendingPayoutMoney: number }[];
 }
 
-export const adminDashboardQueryKey = () => ["admin-dashboard"] as const;
+export const adminDashboardQueryKey = (range: AdminDashboardRange) =>
+  ["admin-dashboard", range] as const;
 
 const ADMIN_DASHBOARD_STALE_TIME = 60_000;
 
-function adminDashboardQueryOptions(cookieHeader?: string) {
+function adminDashboardQueryOptions(
+  range: AdminDashboardRange,
+  cookieHeader?: string,
+) {
   return {
-    queryKey: adminDashboardQueryKey(),
+    queryKey: adminDashboardQueryKey(range),
     queryFn: async ({
       signal,
     }: QueryFunctionContext<ReturnType<typeof adminDashboardQueryKey>>) => {
       const response = await api.get<AdminDashboardData>(
         "/admin/getAdminDashboard",
         {
+          params: { range },
           signal,
           headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
         },
@@ -131,15 +157,21 @@ function adminDashboardQueryOptions(cookieHeader?: string) {
   };
 }
 
-export function useAdminDashboard(enabled = true) {
-  return useQuery({ ...adminDashboardQueryOptions(), enabled });
+export function useAdminDashboard(
+  range: AdminDashboardRange,
+  enabled = true,
+) {
+  return useQuery({ ...adminDashboardQueryOptions(range), enabled });
 }
 
 export async function prefetchAdminDashboard(
   queryClient: QueryClient,
+  range: AdminDashboardRange,
   cookieHeader?: string,
 ) {
-  await queryClient.prefetchQuery(adminDashboardQueryOptions(cookieHeader));
+  await queryClient.prefetchQuery(
+    adminDashboardQueryOptions(range, cookieHeader),
+  );
 }
 
 export interface AdminPendingVendorUser {
@@ -279,21 +311,35 @@ export interface AdminRevenueSeriesPoint {
   previous: number;
 }
 
+function monthKey(year: number, month: number) {
+  return `${year}-${month}`;
+}
+
 export function buildAdminRevenueSeries(
   chartData: AdminDashboardChartPoint[] | undefined,
+  previousChartData: AdminDashboardChartPoint[] | undefined,
+  months: number,
 ): AdminRevenueSeriesPoint[] {
-  const earningByMonth = new Map<string, number>();
-  let latestMonth: Date | null = null;
+  const toEarningMap = (points: AdminDashboardChartPoint[] | undefined) => {
+    const map = new Map<string, number>();
+    for (const point of points ?? []) {
+      const year = point?._id?.year;
+      const month = point?._id?.month;
+      if (!year || !month) continue;
+      const key = monthKey(year, month);
+      map.set(key, (map.get(key) ?? 0) + (point.monthlyEarning ?? 0));
+    }
+    return map;
+  };
 
+  const currentMap = toEarningMap(chartData);
+  const previousMap = toEarningMap(previousChartData);
+
+  let latestMonth: Date | null = null;
   for (const point of chartData ?? []) {
     const year = point?._id?.year;
     const month = point?._id?.month;
     if (!year || !month) continue;
-    const key = `${year}-${month}`;
-    earningByMonth.set(
-      key,
-      (earningByMonth.get(key) ?? 0) + (point.monthlyEarning ?? 0),
-    );
     const monthDate = new Date(Date.UTC(year, month - 1, 1));
     if (!latestMonth || monthDate > latestMonth) latestMonth = monthDate;
   }
@@ -303,12 +349,16 @@ export function buildAdminRevenueSeries(
     new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1));
 
   const points: AdminRevenueSeriesPoint[] = [];
-  for (let i = 11; i >= 0; i--) {
+  for (let i = months - 1; i >= 0; i--) {
     const current = new Date(
       Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth() - i, 1),
     );
     const previous = new Date(
-      Date.UTC(current.getUTCFullYear() - 1, current.getUTCMonth(), 1),
+      Date.UTC(
+        reference.getUTCFullYear(),
+        reference.getUTCMonth() - i - months,
+        1,
+      ),
     );
     points.push({
       date: current.toLocaleDateString("en-US", {
@@ -317,12 +367,12 @@ export function buildAdminRevenueSeries(
         timeZone: "UTC",
       }),
       current:
-        earningByMonth.get(
-          `${current.getUTCFullYear()}-${current.getUTCMonth() + 1}`,
+        currentMap.get(
+          monthKey(current.getUTCFullYear(), current.getUTCMonth() + 1),
         ) ?? 0,
       previous:
-        earningByMonth.get(
-          `${previous.getUTCFullYear()}-${previous.getUTCMonth() + 1}`,
+        previousMap.get(
+          monthKey(previous.getUTCFullYear(), previous.getUTCMonth() + 1),
         ) ?? 0,
     });
   }

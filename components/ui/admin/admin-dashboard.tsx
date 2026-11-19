@@ -1,6 +1,7 @@
-"use client"
+﻿"use client"
 
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Activity,
@@ -29,28 +30,40 @@ import {
 import { ChartAreaInteractive } from "@/components/ui/chart-area-interactive";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import {
+  ADMIN_DASHBOARD_RANGES,
+  DEFAULT_ADMIN_DASHBOARD_RANGE,
+  adminDashboardMonths,
   buildAdminRevenueSeries,
   useAdminDashboard,
+  type AdminDashboardRange,
 } from "@/Otherfiles/tanstack/admin";
 import Link from "next/link";
 
 
-const timelines = ["1 Year", "6 Months", "1 Month"];
-
 export default function AdminDashboard() {
-  const dashboardQuery = useAdminDashboard();
+  const [range, setRange] = useState<AdminDashboardRange>(
+    DEFAULT_ADMIN_DASHBOARD_RANGE,
+  );
+  const dashboardQuery = useAdminDashboard(range);
   const summary = dashboardQuery.data?.summary;
   const pendingPayout =
     dashboardQuery.data?.pendingPayout?.[0]?.PendingPayoutMoney ?? 0;
-  const chartData = buildAdminRevenueSeries(dashboardQuery.data?.chartData);
+  const chartData = buildAdminRevenueSeries(
+    dashboardQuery.data?.chartData,
+    dashboardQuery.data?.previousChartData,
+    adminDashboardMonths(range),
+  );
   const isLoading = dashboardQuery.isPending;
+  const periodLabel =
+    ADMIN_DASHBOARD_RANGES.find((item) => item.value === range)?.label ??
+    "1 Year";
 
   const metrics = [
     {
       label: "Gross sales",
       value: summary?.grossMerchandizeValue ?? 0,
       currency: "USD",
-      detail: "all-time GMV",
+      detail: `last ${periodLabel.toLowerCase()}`,
       icon: CircleDollarSign,
       iconColor: "#fff0b7",
       iconBackground: "rgba(255,240,183,.12)",
@@ -60,7 +73,7 @@ export default function AdminDashboard() {
       label: "Total Benefit",
       value: summary?.PlatformRevenue ?? 0,
       currency: "USD",
-      detail: "platform commission",
+      detail: `last ${periodLabel.toLowerCase()}`,
       icon: ShoppingBag,
       iconColor: "#ffe29a",
       iconBackground: "rgba(255,226,154,.12)",
@@ -111,7 +124,13 @@ export default function AdminDashboard() {
           </p>
           <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
         </div>
-        <DropdownMenuCustom data={timelines} />
+        <DropdownMenuCustom
+          options={ADMIN_DASHBOARD_RANGES}
+          value={range}
+          onValueChange={(value) =>
+            setRange(value as AdminDashboardRange)
+          }
+        />
       </header>
 
       {dashboardQuery.isError && (

@@ -29,11 +29,11 @@ export interface RevenueChartPoint {
 
 const chartConfig = {
   current: {
-    label: "Current year",
+    label: "Current period",
     color: "var(--chart-1)",
   },
   previous: {
-    label: "Previous year",
+    label: "Previous period",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig
@@ -50,7 +50,7 @@ export function ChartAreaInteractive({ data = [] }: { data?: RevenueChartPoint[]
         <div className="grid flex-1 gap-1">
           <CardTitle>Revenue</CardTitle>
           <CardDescription>
-            Monthly platform revenue vs the same month last year
+            Monthly platform revenue vs the previous period
           </CardDescription>
         </div>
       </CardHeader>
@@ -100,7 +100,7 @@ export function ChartAreaInteractive({ data = [] }: { data?: RevenueChartPoint[]
                         {currency.format(Number(value))}
                       </span>
                       <span className="text-muted-foreground">
-                        {name === "current" ? "Current year" : "Previous year"}
+                        {name === "current" ? "Current period" : "Previous period"}
                       </span>
                     </>
                   )}
