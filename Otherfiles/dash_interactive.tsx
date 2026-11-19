@@ -201,13 +201,13 @@ export function PendingVendor() {
     : undefined;
 
   return (
-    <Card className="xl:col-span-3">
+    <Card>
       <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <CardTitle>Recent Pending Vendors</CardTitle>
           <CardDescription>Review New Pending Sellers</CardDescription>
         </div>
-        <div className="relative w-full sm:w-60">
+        <div className="relative w-full sm:w-72">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
@@ -343,13 +343,13 @@ export function PendingOrders() {
   const [search, setSearch] = useState("");
 
   return (
-    <Card className="xl:col-span-4">
+    <Card>
       <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <CardTitle>Pending Transfers</CardTitle>
           <CardDescription>See, Approve And Transfer The Money</CardDescription>
         </div>
-        <div className="relative w-full sm:w-60">
+        <div className="relative w-full sm:w-72">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}

@@ -53,19 +53,21 @@ export function ViewingAllUser() {
             Review Edit and delete Users & Vendors
           </CardDescription>
         </div>
-        <div className="flex items-center justify-between overflow-x-auto py-0.5 relative w-full ">
-          <div className="flex items-center gap-1">
-            <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative w-full sm:max-w-md sm:flex-1">
+              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search orders..."
-              className="pl-9 py-1.5 rounded-lg"
-              aria-label="Search orders"
+                placeholder="Search users and vendors..."
+                className="pl-10"
+                aria-label="Search users and vendors"
             />
+            </div>
             <DropdownMenu>
-              <DropdownMenuTrigger render={<Button />}>
-                {Vfilter === "none" ? "select Filter" : Vfilter} <ChevronDown />
+              <DropdownMenuTrigger render={<Button variant="outline" className="w-full justify-between border-amber-100/15 bg-[#1d190f] text-[#eee5d2] hover:bg-[#292317] sm:w-auto sm:min-w-36" />}>
+                {Vfilter === "none" ? "Filter by" : Vfilter} <ChevronDown />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuGroup>
@@ -106,12 +108,13 @@ export function ViewingAllUser() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex shrink-0 items-center gap-1 self-start rounded-lg border border-amber-100/10 bg-[#1d190f] p-1 sm:self-auto">
             <Button
+              variant="ghost"
               className={`
                 ${
                   isVendor === false
-                    ? "border border-black hover:bg-background bg-background text-black"
+                    ? "bg-[#eee5d2] text-[#211c13] hover:bg-[#e2d6bd]"
                     : ""
                 }
               `}
@@ -120,9 +123,10 @@ export function ViewingAllUser() {
               User
             </Button>
             <Button
+              variant="ghost"
               className={
                 isVendor === true
-                  ? "border border-black hover:bg-background bg-background text-black"
+                  ? "bg-[#eee5d2] text-[#211c13] hover:bg-[#e2d6bd]"
                   : ""
               }
               onClick={() => setIsVendor(true)}

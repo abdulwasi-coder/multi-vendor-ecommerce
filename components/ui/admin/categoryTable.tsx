@@ -190,8 +190,8 @@ export function DataTable({ onDataChange }: DataTableProps) {
     },
   });
   return (
-    <div className="overflow-hidden rounded-lg border bg-background shadow-sm">
-      <div className="flex flex-col gap-3 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="overflow-hidden rounded-xl border border-amber-100/10 bg-[#211c13] shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-amber-100/10 bg-[#252015] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <Input
           placeholder="Search all categories (3+ characters)"
           value={categorySearch}
@@ -203,9 +203,9 @@ export function DataTable({ onDataChange }: DataTableProps) {
               .getColumn("name")
               ?.setFilterValue(value.trim().length >= 3 ? value.trim() : undefined);
           }}
-          className="w-full sm:max-w-sm"
+          className="w-full sm:max-w-md sm:flex-1"
         />
-        <div className="flex items-center justify-between gap-3 sm:justify-end">
+        <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
           <label
             htmlFor="category-page-size"
             className="text-sm text-muted-foreground"

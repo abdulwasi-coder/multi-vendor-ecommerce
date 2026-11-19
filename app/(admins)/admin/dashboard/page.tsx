@@ -37,8 +37,8 @@ const metrics = [
     detail: "vs. previous month",
     icon: CircleDollarSign,
     positive: true,
-    iconColor: "#f4cf70",
-    iconBackground: "rgba(232,185,79,.14)",
+    iconColor: "#fff0b7",
+    iconBackground: "rgba(255,240,183,.12)",
   },
   {
     label: "Total Benefit",
@@ -47,8 +47,8 @@ const metrics = [
     detail: "vs. previous month",
     icon: ShoppingBag,
     positive: true,
-    iconColor: "#f2bd57",
-    iconBackground: "rgba(217,155,56,.14)",
+    iconColor: "#ffe29a",
+    iconBackground: "rgba(255,226,154,.12)",
   },
   {
     label: "Total Customers",
@@ -57,8 +57,8 @@ const metrics = [
     detail: "this month",
     icon: Store,
     positive: true,
-    iconColor: "#f7df9a",
-    iconBackground: "rgba(247,223,154,.12)",
+    iconColor: "#fff7dc",
+    iconBackground: "rgba(255,247,220,.1)",
   },
   {
     label: "Total Vendors",
@@ -67,8 +67,8 @@ const metrics = [
     detail: "vs. previous month",
     icon: Users,
     positive: true,
-    iconColor: "#d9aa4b",
-    iconBackground: "rgba(201,143,56,.16)",
+    iconColor: "#f7d77f",
+    iconBackground: "rgba(247,215,127,.12)",
   },
   {
     label: "Pending payouts",
@@ -77,8 +77,8 @@ const metrics = [
     detail: "awaiting review",
     icon: Banknote,
     positive: false,
-    iconColor: "#f3c76a",
-    iconBackground: "rgba(232,185,79,.14)",
+    iconColor: "#ffedb0",
+    iconBackground: "rgba(255,237,176,.12)",
   },
 ];
 
@@ -140,7 +140,7 @@ export default async function AdminDashboardPage() {
         <ChartAreaInteractive />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-7">
+      <section className="grid gap-4 lg:grid-cols-2">
         <PendingOrders />
         <PendingVendor />
       </section>
@@ -150,7 +150,7 @@ export default async function AdminDashboardPage() {
           <CardContent className="flex items-center justify-between px-5">
             <div className="flex items-center gap-3">
               <span className="flex size-10 items-center justify-center rounded-lg bg-muted">
-                <Boxes className="size-4 text-amber-300" />
+                <Boxes className="admin-info-icon size-4 text-amber-100" />
               </span>
               <div>
                 <p className="text-sm font-medium">View Order Analytics</p>
@@ -159,7 +159,7 @@ export default async function AdminDashboardPage() {
                 </p>
               </div>
             </div>
-            <Link href="/orders-ledger">
+            <Link href="/admin/orders-ledger">
               <Button
                 variant="ghost"
                 size="icon"
@@ -174,7 +174,7 @@ export default async function AdminDashboardPage() {
           <CardContent className="flex items-center justify-between px-5">
             <div className="flex items-center gap-3">
               <span className="flex size-10 items-center justify-center rounded-lg bg-muted">
-                <Activity className="size-4 text-amber-300" />
+                <Activity className="admin-info-icon size-4 text-amber-100" />
               </span>
               <div>
                 <p className="text-sm font-medium">Vendor applications</p>
@@ -183,7 +183,7 @@ export default async function AdminDashboardPage() {
                 </p>
               </div>
             </div>
-            <Link href="/vendors-users">
+            <Link href="/admin/vendors-users">
               <Button
                 variant="ghost"
                 size="icon"

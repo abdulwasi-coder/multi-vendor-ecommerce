@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ArrowRight, Plus, Search } from "lucide-react";
-import { Input } from "@base-ui/react";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { orders } from "./dash_interactive";
@@ -25,25 +25,21 @@ export function ProductTable() {
   const [search, setSearch] = useState("");
   return (
     <Card className="xl:col-span-4">
-      <CardHeader className="gap-4 ">
+      <CardHeader className="gap-4">
         <div className="space-y-1">
-          <CardTitle>View Users and Vendors</CardTitle>
-          <CardDescription>
-            Review Edit and delete Users & Vendors
-          </CardDescription>
+          <CardTitle>Products</CardTitle>
+          <CardDescription>Browse and search marketplace products.</CardDescription>
         </div>
-        <div className="flex items-center justify-between overflow-x-auto py-0.5 relative w-full ">
-          <div className="flex items-center gap-1">
-            <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:max-w-md">
+            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search Product by name..."
-              className="pl-9 py-1.5 rounded-lg"
-              aria-label="Search orders"
+              placeholder="Search products by name..."
+              className="pl-10"
+              aria-label="Search products"
             />
-          </div>
-          <div className="flex items-center gap-1">
           </div>
         </div>
       </CardHeader>

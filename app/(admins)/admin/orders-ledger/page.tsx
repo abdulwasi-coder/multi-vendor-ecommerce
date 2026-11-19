@@ -137,8 +137,8 @@ export default function AdminOrdersPage() {
                 <CardHeader>
                   <CardTitle className="flex-row flex gap-2 space-y-0 items-center justify-between text-sm font-medium text-muted-foreground">
                     {metric.title}
-                    <div className="flex size-8 items-center justify-center rounded-lg bg-amber-400/10">
-                      <Icon className="size-4 text-amber-300" />
+                    <div className="admin-stat-icon flex size-8 items-center justify-center rounded-lg bg-amber-300/10">
+                      <Icon className="size-4 text-amber-100" />
                     </div>
                   </CardTitle>
                 </CardHeader>

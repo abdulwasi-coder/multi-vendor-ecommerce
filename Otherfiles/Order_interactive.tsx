@@ -18,7 +18,7 @@ export function ViewingOrder() {
           <CardTitle>Pending Transfers</CardTitle>
           <CardDescription>See, Review And Analyze Orders</CardDescription>
         </div>
-        <div className="relative w-full sm:w-60">
+        <div className="relative w-full sm:w-72">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
@@ -83,7 +83,7 @@ export function VendorAnalyzes() {
           <CardTitle>Search Specific Orders</CardTitle>
           <CardDescription>See, Review And Analyze Orders</CardDescription>
         </div>
-        <div className="relative w-full sm:w-60">
+        <div className="relative w-full sm:w-72">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
