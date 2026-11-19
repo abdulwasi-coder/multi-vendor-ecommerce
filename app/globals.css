@@ -196,18 +196,18 @@ main.vendor-workspace > main {
 .vendor-dashboard-surface .text-muted-foreground { color: #bdcadd; }
 
 .vendor-sidebar-surface {
-  --sidebar: #192b40;
-  --sidebar-foreground: #e0eafa;
-  --sidebar-primary: #8ab8e8;
-  --sidebar-primary-foreground: #102039;
-  --sidebar-accent: rgba(138, 184, 232, 0.12);
-  --sidebar-accent-foreground: #edf5ff;
-  --sidebar-border: rgba(190, 214, 241, 0.14);
-  --sidebar-ring: rgba(138, 184, 232, 0.4);
-  background: #192b40;
+  --sidebar: #242830;
+  --sidebar-foreground: #e7e9ed;
+  --sidebar-primary: #60a5fa;
+  --sidebar-primary-foreground: #101827;
+  --sidebar-accent: rgba(255, 255, 255, 0.07);
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: rgba(255, 255, 255, 0.09);
+  --sidebar-ring: rgba(96, 165, 250, 0.45);
+  background: #242830;
 }
 
-.vendor-sidebar-link[data-active="true"] svg { color: #a8cdf2; }
+.vendor-sidebar-link[data-active="true"] svg { color: #93c5fd; }
 
 @keyframes vendor-dashboard-in {
   from { opacity: 0; }

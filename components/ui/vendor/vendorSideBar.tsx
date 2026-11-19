@@ -9,8 +9,7 @@ import {
   Package,
   PackagePlus,
   Truck,
-  Info,
-  Store,
+  UserRound,
 } from "lucide-react";
 import { LogoutButton } from "@/components/ui/logout-button";
 
@@ -30,15 +29,17 @@ import {
 import Image from "next/image";
 import { useVendorProfile } from "@/Otherfiles/tanstack/vendor-profile";
 
-const navigationItems = [
+const workspaceItems = [
   { title: "Dashboard", href: "/vendor/dashboard", icon: LayoutDashboard },
   { title: "Orders", href: "/vendor/orders", icon: ShoppingCart },
+];
+const catalogItems = [
   { title: "Products", href: "/vendor/products", icon: Package },
+  { title: "Create Product", href: "/vendor/create", icon: PackagePlus },
+];
+const operationsItems = [
   { title: "Logistics", href: "/vendor/logitics", icon: Truck },
 ];
-const createitems = [
-  { title: "Create Product", href: "/vendor/create", icon: PackagePlus },
-]
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -67,36 +68,38 @@ export function AppSidebar() {
     <Sidebar
       collapsible="icon"
       hoverExpanded={hoverExpanded}
-      className="vendor-sidebar-surface text-slate-50"
+      className="vendor-sidebar-surface text-slate-100"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
 
-      <SidebarHeader className="border-b border-sky-100/15! px-3 py-4">
+      <SidebarHeader className="border-b border-white/10! px-3 py-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              className="flex items-center gap-2 rounded-xl transition-colors duration-150 hover:bg-white/[0.06] hover:text-white"
+              className="flex items-center gap-2 rounded-xl transition-colors duration-150 hover:bg-white/[0.07] hover:text-white"
               size="lg"
-              render={<Link href="/vendor/dashboard" onClick={handleNavigation} />}
+              isActive={pathname.startsWith("/vendor/profile")}
+              render={<Link href="/vendor/profile" onClick={handleNavigation} />}
             >
-              <div className="flex size-8 items-center justify-center rounded-lg">
+              <div className="flex size-9 items-center justify-center overflow-hidden rounded-lg bg-white/10">
                 {storeImage ? (
                   <Image
                     src={storeImage}
                     height={55}
                     width={50}
                     alt={`${profile?.companyName ?? "Vendor"} store`}
-                    className="h-full w-full rounded-md object-cover"
+                    className="h-full w-full rounded-lg object-cover"
                   />
                 ) : (
-                  <Store className="size-5 text-sky-300" aria-hidden="true" />
+                  <UserRound className="size-5 text-slate-300" aria-hidden="true" />
                 )}
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:grid">
-                <span className="truncate font-semibold tracking-wider">
-                  {profile?.companyName ?? "Vendor store"}
+              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:grid">
+                <span className="truncate font-semibold">
+                  {profile ? `${profile.name} ${profile.lastName}`.trim() : profileQuery.isPending ? "Loading profile..." : "Vendor profile"}
                 </span>
+                <span className="truncate text-xs text-slate-400">{profile?.companyName ?? "Account settings"}</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -106,17 +109,17 @@ export function AppSidebar() {
      
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-300/80 text-[10px] font-semibold tracking-[0.16em] uppercase">
-            Dashboard
+          <SidebarGroupLabel className="text-slate-400 text-[10px] font-semibold tracking-[0.14em] uppercase">
+            Workspace
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => {
+              {workspaceItems.map((item) => {
                 const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      className="vendor-sidebar-link flex items-center gap-1.5 rounded-xl transition-colors duration-150 hover:bg-white/[0.06] hover:text-white data-[active=true]:bg-sky-300/10 data-[active=true]:text-sky-100 data-[active=true]:shadow-[inset_2px_0_0_#8ab8e8]"
+                      className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.07] hover:text-white data-[active=true]:bg-blue-500/15 data-[active=true]:text-blue-200 data-[active=true]:shadow-[inset_2px_0_0_#60a5fa]"
                       isActive={isActive}
                       render={
                         <Link
@@ -137,17 +140,17 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-300/80 text-[10px] font-semibold tracking-[0.16em] uppercase">
-            Create Product
+          <SidebarGroupLabel className="text-slate-400 text-[10px] font-semibold tracking-[0.14em] uppercase">
+            Catalog
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {createitems.map((item) => {
+              {catalogItems.map((item) => {
                 const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      className="vendor-sidebar-link flex items-center gap-1.5 rounded-xl transition-colors duration-150 hover:bg-white/[0.06] hover:text-white data-[active=true]:bg-sky-300/10 data-[active=true]:text-sky-100 data-[active=true]:shadow-[inset_2px_0_0_#8ab8e8]"
+                      className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.07] hover:text-white data-[active=true]:bg-blue-500/15 data-[active=true]:text-blue-200 data-[active=true]:shadow-[inset_2px_0_0_#60a5fa]"
                       isActive={isActive}
                       render={
                         <Link
@@ -167,42 +170,36 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-slate-400 text-[10px] font-semibold tracking-[0.14em] uppercase">
+            Operations
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {operationsItems.map((item) => {
+                const isActive = item.href === pathname || pathname.startsWith(`${item.href}/`);
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      className="vendor-sidebar-link flex items-center gap-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.07] hover:text-white data-[active=true]:bg-blue-500/15 data-[active=true]:text-blue-200 data-[active=true]:shadow-[inset_2px_0_0_#60a5fa]"
+                      isActive={isActive}
+                      render={<Link onClick={handleNavigation} href={item.href} />}
+                    >
+                      <item.icon />
+                      <span className="group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:block">{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
-      {/* 3. BOTTOM: BOSS IMAGE */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <LogoutButton variant="sidebar" />
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              className="flex items-center gap-2 rounded-xl transition-colors duration-150 hover:bg-white/[0.06] hover:text-white"
-              size="lg"
-              render={<Link href="/vendor/profile" onClick={handleNavigation} />}
-            >
-              <div className="flex size-8 items-center justify-center rounded-lg">
-                {storeImage ? (
-                  <Image
-                    src={storeImage}
-                    height={800}
-                    width={800}
-                    alt={`${profile?.companyName ?? "Vendor"} store`}
-                    className="h-full w-full rounded-md object-cover"
-                  />
-                ) : (
-                  <Store className="size-5" aria-hidden="true" />
-                )}
-              </div>
-
-              <span className="truncate group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:inline font-semibold hover: tracking-wider">
-                {profile
-                  ? `${profile.name} ${profile.lastName}`.trim()
-                  : profileQuery.isPending
-                    ? "Loading profile..."
-                    : "Vendor profile"}
-              </span>
-            </SidebarMenuButton>
+            <LogoutButton variant="sidebar" className="rounded-lg text-slate-300 transition-colors hover:bg-red-500/10 hover:text-red-300" />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
