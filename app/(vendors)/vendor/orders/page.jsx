@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ChevronUp,
   Download,
+  ClipboardList,
   MapPin,
   Package,
   Search,
@@ -48,10 +49,10 @@ const currency = new Intl.NumberFormat("en-US", {
 });
 
 const statusStyles = {
-  Pending: "border-zinc-200 bg-zinc-50 text-zinc-600",
-  Processing: "border-amber-200 bg-amber-50 text-amber-700",
-  Shipped: "border-blue-200 bg-blue-50 text-blue-700",
-  Delivered: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  Pending: "border-zinc-400/20 bg-zinc-400/10 text-zinc-300",
+  Processing: "border-amber-400/20 bg-amber-400/10 text-amber-300",
+  Shipped: "border-blue-400/20 bg-blue-400/10 text-blue-300",
+  Delivered: "border-emerald-400/20 bg-emerald-400/10 text-emerald-300",
 };
 
 const statusOptions = ["Processing", "Shipped", "Delivered"];
@@ -154,13 +155,13 @@ function StatusSelect({ orderId, status }) {
 
 function OrderDetails({ order }) {
   return (
-    <div className="grid gap-5 bg-muted/30 px-4 py-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] lg:gap-x-6">
+    <div className="grid gap-5 border-t border-white/[0.07] bg-[#1d2026] px-4 py-5 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] lg:gap-x-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Shipping address
         </p>
         <div className="mt-2 flex gap-2">
-          <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <MapPin className="mt-0.5 size-4 shrink-0 text-blue-300" />
           <div className="space-y-0.5 text-sm">
             <p className="font-medium">{order.shippingAddress.name}</p>
             <p className="text-xs leading-5 text-muted-foreground">
@@ -182,7 +183,7 @@ function OrderDetails({ order }) {
         <div className="mt-2 space-y-2.5">
           {order.items.map((item) => (
             <div key={item.key} className="flex gap-2.5">
-              <Package className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+              <Package className="mt-0.5 size-4 shrink-0 text-violet-300" />
               <div className="min-w-0">
                 <p className="text-sm font-medium">{item.name}</p>
                 <p className="text-xs text-muted-foreground">
@@ -210,13 +211,13 @@ function OrderDetails({ order }) {
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Net earned</dt>
-            <dd className="font-medium text-emerald-700">
+            <dd className="font-medium text-emerald-300">
               {currency.format(order.vendorNetEarned)}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Payout release</dt>
-            <dd>{order.createdAt}</dd>
+            <dd>{order.payoutReleaseDate}</dd>
           </div>
         </dl>
       </div>
@@ -307,44 +308,54 @@ export default function VendorOrdersPage() {
   const showingTo = Math.min(currentPage * pageSize, (currentPage - 1) * pageSize + orders.length);
 
   return (
-    <main className="min-h-screen w-full bg-muted/30 px-4 py-6 sm:px-6 lg:px-8">
+    <main className="vendor-dashboard-surface min-h-screen w-full px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-400 space-y-6">
-        <header className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">Store management</p>
-          <h1 className="text-2xl font-semibold tracking-tight">Orders</h1>
-          <p className="text-sm text-muted-foreground">
-            Review order items, delivery details, and your earnings.
+        <header className="flex flex-col justify-between gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-end">
+          <div className="flex items-start gap-3">
+            <span className="mt-1 grid size-11 shrink-0 place-items-center rounded-xl bg-blue-400/10 text-blue-300">
+              <ClipboardList className="size-5" />
+            </span>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">Store management</p>
+              <h1 className="text-3xl font-semibold tracking-tight">Orders</h1>
+              <p className="text-sm text-muted-foreground">
+                Review order items, delivery details, and your earnings.
+              </p>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground sm:pb-1">
+            {totalOrders} {totalOrders === 1 ? "order" : "orders"} in total
           </p>
         </header>
 
         <section aria-label="Orders">
-          <Card className="overflow-hidden rounded-xl border-border/70 shadow-sm">
-            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Card className="vendor-dashboard-card overflow-hidden rounded-2xl border-white/10 bg-[#23262d] shadow-sm">
+            <CardHeader className="flex flex-col gap-2 pb-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
                 <CardTitle>All orders</CardTitle>
                 <CardDescription>
                   Search by order ID, or filter by status. Select a row for details.
                 </CardDescription>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {totalOrders} {totalOrders === 1 ? "order" : "orders"}
-              </p>
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-slate-300">
+                <span className="size-1.5 rounded-full bg-emerald-400" /> Manage orders and payouts
+              </span>
             </CardHeader>
 
-            <div className="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <div className="relative w-full sm:max-w-sm">
+            <div className="mx-4 mb-4 flex flex-col gap-3 rounded-xl border border-white/[0.07] bg-[#1d2026] p-3 sm:mx-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full sm:max-w-md">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(event) => updateSearch(event.target.value)}
                 placeholder="Search by order ID..."
                 aria-label="Search orders by ID"
-                className="pl-9"
+                className="border-white/10 bg-[#252830] pl-9 placeholder:text-slate-500 focus-visible:ring-blue-400/40"
               />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <Select value={statusFilter} onValueChange={updateStatus} disabled={isSearching}>
-                <SelectTrigger aria-label="Filter orders by status" className="w-full sm:w-40">
+                <SelectTrigger aria-label="Filter orders by status" className="w-full border-white/10 bg-[#252830] sm:w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -355,7 +366,7 @@ export default function VendorOrdersPage() {
                 </SelectContent>
               </Select>
               <Select value={pageSizeOption} onValueChange={updatePageSize} disabled={isSearching}>
-                <SelectTrigger aria-label="Choose how many orders to show" className="w-full sm:w-36">
+                <SelectTrigger aria-label="Choose how many orders to show" className="w-full border-white/10 bg-[#252830] sm:w-36">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -365,7 +376,7 @@ export default function VendorOrdersPage() {
                   <SelectItem value="all">Show all</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" onClick={exportOrders} disabled={orders.length === 0}>
+              <Button variant="outline" onClick={exportOrders} disabled={orders.length === 0} className="border-white/10 bg-[#252830] hover:bg-white/[0.08]">
                 <Download /> Export
               </Button>
             </div>
@@ -390,7 +401,7 @@ export default function VendorOrdersPage() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-muted/40 hover:bg-muted/40">
+                    <TableRow className="border-white/[0.08] bg-white/[0.025] hover:bg-white/[0.025]">
                       <TableHead className="h-11 w-10 pl-4" />
                       <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Order</TableHead>
                       <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Customer</TableHead>
@@ -417,7 +428,7 @@ export default function VendorOrdersPage() {
                         return (
                           <Fragment key={order.id}>
                             <TableRow
-                              className="cursor-pointer align-middle hover:bg-muted/30"
+                              className="cursor-pointer align-middle transition-colors hover:bg-white/[0.035]"
                               onClick={() => setExpandedId(expanded ? null : order.id)}
                               aria-expanded={expanded}
                             >
@@ -478,7 +489,7 @@ export default function VendorOrdersPage() {
               </div>
             </CardContent>
 
-          <div className="flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex flex-col gap-3 border-t border-white/[0.08] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p className="text-sm text-muted-foreground" aria-live="polite">
               {isPending
                 ? "Loading orders..."
