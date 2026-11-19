@@ -140,7 +140,7 @@ export default async function AdminDashboardPage() {
         <ChartAreaInteractive />
       </section>
 
-      <section className="grid min-w-0 items-stretch gap-4 lg:grid-cols-[repeat(2,minmax(0,1fr))]">
+      <section className="grid min-w-0 grid-cols-1 gap-5">
         <PendingOrders />
         <PendingVendor />
       </section>

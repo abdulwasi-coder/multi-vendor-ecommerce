@@ -202,12 +202,12 @@ export function PendingVendor() {
 
   return (
     <Card className="h-full min-w-0 w-full">
-      <CardHeader className="min-w-0 gap-4 sm:flex-col sm:items-stretch sm:justify-between 2xl:flex-row 2xl:items-center">
+      <CardHeader className="min-w-0 gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <CardTitle>Recent Pending Vendors</CardTitle>
           <CardDescription>Review New Pending Sellers</CardDescription>
         </div>
-        <div className="relative w-full min-w-0 2xl:max-w-64">
+        <div className="relative w-full min-w-0 sm:w-72">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
@@ -346,12 +346,12 @@ export function PendingOrders() {
 
   return (
     <Card className="h-full min-w-0 w-full">
-      <CardHeader className="min-w-0 gap-4 sm:flex-col sm:items-stretch sm:justify-between 2xl:flex-row 2xl:items-center">
+      <CardHeader className="min-w-0 gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <CardTitle>Pending Transfers</CardTitle>
           <CardDescription>See, Approve And Transfer The Money</CardDescription>
         </div>
-        <div className="relative w-full min-w-0 2xl:max-w-64">
+        <div className="relative w-full min-w-0 sm:w-72">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
