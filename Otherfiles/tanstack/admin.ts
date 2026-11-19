@@ -1,6 +1,4 @@
-"use client";
-
-import api from "@/lib/axios";
+﻿import api from "@/lib/axios";
 import { isAxiosError } from "axios";
 import {
   keepPreviousData,
