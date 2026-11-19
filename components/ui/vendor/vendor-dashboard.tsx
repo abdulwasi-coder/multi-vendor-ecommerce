@@ -329,7 +329,7 @@ export function VendorDashboard() {
             </SelectTrigger>
             <SelectContent className="border border-sky-200/20 bg-[#243d5e] text-slate-100 shadow-xl">
               {DASHBOARD_RANGES.map((item) => (
-                <SelectItem key={item.value} value={item.value} className="text-slate-100 focus:bg-sky-400/20 focus:text-white data-[highlighted]:bg-sky-400/20 data-[highlighted]:text-white">
+                <SelectItem key={item.value} value={item.value} className="text-slate-100 focus:bg-sky-400/20 focus:text-white data-highlighted:bg-sky-400/20 data-highlighted:text-white">
                   {item.label}
                 </SelectItem>
               ))}
@@ -373,9 +373,9 @@ export function VendorDashboard() {
                   <span style={{ color: metric.iconColor, backgroundColor: metric.iconBackground }} className="flex size-9 items-center justify-center rounded-xl transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110"><Icon className="size-4 transition-transform duration-200 group-hover:rotate-12" /></span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="min-h-14 break-words px-5 py-2 text-2xl font-semibold leading-tight tracking-tight text-[#f3f6fb]">
+              <CardContent className="min-h-14 wrap-break-word px-5 py-2 text-2xl font-semibold leading-tight tracking-tight text-[#f3f6fb]">
                 {isLoading ? (
-                  <div className="h-8 w-20 animate-pulse rounded-lg bg-white/[0.08]" />
+                  <div className="h-8 w-20 animate-pulse rounded-lg bg-white/8" />
                 ) : (
                   <AnimatedNumber
                     value={metric.rawValue}
@@ -412,7 +412,7 @@ export function VendorDashboard() {
 
       <section className="grid lg:grid-cols-1">
         <Card className="vendor-dashboard-enter vendor-dashboard-card border-sky-200/15 bg-[#1e3350] pt-0 text-slate-50">
-          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-white/[0.08] py-5 sm:flex-row">
+          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-white/8 py-5 sm:flex-row">
             <div className="grid flex-1 gap-1">
               <CardTitle className="text-lg font-semibold text-slate-50">Sales — last {days} days</CardTitle>
               <CardDescription className="text-slate-300">
@@ -427,7 +427,7 @@ export function VendorDashboard() {
           <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
             <div className="h-62.5 w-full">
               {isLoading ? (
-                <div className="h-full w-full animate-pulse rounded-xl bg-white/[0.08]" />
+                <div className="h-full w-full animate-pulse rounded-xl bg-white/8" />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
@@ -527,7 +527,7 @@ export function VendorDashboard() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-white/[0.08] hover:bg-transparent">
+                <TableRow className="border-white/8 hover:bg-transparent">
                   <TableHead className="pl-6">Order</TableHead>
                   <TableHead>Product</TableHead>
                   <TableHead className="hidden md:table-cell">Items</TableHead>
@@ -540,9 +540,9 @@ export function VendorDashboard() {
               <TableBody>
                 {financeQuery.isPending &&
                   [0, 1, 2].map((i) => (
-                    <TableRow key={i} className="border-white/[0.06]">
+                    <TableRow key={i} className="border-white/6">
                       <TableCell colSpan={7} className="px-6 py-3">
-                        <div className="h-8 animate-pulse rounded-lg bg-white/[0.06]" />
+                        <div className="h-8 animate-pulse rounded-lg bg-white/6" />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -553,7 +553,7 @@ export function VendorDashboard() {
                       "Product";
                     const itemCount = payoutItemCount(payout);
                     return (
-                      <TableRow key={payout._id} className="border-white/[0.06] transition-colors duration-150 hover:bg-white/[0.035]">
+                      <TableRow key={payout._id} className="border-white/6 transition-colors duration-150 hover:bg-white/[0.035]">
                         <TableCell className="pl-6 font-mono text-xs font-medium">
                           #{String(payout._id).slice(-8)}
                         </TableCell>
@@ -610,7 +610,7 @@ export function VendorDashboard() {
           </div>
 
           <Link href="/vendor/orders">
-            <Button variant="outline" size="sm" className="rounded-lg border-white/10 bg-white/[0.04] text-slate-100 transition-colors duration-150 hover:border-white/20 hover:bg-white/[0.08]">
+            <Button variant="outline" size="sm" className="rounded-lg border-white/10 bg-white/4 text-slate-100 transition-colors duration-150 hover:border-white/20 hover:bg-white/8">
               View all orders <ArrowRight className="ml-2 size-4" />
             </Button>
           </Link>
@@ -619,7 +619,7 @@ export function VendorDashboard() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-white/[0.08] hover:bg-transparent">
+                <TableRow className="border-white/8 hover:bg-transparent">
                   <TableHead className="pl-6">Order</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead className="hidden md:table-cell">Date</TableHead>
@@ -631,9 +631,9 @@ export function VendorDashboard() {
               <TableBody>
                 {isLoading &&
                   [0, 1, 2].map((i) => (
-                    <TableRow key={i} className="border-white/[0.06]">
+                    <TableRow key={i} className="border-white/6">
                       <TableCell colSpan={6} className="px-6 py-3">
-                        <div className="h-8 animate-pulse rounded-lg bg-white/[0.06]" />
+                        <div className="h-8 animate-pulse rounded-lg bg-white/6" />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -651,7 +651,7 @@ export function VendorDashboard() {
                     );
                     const status = capitalizeStatus(order.status);
                     return (
-                      <TableRow key={order._id} className="border-white/[0.06] transition-colors duration-150 hover:bg-white/[0.035]">
+                      <TableRow key={order._id} className="border-white/6 transition-colors duration-150 hover:bg-white/[0.035]">
                         <TableCell className="pl-6 font-mono text-xs font-medium">
                           #{String(order._id).slice(-8)}
                         </TableCell>

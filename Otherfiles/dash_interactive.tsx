@@ -55,7 +55,7 @@ import {
   View,
 } from "lucide-react";
 import { isAxiosError } from "axios";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import {
@@ -81,6 +81,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  useAdminPendingVendors,
+  useVendorBalanceLedger,
+  type AdminPendingVendor,
+} from "@/Otherfiles/tanstack/admin";
+
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
 
 export function DropdownMenuCustom({ data = [] }: { data?: string[] }) {
   const [current, setCurrent] = useState("1 Year");
@@ -122,23 +132,10 @@ export function PendingVendor() {
   const queryClient = useQueryClient();
   const pageSize = 5;
 
-  const vendorsQuery = useQuery({
-    queryKey: ["admin-pending-vendors", page],
-    queryFn: async () => {
-      const response = await api.get<PendingVendorsResponse>(
-        "/admin/getVendors",
-        { params: { status: "pending", page, limit: pageSize } },
-      );
-      if (response.data.success === false) {
-        throw new Error("Could not load pending vendors.");
-      }
-      return response.data;
-    },
-    staleTime: 30_000,
-  });
+  const vendorsQuery = useAdminPendingVendors(page, pageSize);
 
   const approveVendorMutation = useMutation({
-    mutationFn: async (vendor: PendingVendor) => {
+    mutationFn: async (vendor: AdminPendingVendor) => {
       const userId =
         typeof vendor.userid === "string"
           ? vendor.userid
@@ -159,6 +156,9 @@ export function PendingVendor() {
       setPage(1);
       await queryClient.invalidateQueries({
         queryKey: ["admin-pending-vendors"],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-dashboard"],
       });
     },
     onError: (error) => {
@@ -323,26 +323,25 @@ export function PendingVendor() {
   );
 }
 
-interface PendingVendor {
-  _id: string;
-  name: string;
-  lastName: string;
-  companyName: string;
-  country: string;
-  createdAt?: string;
-  userid: string | { _id: string; email?: string } | null;
-}
-
-interface PendingVendorsResponse {
-  success: boolean;
-  currentPage: number;
-  totalPages: number;
-  totalVendors: number;
-  vendors: PendingVendor[];
-}
-
 export function PendingOrders() {
   const [search, setSearch] = useState("");
+  const ledgerQuery = useVendorBalanceLedger(5);
+
+  const vendors = ledgerQuery.data?.vendorsData ?? [];
+  const filteredVendors = vendors.filter((vendor) =>
+    [vendor.BusinessName, vendor.vendorID]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(search.trim().toLowerCase()),
+  );
+  const queryErrorMessage = ledgerQuery.isError
+    ? isAxiosError(ledgerQuery.error)
+      ? ledgerQuery.error.response?.data?.message
+      : ledgerQuery.error instanceof Error
+        ? ledgerQuery.error.message
+        : undefined
+    : undefined;
 
   return (
     <Card className="h-full min-w-0 w-full">
@@ -356,9 +355,9 @@ export function PendingOrders() {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search orders..."
+            placeholder="Search vendors..."
             className="pl-9"
-            aria-label="Search orders"
+            aria-label="Search vendors"
           />
         </div>
       </CardHeader>
@@ -367,35 +366,70 @@ export function PendingOrders() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="pl-6">userID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Country</TableHead>
-              <TableHead className="hidden sm:table-cell">Amount</TableHead>
+              <TableHead className="pl-6">Vendor</TableHead>
+              <TableHead className="hidden sm:table-cell">Gross sales</TableHead>
+              <TableHead>Payout balance</TableHead>
+              <TableHead className="hidden md:table-cell">Platform revenue</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="pl-6 font-medium">{order.id}</TableCell>
-                <TableCell>{order.customer}</TableCell>
-                <TableCell>{order.country}</TableCell>
-                <TableCell className="font-medium">{order.amount}</TableCell>
-                <TableCell className="font-medium flex items-center gap-0.5">
-                  <Button variant="outline" className="text-yellow-400 ">
-                    <View />
-                  </Button>
-                  <Button variant="outline" className="text-emerald-400">
-                    <Verified />
-                  </Button>
+            {ledgerQuery.isPending ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                  Loading vendor balances...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : ledgerQuery.isError ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-8 text-center text-destructive">
+                  {typeof queryErrorMessage === "string" && queryErrorMessage.trim()
+                    ? queryErrorMessage
+                    : "Could not load vendor balances."}
+                </TableCell>
+              </TableRow>
+            ) : filteredVendors.length ? (
+              filteredVendors.map((vendor) => (
+                <TableRow key={vendor.vendorID}>
+                  <TableCell className="pl-6 font-medium">
+                    {vendor.BusinessName || "Unnamed vendor"}
+                    <span className="block text-xs font-normal text-muted-foreground">
+                      {vendor.vendorID}
+                    </span>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell font-medium">
+                    {currency.format(vendor.grossSales ?? 0)}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {currency.format(vendor.vendorPayoutBalance ?? 0)}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell font-medium">
+                    {currency.format(vendor.platfromRevenue ?? 0)}
+                  </TableCell>
+                  <TableCell className="font-medium flex items-center gap-0.5">
+                    <Button variant="outline" className="text-yellow-400 " aria-label={`View ${vendor.BusinessName}`}>
+                      <View />
+                    </Button>
+                    <Button variant="outline" className="text-emerald-400" aria-label={`Approve payout for ${vendor.BusinessName}`}>
+                      <Verified />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                  {search ? "No vendors match your search." : "No vendor balances yet."}
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
         </div>
         <div className="flex items-center justify-between px-6 pt-4 text-xs text-muted-foreground">
-          <span>Showing 5 of 5 orders</span>
+          <span>
+            Showing {filteredVendors.length} of {ledgerQuery.data?.totalVendors ?? 0} vendors
+          </span>
           <Button variant="ghost" size="sm" className="-mr-2">
             View all <ArrowRight />
           </Button>

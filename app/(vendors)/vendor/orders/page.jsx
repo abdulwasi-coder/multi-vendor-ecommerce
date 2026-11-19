@@ -351,7 +351,7 @@ export default function VendorOrdersPage() {
                   Search by order ID, or filter by status. Select a row for details.
                 </CardDescription>
               </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-slate-300">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs font-medium text-slate-300">
                 <span className="size-1.5 rounded-full bg-emerald-400" /> Manage orders and payouts
               </span>
             </CardHeader>
@@ -413,9 +413,9 @@ export default function VendorOrdersPage() {
 
             <CardContent className="px-0 sm:px-6">
               <div className="overflow-x-auto">
-                <Table className="min-w-[900px]">
+                <Table className="min-w-225">
                   <TableHeader>
-                    <TableRow className="border-white/[0.08] bg-white/[0.025] hover:bg-white/[0.025]">
+                    <TableRow className="border-white/8 bg-white/2.5 hover:bg-white/2.5">
                       <TableHead className="h-11 w-10 pl-4" />
                       <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Order</TableHead>
                       <TableHead className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Customer</TableHead>
@@ -503,7 +503,7 @@ export default function VendorOrdersPage() {
               </div>
             </CardContent>
 
-          <div className="flex flex-col gap-3 border-t border-white/[0.08] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex flex-col gap-3 border-t border-white/8 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p className="text-sm text-muted-foreground" aria-live="polite">
               {isPending
                 ? "Loading orders..."
