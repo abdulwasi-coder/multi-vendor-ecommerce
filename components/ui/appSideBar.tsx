@@ -62,16 +62,16 @@ export function AppSidebar() {
     <Sidebar
       collapsible="icon"
       hoverExpanded={hoverExpanded}
-      className="text-slate-400"
+      className="admin-sidebar-surface text-amber-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {/* 1. TOP: COMPANY IMAGE */}
-      <SidebarHeader className="border-b border-slate-800!">
+      <SidebarHeader className="border-b border-amber-100/10! px-3 py-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              className="flex gap-2 items-center"
+              className="flex items-center gap-2 rounded-xl transition-colors hover:bg-amber-300/[0.08] hover:text-amber-50"
               size="lg"
               render={
                 <Link href="/admin/dashboard" onClick={handleNavigation} />
@@ -89,7 +89,7 @@ export function AppSidebar() {
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden group-data-[hover-expanded=true]:grid">
                 <span className="truncate  font-semibold tracking-wider">
-                  user
+                  Marketly Admin
                   
                 </span>
               </div>
@@ -100,8 +100,8 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
-            Dashboard
+          <SidebarGroupLabel className="text-amber-100/50 text-[10px] font-semibold tracking-[0.14em] uppercase">
+            Workspace
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -112,7 +112,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      className={`flex gap-1.5 items-center transition-all duration-200 ease-in-out `}
+                      className="admin-sidebar-link flex items-center gap-2 rounded-lg transition-colors hover:bg-amber-300/[0.08] hover:text-amber-50 data-[active=true]:bg-amber-400/15 data-[active=true]:text-amber-100 data-[active=true]:shadow-[inset_2px_0_0_#e8b94f]"
                       isActive={isActive}
                       render={
                         <Link onClick={handleNavigation} href={item.href} />
@@ -130,8 +130,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-500 text-xs font-semibold tracking-wider uppercase">
-            Creation
+          <SidebarGroupLabel className="text-amber-100/50 text-[10px] font-semibold tracking-[0.14em] uppercase">
+            Catalog
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -142,7 +142,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      className={`flex gap-1.5 items-center transition-all duration-200 ease-in-out `}
+                      className="admin-sidebar-link flex items-center gap-2 rounded-lg transition-colors hover:bg-amber-300/[0.08] hover:text-amber-50 data-[active=true]:bg-amber-400/15 data-[active=true]:text-amber-100 data-[active=true]:shadow-[inset_2px_0_0_#e8b94f]"
                       isActive={isActive}
                       render={
                         <Link onClick={handleNavigation} href={item.href} />
@@ -164,11 +164,11 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <LogoutButton variant="sidebar" />
+            <LogoutButton variant="sidebar" className="rounded-lg text-amber-100/70 transition-colors hover:bg-rose-400/10 hover:text-rose-200" />
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              className="flex  gap-2 items-center "
+              className="flex items-center gap-2 rounded-xl transition-colors hover:bg-amber-300/[0.08] hover:text-amber-50"
               size="lg"
               render={<Link href="/" onClick={handleNavigation} />}
             >

@@ -115,13 +115,10 @@ const stats = [
 export default function AdminOrdersPage() {
 
   return (
-    <main className="min-h-screen w-full bg-muted/30 px-4 py-6 sm:px-6 lg:px-8">
+    <main className="admin-dashboard-surface min-h-screen w-full px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-400 space-y-6">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-1">
-            <p className="text-sm font-medium text-primary">
-              Marketplace operations
-            </p>
             <h1 className="text-2xl font-semibold tracking-tight">Orders</h1>
             <p className="text-sm text-muted-foreground">
               Review order activity and vendor earnings across the marketplace.
@@ -140,8 +137,8 @@ export default function AdminOrdersPage() {
                 <CardHeader>
                   <CardTitle className="flex-row flex gap-2 space-y-0 items-center justify-between text-sm font-medium text-muted-foreground">
                     {metric.title}
-                    <div className="bg-indigo-800 size-7 flex items-center justify-center rounded-full">
-                      <Icon className=" text-indigo-400 size-4" />
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-amber-400/10">
+                      <Icon className="size-4 text-amber-300" />
                     </div>
                   </CardTitle>
                 </CardHeader>

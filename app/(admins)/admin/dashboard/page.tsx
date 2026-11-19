@@ -76,8 +76,8 @@ const timelines = ["1 Year", "6 Months", "1 Month"];
 
 export default async function AdminDashboardPage() {
   return (
-    <main className="min-h-screen mx-auto max-w-400 space-y-5 w-full bg-muted/30 px-4 py-6 lg:py-3 sm:px-6  lg:px-8">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+    <main className="admin-dashboard-surface mx-auto min-h-screen max-w-400 w-full space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <header className="flex flex-col justify-between gap-4 border-b border-amber-100/10 pb-5 sm:flex-row sm:items-end">
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">
             {new Date().toLocaleDateString("en-US", {
@@ -86,10 +86,7 @@ export default async function AdminDashboardPage() {
               day: "numeric",
             })}
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Here's what's happening across your marketplace.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
         </div>
         <DropdownMenuCustom data={timelines} />
       </header>
