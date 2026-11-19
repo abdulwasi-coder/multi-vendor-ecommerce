@@ -252,7 +252,7 @@ export default function VendorProfilePage() {
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-5">
             {isEditing && (
-              <Card className="border-[#dfe4df] shadow-sm shadow-[#192c25]/5">
+              <Card className="border-sky-200/15 shadow-sm shadow-blue-950/10">
                 <CardHeader className="border-b">
                   <CardTitle>Edit vendor profile</CardTitle>
                   <CardDescription>
@@ -437,7 +437,7 @@ export default function VendorProfilePage() {
                 </CardContent>
               </Card>
             )}
-            <Card className="border-[#dfe4df] shadow-sm shadow-[#192c25]/5">
+                <Card className="border-sky-200/15 shadow-sm shadow-blue-950/10">
               <CardHeader className="border-b">
                 <div className="flex items-center gap-3">
                   <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -469,7 +469,7 @@ export default function VendorProfilePage() {
               </CardContent>
             </Card>
 
-            <Card className="border-[#dfe4df] shadow-sm shadow-[#192c25]/5">
+                <Card className="border-sky-200/15 shadow-sm shadow-blue-950/10">
               <CardHeader className="border-b">
                 <div className="flex items-center gap-3">
                   <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -520,7 +520,7 @@ export default function VendorProfilePage() {
               </CardContent>
             </Card>
 
-            <Card className="border-[#dfe4df] shadow-sm shadow-[#192c25]/5">
+                <Card className="border-sky-200/15 shadow-sm shadow-blue-950/10">
               <CardHeader className="border-b">
                 <div className="flex items-center gap-3">
                   <span className="grid size-10 place-items-center rounded-xl bg-sky-300/10 text-sky-200">
@@ -548,7 +548,7 @@ export default function VendorProfilePage() {
             </Card>
           </div>
 
-          <Card className="overflow-hidden border-[#dfe4df] shadow-md shadow-[#192c25]/5">
+          <Card className="overflow-hidden border-sky-200/15 shadow-md shadow-blue-950/10">
             <div className="h-24 bg-linear-to-br from-[#172b43] via-[#284568] to-[#365d85]" />
             <CardContent className="relative">
               <div className="-mt-10 grid size-16 place-items-center overflow-hidden rounded-2xl border-4 border-card bg-[#203a58] text-sky-100 shadow-md">

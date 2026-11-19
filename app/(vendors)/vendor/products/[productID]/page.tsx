@@ -90,7 +90,7 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
 
         <section className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)] xl:gap-8">
           <div className="lg:sticky lg:top-20">
-            <div className="h-[min(72vh,680px)] min-h-[440px] rounded-2xl border border-sky-300/15 bg-[#152b49] p-4 shadow-xl shadow-blue-950/20">
+            <div className="h-[min(72vh,680px)] min-h-[440px] rounded-2xl border border-sky-300/20 bg-[#243d5e] p-4 shadow-xl shadow-blue-950/20">
               <VendorProductGallery
                 images={productImages}
                 name={product.name}
@@ -120,12 +120,12 @@ export default async function VendorProductDetailPage({ params }: paramprop) {
                     {product.discount > 0 && <><span className="text-sm text-slate-400 line-through">${product.price.toFixed(2)}</span><Badge className="bg-rose-400/10 text-rose-300">{product.discount}% off</Badge></>}
                   </dd>
                 </div>
-                <div className="rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Availability</dt><dd className="mt-1 font-medium text-slate-100">{product.stock} units in stock</dd></div>
-                <div className="rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Brand</dt><dd className="mt-1 font-medium text-slate-100">{product.brand || "Not specified"}</dd></div>
-                <div className="rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Category</dt><dd className="mt-1 font-medium text-slate-100">{product.categoryID || "Not specified"}</dd></div>
-                <div className="rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">SKU</dt><dd className="mt-1 break-all font-mono text-xs text-slate-200">{product.sku}</dd></div>
-                <div className="col-span-2 rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Available colors</dt><dd className="mt-1 font-medium text-slate-100">{product.colors.length ? product.colors.join(", ") : "Not specified"}</dd></div>
-                <div className="col-span-2 rounded-xl bg-[#1b2b44] p-3"><dt className="text-xs text-muted-foreground">Product ID</dt><dd className="mt-1 break-all font-mono text-xs text-slate-400">{product._id}</dd></div>
+                <div className="rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Availability</dt><dd className="mt-1 font-medium text-slate-100">{product.stock} units in stock</dd></div>
+                <div className="rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Brand</dt><dd className="mt-1 font-medium text-slate-100">{product.brand || "Not specified"}</dd></div>
+                <div className="rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Category</dt><dd className="mt-1 font-medium text-slate-100">{product.categoryID || "Not specified"}</dd></div>
+                <div className="rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">SKU</dt><dd className="mt-1 break-all font-mono text-xs text-slate-200">{product.sku}</dd></div>
+                <div className="col-span-2 rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Available colors</dt><dd className="mt-1 font-medium text-slate-100">{product.colors.length ? product.colors.join(", ") : "Not specified"}</dd></div>
+                <div className="col-span-2 rounded-xl bg-[#294361] p-3"><dt className="text-xs text-muted-foreground">Product ID</dt><dd className="mt-1 break-all font-mono text-xs text-slate-300">{product._id}</dd></div>
               </dl>
 
               <div className="mt-5 border-t border-sky-200/10 pt-5">

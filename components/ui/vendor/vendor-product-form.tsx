@@ -599,8 +599,8 @@ export function ProductForm({ productId }: { productId?: string }) {
   }
 
   return (
-    <main className="min-h-[calc(100dvh-2rem)] bg-muted/30">
-      <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-7 sm:py-10 lg:px-10">
+    <main className="vendor-dashboard-surface min-h-[calc(100dvh-3.5rem)]">
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-7 sm:py-8 lg:px-10">
         <Button
           variant="ghost"
           size="sm"
@@ -616,11 +616,6 @@ export function ProductForm({ productId }: { productId?: string }) {
             <PackagePlus className="size-6" aria-hidden="true" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-              Store management
-              <span className="mx-1 text-muted-foreground">/</span>
-              Products
-            </p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
               {editing ? "Edit product" : "Add product"}
             </h1>

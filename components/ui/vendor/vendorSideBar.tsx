@@ -79,7 +79,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              className="flex items-center gap-2 rounded-xl transition-colors duration-150 hover:bg-white/[0.07] hover:text-white"
+              className="flex items-center gap-2 rounded-xl transition-colors duration-150 hover:bg-sky-300/[0.08] hover:text-white"
               size="lg"
               isActive={pathname.startsWith("/vendor/profile")}
               render={<Link href="/vendor/profile" onClick={handleNavigation} />}

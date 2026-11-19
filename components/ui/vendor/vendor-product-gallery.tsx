@@ -146,7 +146,7 @@ export function VendorProductGallery({
             </div>
             <div
               ref={zoomPanelRef}
-              className="pointer-events-none fixed right-4 top-1/2 z-40 hidden -translate-y-1/2 overflow-hidden rounded-lg border border-border/80 bg-neutral-950 shadow-xl lg:block"
+              className="pointer-events-none fixed right-4 top-1/2 z-40 hidden -translate-y-1/2 overflow-hidden rounded-lg border border-sky-200/20 bg-[#1a2b46] shadow-xl lg:block"
             >
               <div
                 ref={zoomImageRef}

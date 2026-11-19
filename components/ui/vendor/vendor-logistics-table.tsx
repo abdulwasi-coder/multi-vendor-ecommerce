@@ -346,7 +346,7 @@ export function VendorLogisticsTable() {
         })}
       </section>
 
-      <Card className="overflow-hidden rounded-2xl border-white/10 bg-[#23262d] shadow-sm">
+      <Card className="overflow-hidden rounded-2xl border-sky-200/15 bg-[#1e3350] shadow-sm">
         <CardHeader className="gap-4 border-b sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Product inventory</CardTitle>
@@ -362,14 +362,14 @@ export function VendorLogisticsTable() {
                 : `${query.data.totalMatches} matching products`}
           </Badge>
         </CardHeader>
-        <div className="border-b border-white/[0.08] bg-[#1d2026] px-4 py-3">
+        <div className="border-b border-sky-200/15 bg-[#1b3150] px-4 py-3">
           <div className="flex flex-col gap-2 sm:flex-row">
             <label className="relative block w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 aria-label="Search inventory"
                 placeholder="Search inventory"
-                className="border-white/10 bg-[#252830] pl-9 placeholder:text-slate-500 focus-visible:ring-blue-400/40"
+                className="border-sky-200/20 bg-[#243d5e] pl-9 placeholder:text-slate-400 focus-visible:ring-sky-300/50"
                 value={search}
                 onChange={(event) => {
                   setSearch(event.target.value);
@@ -388,7 +388,7 @@ export function VendorLogisticsTable() {
                 setPageIndex(0);
               }}
               aria-label="Rows per page"
-              className="w-full border-white/10 bg-[#252830] sm:w-24"
+              className="w-full border-sky-200/20 bg-[#243d5e] sm:w-24"
             >
               <NativeSelectOption value="10">10</NativeSelectOption>
               <NativeSelectOption value="20">20</NativeSelectOption>
@@ -399,7 +399,7 @@ export function VendorLogisticsTable() {
               variant="outline"
               onClick={() => void handleExport()}
               disabled={isExporting || query.isPending || query.isFetching || query.isPlaceholderData || query.isError || products.length === 0}
-              className="border-white/10 bg-[#252830] hover:bg-white/[0.08]"
+              className="border-sky-200/20 bg-[#243d5e] hover:bg-[#315276]"
             >
               <Download aria-hidden="true" /> {isExporting ? "Exporting..." : "Export CSV"}
             </Button>
@@ -411,7 +411,7 @@ export function VendorLogisticsTable() {
               disabled={query.isFetching}
               aria-label="Refresh inventory"
               title="Refresh inventory"
-              className="border-white/10 bg-[#252830] hover:bg-white/[0.08]"
+              className="border-sky-200/20 bg-[#243d5e] hover:bg-[#315276]"
             >
               <RotateCw
                 aria-hidden="true"
@@ -423,7 +423,7 @@ export function VendorLogisticsTable() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table className="min-w-[850px]">
-              <TableHeader className="bg-[#1d2026]">
+              <TableHeader className="bg-[#1b3150]">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (

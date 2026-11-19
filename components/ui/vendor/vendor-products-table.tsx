@@ -297,7 +297,7 @@ export function VendorProductsTable() {
         })}
       </section>
 
-      <Card className="overflow-hidden rounded-2xl border-white/10 bg-[#23262d] shadow-sm">
+      <Card className="overflow-hidden rounded-2xl border-sky-200/15 bg-[#1e3350] shadow-sm">
         <CardHeader className="gap-4 border-b sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>All products</CardTitle>
@@ -341,7 +341,7 @@ export function VendorProductsTable() {
               variant="outline"
               onClick={() => void handleExport()}
               disabled={isExporting || query.isPending || query.isFetching || query.isPlaceholderData || query.isError || products.length === 0}
-              className="border-white/10 bg-[#252830] hover:bg-white/[0.08]"
+              className="border-sky-200/20 bg-[#243d5e] hover:bg-[#315276]"
             >
               <Download aria-hidden="true" /> {isExporting ? "Exporting..." : "Export CSV"}
             </Button>
@@ -364,7 +364,7 @@ export function VendorProductsTable() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table className="min-w-[900px]">
-              <TableHeader className="bg-[#1d2026]">
+              <TableHeader className="bg-[#1b3150]">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (

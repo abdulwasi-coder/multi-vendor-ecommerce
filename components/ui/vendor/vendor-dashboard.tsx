@@ -310,13 +310,13 @@ export function VendorDashboard() {
           >
             <SelectTrigger
               aria-label="Select reporting period"
-              className="w-36 rounded-xl border-sky-200/15 bg-[#15233a] text-slate-50 transition-colors hover:border-sky-200/25 hover:bg-[#1d3352]"
+              className="w-36 rounded-xl border-sky-200/20 bg-[#1e3350] text-slate-50 transition-colors hover:border-sky-200/30 hover:bg-[#29486d]"
             >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="border border-sky-200/15 bg-[#152b49] text-slate-100 shadow-xl">
+            <SelectContent className="border border-sky-200/20 bg-[#243d5e] text-slate-100 shadow-xl">
               {DASHBOARD_RANGES.map((item) => (
-                <SelectItem key={item.value} value={item.value} className="text-slate-200 focus:bg-white/[0.08] focus:text-white">
+                <SelectItem key={item.value} value={item.value} className="text-slate-100 focus:bg-sky-400/20 focus:text-white data-[highlighted]:bg-sky-400/20 data-[highlighted]:text-white">
                   {item.label}
                 </SelectItem>
               ))}
@@ -326,7 +326,7 @@ export function VendorDashboard() {
             variant="outline"
             onClick={exportDashboard}
             disabled={isLoading || isError}
-            className="rounded-xl border-sky-200/15 bg-[#15233a] text-slate-200 hover:bg-[#1d3352]"
+            className="rounded-xl border-sky-200/20 bg-[#1e3350] text-slate-100 hover:bg-[#29486d]"
           >
             <Download aria-hidden="true" /> Export CSV
           </Button>
@@ -353,7 +353,7 @@ export function VendorDashboard() {
           const change = metric.change;
           const up = change !== null && change >= 0;
           return (
-            <Card key={metric.label} className="group vendor-dashboard-enter vendor-dashboard-card vendor-dashboard-metric grid grid-rows-[30_30_40] border-white/10 bg-[#23262d] text-slate-50">
+            <Card key={metric.label} className="group vendor-dashboard-enter vendor-dashboard-card vendor-dashboard-metric grid grid-rows-[30_30_40] border-sky-200/15 bg-[#1e3350] text-slate-50">
               <CardHeader>
                 <CardTitle className="flex flex-row items-center justify-between text-sm font-medium text-slate-300">
                   {metric.label}
@@ -394,7 +394,7 @@ export function VendorDashboard() {
       </section>
 
       <section className="grid lg:grid-cols-1">
-        <Card className="vendor-dashboard-enter vendor-dashboard-card border-white/10 bg-[#23262d] pt-0 text-slate-50">
+        <Card className="vendor-dashboard-enter vendor-dashboard-card border-sky-200/15 bg-[#1e3350] pt-0 text-slate-50">
           <CardHeader className="flex items-center gap-2 space-y-0 border-b border-white/[0.08] py-5 sm:flex-row">
             <div className="grid flex-1 gap-1">
               <CardTitle className="text-lg font-semibold text-slate-50">Sales — last {days} days</CardTitle>
@@ -459,8 +459,8 @@ export function VendorDashboard() {
                       width={60}
                     />
                     <Tooltip
-                      contentStyle={{ background: "#1a302a", border: "1px solid rgba(140,203,176,.2)", borderRadius: 10, color: "#e7f0eb" }}
-                      labelStyle={{ color: "#a9c1b5" }}
+                      contentStyle={{ background: "#243d5e", border: "1px solid rgba(125,211,252,.24)", borderRadius: 10, color: "#f1f6ff" }}
+                      labelStyle={{ color: "#c5d7ed" }}
                       formatter={(value, name) => [
                         currency.format(Number(value)),
                         name === "current" ? "Current period" : "Previous period",
@@ -475,7 +475,7 @@ export function VendorDashboard() {
                       type="monotone"
                       dataKey="previous"
                       name="previous"
-                      stroke="#8ab8e8"
+                      stroke="#38bdf8"
                       strokeOpacity={0.45}
                       strokeWidth={2}
                       strokeDasharray="5 4"
@@ -485,7 +485,7 @@ export function VendorDashboard() {
                       type="monotone"
                       dataKey="current"
                       name="current"
-                      stroke="#8ab8e8"
+                      stroke="#38bdf8"
                       strokeWidth={2.5}
                       fill="url(#vendorSalesFill)"
                     />
@@ -497,7 +497,7 @@ export function VendorDashboard() {
         </Card>
       </section>
 
-      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-white/10 bg-[#23262d] text-slate-50">
+      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-sky-200/15 bg-[#1e3350] text-slate-50">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle className="text-lg font-semibold text-slate-50">Recent payouts</CardTitle>
@@ -583,7 +583,7 @@ export function VendorDashboard() {
         </CardContent>
       </Card>
 
-      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-white/10 bg-[#23262d] text-slate-50">
+      <Card className="vendor-dashboard-enter vendor-dashboard-card overflow-hidden rounded-2xl border-sky-200/15 bg-[#1e3350] text-slate-50">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle className="text-lg font-semibold text-slate-50">Recent orders</CardTitle>
