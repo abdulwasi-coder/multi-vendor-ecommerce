@@ -120,7 +120,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-amber-100/50 text-[10px] font-semibold tracking-[0.14em] uppercase">
-            Workspace
+            Management
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

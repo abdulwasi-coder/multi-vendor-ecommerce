@@ -108,7 +108,7 @@ export default async function AdminDashboardPage() {
         {metrics.map((metric) => {
           const Icon = metric.icon;
           return (
-            <Card key={metric.label} className="gap-4 py-5">
+            <Card key={metric.label} className="grid min-w-0 grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
               <CardHeader>
               <CardTitle className="flex-row flex gap-2 space-y-0 items-center justify-between text-sm font-medium text-muted-foreground">
                   {metric.label}
@@ -117,11 +117,11 @@ export default async function AdminDashboardPage() {
                   </span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 text-2xl font-semibold tracking-tight px-5">
+              <CardContent className="min-h-14 break-words px-5 py-2 text-2xl font-semibold leading-tight tracking-tight">
                 {metric.value}
               </CardContent>
               <CardFooter
-                className={`border-0 bg-background text-xs font-medium flex gap-0.5 ${metric.positive ? "text-emerald-700 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}
+                className={`min-h-10 border-0 bg-transparent px-5 pt-0 pb-4 text-xs leading-5 font-medium flex flex-wrap gap-x-0.5 gap-y-0 ${metric.positive ? "text-emerald-700 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}
               >
                 {metric.positive ? (
                   <ArrowUpRight className="size-3.5 text-emerald-500" />
@@ -140,7 +140,7 @@ export default async function AdminDashboardPage() {
         <ChartAreaInteractive />
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid min-w-0 items-stretch gap-4 lg:grid-cols-[repeat(2,minmax(0,1fr))]">
         <PendingOrders />
         <PendingVendor />
       </section>

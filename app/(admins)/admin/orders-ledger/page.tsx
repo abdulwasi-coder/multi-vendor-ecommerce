@@ -133,7 +133,7 @@ export default function AdminOrdersPage() {
           {stats.map((metric) => {
             const Icon = metric.icon;
             return (
-              <Card key={metric.title} className="gap-4 py-5">
+              <Card key={metric.title} className="grid min-w-0 grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
                 <CardHeader>
                   <CardTitle className="flex-row flex gap-2 space-y-0 items-center justify-between text-sm font-medium text-muted-foreground">
                     {metric.title}
@@ -142,10 +142,12 @@ export default function AdminOrdersPage() {
                     </div>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-2xl font-semibold tracking-tight ">
+                <CardContent className="min-h-14 break-words px-5 py-2 text-2xl font-semibold leading-tight tracking-tight">
                   {metric.value}
                 </CardContent>
-                <CardFooter className="bg-background border-none">{metric.description}</CardFooter>
+                <CardFooter className="min-h-10 border-0 bg-transparent px-5 pt-0 pb-4 text-xs leading-5 text-muted-foreground">
+                  {metric.description}
+                </CardFooter>
               </Card>
             );
           })}

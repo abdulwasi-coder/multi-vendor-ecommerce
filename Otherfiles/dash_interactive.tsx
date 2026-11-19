@@ -201,13 +201,13 @@ export function PendingVendor() {
     : undefined;
 
   return (
-    <Card>
-      <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <Card className="h-full min-w-0 w-full">
+      <CardHeader className="min-w-0 gap-4 sm:flex-col sm:items-stretch sm:justify-between 2xl:flex-row 2xl:items-center">
         <div className="space-y-1">
           <CardTitle>Recent Pending Vendors</CardTitle>
           <CardDescription>Review New Pending Sellers</CardDescription>
         </div>
-        <div className="relative w-full sm:w-72">
+        <div className="relative w-full min-w-0 2xl:max-w-64">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
@@ -221,7 +221,8 @@ export function PendingVendor() {
           />
         </div>
       </CardHeader>
-      <CardContent className="px-0 pb-2">
+      <CardContent className="min-w-0 overflow-hidden px-0 pb-2">
+        <div className="w-full min-w-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -290,6 +291,7 @@ export function PendingVendor() {
             )}
           </TableBody>
         </Table>
+        </div>
         <div className="flex items-center justify-between px-6 pt-4 text-xs text-muted-foreground">
           <span>
             Page {page} of {totalPages}
@@ -343,13 +345,13 @@ export function PendingOrders() {
   const [search, setSearch] = useState("");
 
   return (
-    <Card>
-      <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <Card className="h-full min-w-0 w-full">
+      <CardHeader className="min-w-0 gap-4 sm:flex-col sm:items-stretch sm:justify-between 2xl:flex-row 2xl:items-center">
         <div className="space-y-1">
           <CardTitle>Pending Transfers</CardTitle>
           <CardDescription>See, Approve And Transfer The Money</CardDescription>
         </div>
-        <div className="relative w-full sm:w-72">
+        <div className="relative w-full min-w-0 2xl:max-w-64">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
@@ -360,7 +362,8 @@ export function PendingOrders() {
           />
         </div>
       </CardHeader>
-      <CardContent className="px-0 pb-2">
+      <CardContent className="min-w-0 overflow-hidden px-0 pb-2">
+        <div className="w-full min-w-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -390,6 +393,7 @@ export function PendingOrders() {
             ))}
           </TableBody>
         </Table>
+        </div>
         <div className="flex items-center justify-between px-6 pt-4 text-xs text-muted-foreground">
           <span>Showing 5 of 5 orders</span>
           <Button variant="ghost" size="sm" className="-mr-2">

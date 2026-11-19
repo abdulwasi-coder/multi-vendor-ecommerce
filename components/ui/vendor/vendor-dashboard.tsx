@@ -353,21 +353,21 @@ export function VendorDashboard() {
           const change = metric.change;
           const up = change !== null && change >= 0;
           return (
-            <Card key={metric.label} className="group vendor-dashboard-enter vendor-dashboard-card vendor-dashboard-metric grid grid-rows-[30_30_40] border-sky-200/15 bg-[#1e3350] text-slate-50">
+            <Card key={metric.label} className="group vendor-dashboard-enter vendor-dashboard-card vendor-dashboard-metric grid h-full min-w-0 grid-rows-[auto_1fr_auto] gap-0 overflow-hidden border-sky-200/15 bg-[#1e3350] text-slate-50">
               <CardHeader>
                 <CardTitle className="flex flex-row items-center justify-between text-sm font-medium text-slate-300">
                   {metric.label}
                   <span style={{ color: metric.iconColor, backgroundColor: metric.iconBackground }} className="flex size-9 items-center justify-center rounded-xl transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110"><Icon className="size-4 transition-transform duration-200 group-hover:rotate-12" /></span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 px-5 text-2xl font-semibold tracking-tight text-[#f3f6fb]">
+              <CardContent className="min-h-14 break-words px-5 py-2 text-2xl font-semibold leading-tight tracking-tight text-[#f3f6fb]">
                 {isLoading ? (
                   <div className="h-8 w-20 animate-pulse rounded-lg bg-white/[0.08]" />
                 ) : (
                   metric.value
                 )}
               </CardContent>
-              <CardFooter className="flex gap-0.5 overflow-visible border-0 bg-transparent pr-1 text-xs font-medium">
+              <CardFooter className="mt-auto min-h-10 flex-wrap gap-x-1 gap-y-0 overflow-hidden border-0 bg-transparent px-5 pt-0 pb-4 text-xs leading-5 font-medium">
                 {change === null ? (
                   <span className="text-muted-foreground">
                     No data for previous period

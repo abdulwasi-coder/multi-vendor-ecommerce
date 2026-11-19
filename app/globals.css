@@ -257,30 +257,30 @@ main.vendor-workspace > main {
 }
 
 .admin-workspace {
-  --background: #17140e;
-  --foreground: #f5f0e4;
-  --card: #241f15;
-  --card-foreground: #f5f0e4;
-  --popover: #302719;
-  --popover-foreground: #fff8e8;
+  --background: #211c14;
+  --foreground: #fff8e9;
+  --card: rgba(57, 47, 30, 0.84);
+  --card-foreground: #fff8e9;
+  --popover: #3c3220;
+  --popover-foreground: #fff9eb;
   --primary: #eee5d2;
   --primary-foreground: #211c13;
-  --secondary: #342b1b;
-  --secondary-foreground: #f5ebd2;
-  --muted: #302719;
-  --muted-foreground: #c1b69e;
-  --accent: #41351f;
-  --accent-foreground: #fff6df;
+  --secondary: #443820;
+  --secondary-foreground: #fff4d8;
+  --muted: #392f1e;
+  --muted-foreground: #d2c5a8;
+  --accent: #51432a;
+  --accent-foreground: #fff8e6;
   --destructive: #f28b82;
-  --border: rgba(232, 201, 135, 0.16);
-  --input: rgba(232, 201, 135, 0.22);
+  --border: rgba(255, 224, 157, 0.2);
+  --input: rgba(255, 224, 157, 0.24);
   --ring: #e8b94f;
   --chart-1: #e8b94f;
   --chart-2: #f4d58a;
   --chart-3: #c98f38;
   --chart-4: #9f7b43;
   --chart-5: #f28b82;
-  background: var(--background);
+  background: radial-gradient(ellipse at 18% 0%, rgba(190, 145, 57, 0.12), transparent 38%), var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -308,23 +308,25 @@ main.vendor-workspace > main {
 }
 
 .admin-dashboard-surface {
-  color: #f5f0e4;
-  background: #17140e;
+  color: #fff8e9;
+  background: radial-gradient(ellipse at 82% 4%, rgba(224, 181, 86, 0.1), transparent 32%), linear-gradient(135deg, #272116 0%, #211c14 54%, #282116 100%);
 }
 
 .admin-workspace [data-slot="card"] {
-  border-color: var(--border);
-  background-color: var(--card);
+  border-color: rgba(255, 224, 157, 0.19);
+  background: linear-gradient(145deg, rgba(83, 68, 40, 0.64), rgba(49, 41, 27, 0.9));
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   color: var(--card-foreground);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 239, 199, 0.07), 0 8px 24px rgba(8, 6, 2, 0.17);
   animation: admin-card-enter 240ms ease-out both;
   transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .admin-workspace [data-slot="card"]:hover {
   transform: translateY(-1px);
-  border-color: rgba(232, 185, 79, 0.28);
-  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 224, 157, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 239, 199, 0.1), 0 10px 26px rgba(8, 6, 2, 0.2);
 }
 
 .admin-workspace [data-slot="table-head"] {
@@ -439,15 +441,18 @@ main.vendor-workspace > main {
 .admin-workspace .text-amber-700 { color: #f0c76b; }
 
 .admin-sidebar-surface {
-  --sidebar: #1d190f;
-  --sidebar-foreground: #f3ead5;
+  --sidebar: #2a2317;
+  --sidebar-foreground: #fff5dd;
   --sidebar-primary: #f3d27a;
   --sidebar-primary-foreground: #211809;
   --sidebar-accent: rgba(232, 185, 79, 0.12);
   --sidebar-accent-foreground: #fff6df;
   --sidebar-border: rgba(232, 201, 135, 0.14);
   --sidebar-ring: rgba(243, 210, 122, 0.5);
-  background: #1d190f;
+  border-right: 1px solid rgba(255, 224, 157, 0.15);
+  background: linear-gradient(155deg, rgba(70, 57, 34, 0.96), rgba(39, 32, 21, 0.97));
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
 }
 
 body:has(.admin-workspace) [data-slot="dialog-content"],
@@ -455,22 +460,22 @@ body:has(.admin-workspace) [data-slot="alert-dialog-content"],
 body:has(.admin-workspace) [data-slot="popover-content"],
 body:has(.admin-workspace) [data-slot="select-content"],
 body:has(.admin-workspace) [data-slot="dropdown-menu-content"] {
-  --background: #17140e;
-  --foreground: #f5f0e4;
-  --popover: #302719;
-  --popover-foreground: #fff8e8;
+  --background: #292216;
+  --foreground: #fff8e9;
+  --popover: #403520;
+  --popover-foreground: #fff9eb;
   --primary: #eee5d2;
   --primary-foreground: #211c13;
-  --muted: #302719;
-  --muted-foreground: #c1b69e;
-  --accent: #41351f;
-  --accent-foreground: #fff6df;
-  --border: rgba(232, 201, 135, 0.16);
-  --input: rgba(232, 201, 135, 0.22);
+  --muted: #392f1e;
+  --muted-foreground: #d2c5a8;
+  --accent: #51432a;
+  --accent-foreground: #fff8e6;
+  --border: rgba(255, 224, 157, 0.2);
+  --input: rgba(255, 224, 157, 0.24);
   --ring: #f3d27a;
   border-color: rgba(232, 201, 135, 0.2);
-  background-color: #302719;
-  color: #fff8e8;
+  background-color: #403520;
+  color: #fff9eb;
 }
 
 body:has(.admin-workspace) select[data-slot="native-select"],
