@@ -37,6 +37,8 @@ const metrics = [
     detail: "vs. previous month",
     icon: CircleDollarSign,
     positive: true,
+    iconColor: "#f4cf70",
+    iconBackground: "rgba(232,185,79,.14)",
   },
   {
     label: "Total Benefit",
@@ -45,6 +47,8 @@ const metrics = [
     detail: "vs. previous month",
     icon: ShoppingBag,
     positive: true,
+    iconColor: "#f2bd57",
+    iconBackground: "rgba(217,155,56,.14)",
   },
   {
     label: "Total Customers",
@@ -53,6 +57,8 @@ const metrics = [
     detail: "this month",
     icon: Store,
     positive: true,
+    iconColor: "#f7df9a",
+    iconBackground: "rgba(247,223,154,.12)",
   },
   {
     label: "Total Vendors",
@@ -61,6 +67,8 @@ const metrics = [
     detail: "vs. previous month",
     icon: Users,
     positive: true,
+    iconColor: "#d9aa4b",
+    iconBackground: "rgba(201,143,56,.16)",
   },
   {
     label: "Pending payouts",
@@ -69,6 +77,8 @@ const metrics = [
     detail: "awaiting review",
     icon: Banknote,
     positive: false,
+    iconColor: "#f3c76a",
+    iconBackground: "rgba(232,185,79,.14)",
   },
 ];
 
@@ -100,10 +110,11 @@ export default async function AdminDashboardPage() {
           return (
             <Card key={metric.label} className="gap-4 py-5">
               <CardHeader>
-                <CardTitle className="flex-row flex gap-2 space-y-0 items-center justify-between text-sm font-medium text-muted-foreground">
+              <CardTitle className="flex-row flex gap-2 space-y-0 items-center justify-between text-sm font-medium text-muted-foreground">
                   {metric.label}
-
-                  <Icon className="size-4" />
+                  <span className="admin-metric-icon" style={{ color: metric.iconColor, backgroundColor: metric.iconBackground }}>
+                    <Icon className="size-4" />
+                  </span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-2xl font-semibold tracking-tight px-5">
@@ -139,7 +150,7 @@ export default async function AdminDashboardPage() {
           <CardContent className="flex items-center justify-between px-5">
             <div className="flex items-center gap-3">
               <span className="flex size-10 items-center justify-center rounded-lg bg-muted">
-                <Boxes className="size-4 text-muted-foreground" />
+                <Boxes className="size-4 text-amber-300" />
               </span>
               <div>
                 <p className="text-sm font-medium">View Order Analytics</p>
@@ -163,7 +174,7 @@ export default async function AdminDashboardPage() {
           <CardContent className="flex items-center justify-between px-5">
             <div className="flex items-center gap-3">
               <span className="flex size-10 items-center justify-center rounded-lg bg-muted">
-                <Activity className="size-4 text-muted-foreground" />
+                <Activity className="size-4 text-amber-300" />
               </span>
               <div>
                 <p className="text-sm font-medium">Vendor applications</p>

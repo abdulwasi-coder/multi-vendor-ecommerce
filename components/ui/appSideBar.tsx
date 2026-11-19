@@ -28,14 +28,14 @@ import {
 import Image from "next/image";
 
 const navigationItems = [
-  { title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "Orders", href: "/admin/orders-ledger", icon: ShoppingCart },
-  { title: "Products", href: "/admin/products", icon: Package },
-  { title: "Vendors & Users", href: "/admin/vendors-users", icon: Users },
+  { title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard, color: "gold" },
+  { title: "Orders", href: "/admin/orders-ledger", icon: ShoppingCart, color: "amber" },
+  { title: "Products", href: "/admin/products", icon: Package, color: "cream" },
+  { title: "Vendors & Users", href: "/admin/vendors-users", icon: Users, color: "bronze" },
 ];
 
 const creationItems = [
-  { title: "Category", href: "/admin/category", icon: Component },
+  { title: "Category", href: "/admin/category", icon: Component, color: "gold" },
 ];
 
 export function AppSidebar() {
@@ -113,6 +113,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       className="admin-sidebar-link flex items-center gap-2 rounded-lg transition-colors hover:bg-amber-300/[0.08] hover:text-amber-50 data-[active=true]:bg-amber-400/15 data-[active=true]:text-amber-100 data-[active=true]:shadow-[inset_2px_0_0_#e8b94f]"
+                      data-item-color={item.color}
                       isActive={isActive}
                       render={
                         <Link onClick={handleNavigation} href={item.href} />
@@ -143,6 +144,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       className="admin-sidebar-link flex items-center gap-2 rounded-lg transition-colors hover:bg-amber-300/[0.08] hover:text-amber-50 data-[active=true]:bg-amber-400/15 data-[active=true]:text-amber-100 data-[active=true]:shadow-[inset_2px_0_0_#e8b94f]"
+                      data-item-color={item.color}
                       isActive={isActive}
                       render={
                         <Link onClick={handleNavigation} href={item.href} />
