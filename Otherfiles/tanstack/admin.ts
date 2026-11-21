@@ -99,13 +99,14 @@ export interface AdminDashboardChartPoint {
   monthlyEarning: number;
 }
 
-export type AdminDashboardRange = "3Months" | "6Months" | "12Months";
+export type AdminDashboardRange = "3Months" | "6Months" | "12Months" | "1Month";
 
 export const ADMIN_DASHBOARD_RANGES: {
   value: AdminDashboardRange;
   label: string;
   months: number;
 }[] = [
+  { value: "1Month", label: "1 Month", months: 1 },
   { value: "3Months", label: "3 Months", months: 3 },
   { value: "6Months", label: "6 Months", months: 6 },
   { value: "12Months", label: "1 Year", months: 12 },
