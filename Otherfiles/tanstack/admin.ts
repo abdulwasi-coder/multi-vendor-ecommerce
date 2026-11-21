@@ -1,4 +1,4 @@
-﻿import api from "@/lib/axios";
+import api from "@/lib/axios";
 import {
   keepPreviousData,
   useQuery,
@@ -95,7 +95,7 @@ export interface AdminDashboardSummary {
 }
 
 export interface AdminDashboardChartPoint {
-  _id: { year: number; month: number };
+  _id: { year: number; month: number; day?: number };
   monthlyEarning: number;
 }
 
@@ -321,13 +321,18 @@ export function buildAdminRevenueSeries(
   previousChartData: AdminDashboardChartPoint[] | undefined,
   months: number,
 ): AdminRevenueSeriesPoint[] {
+  const isDaily = [...(chartData ?? []), ...(previousChartData ?? [])].some(
+    (point) => point?._id?.day != null,
+  );
+
   const toEarningMap = (points: AdminDashboardChartPoint[] | undefined) => {
     const map = new Map<string, number>();
     for (const point of points ?? []) {
       const year = point?._id?.year;
       const month = point?._id?.month;
+      const day = point?._id?.day;
       if (!year || !month) continue;
-      const key = monthKey(year, month);
+      const key = day ? `${year}-${month}-${day}` : `${year}-${month}`;
       map.set(key, (map.get(key) ?? 0) + (point.monthlyEarning ?? 0));
     }
     return map;
@@ -336,20 +341,61 @@ export function buildAdminRevenueSeries(
   const currentMap = toEarningMap(chartData);
   const previousMap = toEarningMap(previousChartData);
 
-  let latestMonth: Date | null = null;
+  let latest: Date | null = null;
   for (const point of chartData ?? []) {
     const year = point?._id?.year;
     const month = point?._id?.month;
+    const day = point?._id?.day;
     if (!year || !month) continue;
-    const monthDate = new Date(Date.UTC(year, month - 1, 1));
-    if (!latestMonth || monthDate > latestMonth) latestMonth = monthDate;
+    const pointDate = new Date(Date.UTC(year, month - 1, day ?? 1));
+    if (!latest || pointDate > latest) latest = pointDate;
+  }
+
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const points: AdminRevenueSeriesPoint[] = [];
+
+  if (isDaily) {
+    const days = months * 30;
+    const reference =
+      latest ??
+      new Date(
+        Date.UTC(
+          new Date().getUTCFullYear(),
+          new Date().getUTCMonth(),
+          new Date().getUTCDate(),
+        ),
+      );
+    const referenceDay = Date.UTC(
+      reference.getUTCFullYear(),
+      reference.getUTCMonth(),
+      reference.getUTCDate(),
+    );
+    for (let i = days - 1; i >= 0; i--) {
+      const current = new Date(referenceDay - i * DAY_MS);
+      const previous = new Date(referenceDay - (i + days) * DAY_MS);
+      points.push({
+        date: current.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          timeZone: "UTC",
+        }),
+        current:
+          currentMap.get(
+            `${current.getUTCFullYear()}-${current.getUTCMonth() + 1}-${current.getUTCDate()}`,
+          ) ?? 0,
+        previous:
+          previousMap.get(
+            `${previous.getUTCFullYear()}-${previous.getUTCMonth() + 1}-${previous.getUTCDate()}`,
+          ) ?? 0,
+      });
+    }
+    return points;
   }
 
   const reference =
-    latestMonth ??
+    latest ??
     new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1));
 
-  const points: AdminRevenueSeriesPoint[] = [];
   for (let i = months - 1; i >= 0; i--) {
     const current = new Date(
       Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth() - i, 1),
