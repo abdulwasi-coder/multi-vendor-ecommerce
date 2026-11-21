@@ -109,7 +109,7 @@ export function ChartAreaInteractive({ data = [] }: { data?: RevenueChartPoint[]
             />
             <Area
               dataKey="previous"
-              type="natural"
+              type="monotone"
               stroke="var(--color-previous)"
               strokeOpacity={0.5}
               strokeWidth={2}
@@ -119,7 +119,7 @@ export function ChartAreaInteractive({ data = [] }: { data?: RevenueChartPoint[]
             />
             <Area
               dataKey="current"
-              type="natural"
+              type="monotone"
               fill="url(#fillCurrent)"
               stroke="var(--color-current)"
               isAnimationActive={true}
