@@ -81,8 +81,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Link from "next/link";
 import {
   useAdminPendingVendors,
+  useApproveVendorPayout,
   useVendorBalanceLedger,
   type AdminPendingVendor,
 } from "@/Otherfiles/tanstack/admin";
@@ -340,6 +342,7 @@ export function PendingVendor() {
 export function PendingOrders() {
   const [search, setSearch] = useState("");
   const ledgerQuery = useVendorBalanceLedger(5);
+  const approvePayout = useApproveVendorPayout();
 
   const vendors = ledgerQuery.data?.vendorsData ?? [];
   const filteredVendors = vendors.filter((vendor) =>
@@ -421,10 +424,26 @@ export function PendingOrders() {
                     {currency.format(vendor.platfromRevenue ?? 0)}
                   </TableCell>
                   <TableCell className="font-medium flex items-center gap-0.5">
-                    <Button variant="outline" className="text-yellow-400 " aria-label={`View ${vendor.BusinessName}`}>
-                      <View />
-                    </Button>
-                    <Button variant="outline" className="text-emerald-400" aria-label={`Approve payout for ${vendor.BusinessName}`}>
+                    <Link href={`/admin/vendors-users?vendor=${vendor.vendorID}`}>
+                      <Button variant="outline" className="text-yellow-400" aria-label={`View ${vendor.BusinessName}`}>
+                        <View />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      className="text-emerald-400"
+                      aria-label={`Approve payout for ${vendor.BusinessName}`}
+                      disabled={approvePayout.isPending}
+                      onClick={() =>
+                        approvePayout.mutate(vendor.vendorID, {
+                          onSuccess: (data) =>
+                            toast.success(
+                              `Marked ${data.updated} order${data.updated === 1 ? "" : "s"} as paid out`,
+                            ),
+                          onError: () => toast.error("Could not approve payout"),
+                        })
+                      }
+                    >
                       <Verified />
                     </Button>
                   </TableCell>

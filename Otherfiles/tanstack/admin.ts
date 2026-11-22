@@ -1,7 +1,9 @@
 import api from "@/lib/axios";
 import {
   keepPreviousData,
+  useMutation,
   useQuery,
+  useQueryClient,
   type QueryClient,
   type QueryFunctionContext,
 } from "@tanstack/react-query";
@@ -527,4 +529,22 @@ export function useUser() {
     refetchOnMount: false,
   });
   return query;
+}
+
+export function useApproveVendorPayout() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (vendorId: string) => {
+      const response = await api.post<{ success: boolean; updated: number }>(
+        `/admin/approveVendorPayout/${vendorId}`,
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["admin-vendor-balance-ledger"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
+    },
+  });
 }
