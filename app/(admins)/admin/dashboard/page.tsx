@@ -23,11 +23,6 @@ export default async function AdminDashboardPage() {
       PENDING_VENDORS_PAGE_SIZE,
       cookieHeader,
     ),
-    prefetchAdminVendorBalanceLedger(
-      queryClient,
-      VENDOR_LEDGER_LIMIT,
-      cookieHeader,
-    ),
   ]);
 
   return (

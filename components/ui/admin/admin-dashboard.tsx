@@ -23,7 +23,6 @@ import {
 
 import {
   DropdownMenuCustom,
-  PendingOrders,
   PendingVendor,
 } from "@/Otherfiles/dash_interactive";
 import { ChartAreaInteractive } from "@/components/ui/chart-area-interactive";
@@ -183,7 +182,6 @@ export default function AdminDashboard() {
       </section>
 
       <section className="grid min-w-0 grid-cols-1 gap-5">
-        <PendingOrders />
         <PendingVendor />
       </section>
 
