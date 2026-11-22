@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { flexRender, useTable } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,6 +26,7 @@ import {
   ChevronRight,
   CircleDollarSign,
   ClipboardList,
+  RefreshCw,
   Search,
   Store,
   TrendingUp,
@@ -36,46 +37,36 @@ import {
   type AdminOrderFeedItem,
   type VendorLedgerEntry,
 } from "@/Otherfiles/tanstack/admin";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import {
-  AnimatedNumber,
-} from "@/components/ui/animated-number";
+  features,
+  type DataTableFeatures,
+} from "@/components/ui/admin/data_table_feature";
+import {
+  adminOrderColumns,
+  vendorLedgerColumns,
+} from "@/components/ui/admin/order-columns";
 
 const PAGE_SIZE = 10;
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
-const shortId = (id?: string | null) =>
-  id ? `#${String(id).slice(-8).toUpperCase()}` : "—";
-
-const formatDate = (value?: string) =>
-  value
-    ? new Date(value).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : "—";
-
-function customerLabel(order: AdminOrderFeedItem) {
-  const customer = order.customerID;
-  if (customer && typeof customer === "object") {
-    return customer.name || customer.email || shortId(customer._id);
-  }
-  return shortId(typeof customer === "string" ? customer : order._id);
-}
-
-function paymentStatusBadge(status?: string) {
-  const normalized = (status ?? "").toLowerCase();
-  const variant =
-    normalized === "paid" || normalized === "delivered"
-      ? "default"
-      : normalized === "failed"
-        ? "destructive"
-        : "secondary";
-  return <Badge variant={variant}>{status ?? "unknown"}</Badge>;
+function ReloadButton({
+  onReload,
+  isReloading,
+}: {
+  onReload: () => void;
+  isReloading: boolean;
+}) {
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={onReload}
+      disabled={isReloading}
+      aria-label="Reload data"
+    >
+      <RefreshCw className={isReloading ? "animate-spin" : ""} />
+    </Button>
+  );
 }
 
 function Pagination({
@@ -115,6 +106,31 @@ function Pagination({
   );
 }
 
+function SearchBox({
+  value,
+  onChange,
+  placeholder,
+  ariaLabel,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  ariaLabel: string;
+}) {
+  return (
+    <div className="relative w-full sm:w-72">
+      <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="pl-9"
+        aria-label={ariaLabel}
+      />
+    </div>
+  );
+}
+
 export function AdminOrdersLedger() {
   const [vendorPage, setVendorPage] = useState(1);
   const [orderPage, setOrderPage] = useState(1);
@@ -137,19 +153,48 @@ export function AdminOrdersLedger() {
   );
 
   const filteredOrders = orders.filter((order) =>
-    [order._id, customerLabel(order), order.paymentMethod, order.paymentStatus]
+    [
+      order._id,
+      typeof order.customerID === "object" && order.customerID
+        ? order.customerID.name || order.customerID.email
+        : order.customerID,
+      order.paymentMethod,
+      order.paymentStatus,
+    ]
       .filter(Boolean)
       .join(" ")
       .toLowerCase()
       .includes(orderSearch.trim().toLowerCase()),
   );
 
+  const vendorTable = useTable<DataTableFeatures, VendorLedgerEntry>({
+    data: filteredVendors,
+    columns: vendorLedgerColumns,
+    features,
+    manualPagination: true,
+    pageCount: ledgerQuery.data?.totalPages ?? 1,
+    state: {
+      pagination: { pageIndex: vendorPage - 1, pageSize: PAGE_SIZE },
+    },
+  });
+
+  const orderTable = useTable<DataTableFeatures, AdminOrderFeedItem>({
+    data: filteredOrders,
+    columns: adminOrderColumns,
+    features,
+    manualPagination: true,
+    pageCount: feedQuery.data?.totalPages ?? 1,
+    state: {
+      pagination: { pageIndex: orderPage - 1, pageSize: PAGE_SIZE },
+    },
+  });
+
   const stats = [
     {
       title: "Active vendors",
-      value: summary?.totalVendors ?? 0,
+      value: summary?.totalVendors ?? ledgerQuery.data?.totalVendors ?? 0,
       currency: undefined,
-      description: "Vendors with recorded sales",
+      description: "Vendors with pending payouts",
       icon: Store,
     },
     {
@@ -221,19 +266,21 @@ export function AdminOrdersLedger() {
       <Card>
         <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <CardTitle>Vendor Ledger</CardTitle>
+            <CardTitle>Pending Vendor Payouts</CardTitle>
             <CardDescription>
-              Sales, earnings and order counts per vendor
+              Delivered, unpaid orders whose payout date has passed
             </CardDescription>
           </div>
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            <SearchBox
               value={vendorSearch}
-              onChange={(event) => setVendorSearch(event.target.value)}
+              onChange={setVendorSearch}
               placeholder="Search vendors..."
-              className="pl-9"
-              aria-label="Search vendors"
+              ariaLabel="Search vendors"
+            />
+            <ReloadButton
+              onReload={() => ledgerQuery.refetch()}
+              isReloading={ledgerQuery.isRefetching}
             />
           </div>
         </CardHeader>
@@ -241,71 +288,55 @@ export function AdminOrdersLedger() {
           <div className="w-full min-w-0 overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="pl-6">Vendor</TableHead>
-                  <TableHead className="hidden sm:table-cell">
-                    Gross sales
-                  </TableHead>
-                  <TableHead>Vendor earning</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Platform revenue
-                  </TableHead>
-                  <TableHead className="hidden lg:table-cell">
-                    Order count
-                  </TableHead>
-                </TableRow>
+                {vendorTable.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id} className="whitespace-nowrap">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
               </TableHeader>
               <TableBody>
-                {ledgerQuery.isPending ? (
+                {ledgerQuery.isPending || ledgerQuery.isError ? (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={vendorLedgerColumns.length}
                       className="py-8 text-center text-muted-foreground"
                     >
-                      Loading vendor ledger...
+                      {ledgerQuery.isPending
+                        ? "Loading vendor balances..."
+                        : "Could not load vendor balances."}
                     </TableCell>
                   </TableRow>
-                ) : ledgerQuery.isError ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="py-8 text-center text-destructive"
-                    >
-                      Could not load vendor ledger.
-                    </TableCell>
-                  </TableRow>
-                ) : filteredVendors.length ? (
-                  filteredVendors.map((vendor) => (
-                    <TableRow key={vendor.vendorID}>
-                      <TableCell className="pl-6 font-medium">
-                        {vendor.BusinessName || "Unnamed vendor"}
-                        <span className="block text-xs font-normal text-muted-foreground">
-                          {shortId(vendor.vendorID)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell font-medium">
-                        {currency.format(vendor.grossSales ?? 0)}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {currency.format(vendor.vendorPayoutBalance ?? 0)}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell font-medium">
-                        {currency.format(vendor.platfromRevenue ?? 0)}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell font-medium">
-                        {vendor.orderCount ?? 0}
-                      </TableCell>
+                ) : vendorTable.getRowModel().rows.length ? (
+                  vendorTable.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="py-3">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={vendorLedgerColumns.length}
                       className="py-8 text-center text-muted-foreground"
                     >
                       {vendorSearch
                         ? "No vendors match your search."
-                        : "No vendor sales yet."}
+                        : "No pending vendor payouts."}
                     </TableCell>
                   </TableRow>
                 )}
@@ -328,14 +359,16 @@ export function AdminOrdersLedger() {
               Recent customer orders across the marketplace
             </CardDescription>
           </div>
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            <SearchBox
               value={orderSearch}
-              onChange={(event) => setOrderSearch(event.target.value)}
+              onChange={setOrderSearch}
               placeholder="Search orders..."
-              className="pl-9"
-              aria-label="Search orders"
+              ariaLabel="Search orders"
+            />
+            <ReloadButton
+              onReload={() => feedQuery.refetch()}
+              isReloading={feedQuery.isRefetching}
             />
           </div>
         </CardHeader>
@@ -343,64 +376,50 @@ export function AdminOrdersLedger() {
           <div className="w-full min-w-0 overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="pl-6">Order</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead className="hidden sm:table-cell">
-                    Payment method
-                  </TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden md:table-cell">Date</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                </TableRow>
+                {orderTable.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id} className="whitespace-nowrap">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
               </TableHeader>
               <TableBody>
-                {feedQuery.isPending ? (
+                {feedQuery.isPending || feedQuery.isError ? (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={adminOrderColumns.length}
                       className="py-8 text-center text-muted-foreground"
                     >
-                      Loading orders...
+                      {feedQuery.isPending
+                        ? "Loading orders..."
+                        : "Could not load orders."}
                     </TableCell>
                   </TableRow>
-                ) : feedQuery.isError ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="py-8 text-center text-destructive"
-                    >
-                      Could not load orders.
-                    </TableCell>
-                  </TableRow>
-                ) : filteredOrders.length ? (
-                  filteredOrders.map((order) => (
-                    <TableRow key={order._id}>
-                      <TableCell className="pl-6 font-medium">
-                        {shortId(order._id)}
-                        <span className="block text-xs font-normal text-muted-foreground">
-                          {order.paymentIntentId
-                            ? `PI ${String(order.paymentIntentId).slice(0, 12)}…`
-                            : "—"}
-                        </span>
-                      </TableCell>
-                      <TableCell>{customerLabel(order)}</TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {order.paymentMethod ?? "—"}
-                      </TableCell>
-                      <TableCell>{paymentStatusBadge(order.paymentStatus)}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {formatDate(order.createdAt)}
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {currency.format(order.totalPrice ?? 0)}
-                      </TableCell>
+                ) : orderTable.getRowModel().rows.length ? (
+                  orderTable.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="py-3">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={adminOrderColumns.length}
                       className="py-8 text-center text-muted-foreground"
                     >
                       {orderSearch
