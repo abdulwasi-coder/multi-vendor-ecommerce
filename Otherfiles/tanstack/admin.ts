@@ -251,6 +251,14 @@ export interface VendorLedgerEntry {
   grossSales: number;
   vendorPayoutBalance: number;
   platfromRevenue: number;
+  orderCount?: number;
+}
+
+export interface VendorBalanceLedgerSummary {
+  totalVendors: number;
+  avgNetEarning: number;
+  TotalGrossEarnedFromVendors: number;
+  TotalOrdersProcessed: number;
 }
 
 export interface VendorBalanceLedgerData {
@@ -259,26 +267,30 @@ export interface VendorBalanceLedgerData {
   totalPages: number;
   totalVendors: number;
   vendorsData: VendorLedgerEntry[];
+  summaryStats?: VendorBalanceLedgerSummary[];
 }
 
-export const adminVendorLedgerQueryKey = (limit: number) =>
-  ["admin-vendor-balance-ledger", limit] as const;
+export const adminVendorLedgerQueryKey = (limit: number, page: number) =>
+  ["admin-vendor-balance-ledger", limit, page] as const;
 
 const ADMIN_VENDOR_LEDGER_STALE_TIME = 30_000;
 
 function vendorBalanceLedgerQueryOptions(
   limit: number,
+  page: number,
   cookieHeader?: string,
 ) {
   return {
-    queryKey: adminVendorLedgerQueryKey(limit),
+    queryKey: adminVendorLedgerQueryKey(limit, page),
     queryFn: async ({
       signal,
-    }: QueryFunctionContext<ReturnType<typeof adminVendorLedgerQueryKey>>) => {
+    }: QueryFunctionContext<
+      ReturnType<typeof adminVendorLedgerQueryKey>
+    >) => {
       const response = await api.get<VendorBalanceLedgerData>(
         "/admin/getVendorBalanceLedger",
         {
-          params: { limit },
+          params: { limit, page },
           signal,
           headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
         },
@@ -289,9 +301,13 @@ function vendorBalanceLedgerQueryOptions(
   };
 }
 
-export function useVendorBalanceLedger(limit = 5, enabled = true) {
+export function useVendorBalanceLedger(
+  limit = 5,
+  enabled = true,
+  page = 1,
+) {
   return useQuery({
-    ...vendorBalanceLedgerQueryOptions(limit),
+    ...vendorBalanceLedgerQueryOptions(limit, page),
     enabled,
   });
 }
@@ -300,9 +316,85 @@ export async function prefetchAdminVendorBalanceLedger(
   queryClient: QueryClient,
   limit: number,
   cookieHeader?: string,
+  page = 1,
 ) {
   await queryClient.prefetchQuery(
-    vendorBalanceLedgerQueryOptions(limit, cookieHeader),
+    vendorBalanceLedgerQueryOptions(limit, page, cookieHeader),
+  );
+}
+
+export interface AdminOrderFeedCustomer {
+  _id?: string;
+  name?: string;
+  email?: string;
+}
+
+export interface AdminOrderFeedItem {
+  _id: string;
+  customerID?: AdminOrderFeedCustomer | string | null;
+  totalPrice: number;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  paymentIntentId?: string | null;
+  shippingAddress?: {
+    phone?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    postalCode?: string;
+  };
+  createdAt?: string;
+}
+
+export interface AdminOrderFeedPage {
+  success: boolean;
+  currentPage: number;
+  totalPages: number;
+  totalOrders: number;
+  orders: AdminOrderFeedItem[];
+}
+
+export const adminOrderFeedQueryKey = (page: number, limit: number) =>
+  ["admin-order-feed", page, limit] as const;
+
+const ADMIN_ORDER_FEED_STALE_TIME = 30_000;
+
+function adminOrderFeedQueryOptions(
+  page: number,
+  limit: number,
+  cookieHeader?: string,
+) {
+  return {
+    queryKey: adminOrderFeedQueryKey(page, limit),
+    queryFn: async ({
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof adminOrderFeedQueryKey>>) => {
+      const response = await api.get<AdminOrderFeedPage>(
+        "/admin/getAdminOrderFeed",
+        {
+          params: { page, limit },
+          signal,
+          headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+        },
+      );
+      return response.data;
+    },
+    staleTime: ADMIN_ORDER_FEED_STALE_TIME,
+  };
+}
+
+export function useAdminOrderFeed(page: number, limit: number) {
+  return useQuery(adminOrderFeedQueryOptions(page, limit));
+}
+
+export async function prefetchAdminOrderFeed(
+  queryClient: QueryClient,
+  page: number,
+  limit: number,
+  cookieHeader?: string,
+) {
+  await queryClient.prefetchQuery(
+    adminOrderFeedQueryOptions(page, limit, cookieHeader),
   );
 }
 
