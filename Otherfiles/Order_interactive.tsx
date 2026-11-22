@@ -33,10 +33,12 @@ import {
 } from "lucide-react";
 import {
   useAdminOrderFeed,
+  useApproveVendorPayout,
   useVendorBalanceLedger,
   type AdminOrderFeedItem,
   type VendorLedgerEntry,
 } from "@/Otherfiles/tanstack/admin";
+import { toast } from "sonner";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import {
   features,
@@ -139,6 +141,7 @@ export function AdminOrdersLedger() {
 
   const ledgerQuery = useVendorBalanceLedger(PAGE_SIZE, true, vendorPage);
   const feedQuery = useAdminOrderFeed(orderPage, PAGE_SIZE);
+  const approvePayout = useApproveVendorPayout();
 
   const summary = ledgerQuery.data?.summaryStats?.[0];
   const vendors = ledgerQuery.data?.vendorsData ?? [];
@@ -173,6 +176,16 @@ export function AdminOrdersLedger() {
     features,
     manualPagination: true,
     pageCount: ledgerQuery.data?.totalPages ?? 1,
+    meta: {
+      onApprove: (vendorId: string) =>
+        approvePayout.mutate(vendorId, {
+          onSuccess: (data) =>
+            toast.success(
+              `Payout approved — ${data.updated} order${data.updated === 1 ? "" : "s"} marked as paid.`,
+            ),
+          onError: () => toast.error("Could not approve the payout."),
+        }),
+    },
     state: {
       pagination: { pageIndex: vendorPage - 1, pageSize: PAGE_SIZE },
     },

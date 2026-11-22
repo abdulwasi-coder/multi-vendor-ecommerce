@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { DataTableFeatures } from "@/components/ui/admin/data_table_feature";
 import type {
   AdminOrderFeedItem,
@@ -96,6 +97,23 @@ export const vendorLedgerColumns: ColumnDef<
     cell: (info) => (
       <span className="font-medium">{info.row.original.orderCount ?? 0}</span>
     ),
+  },
+  {
+    id: "actions",
+    header: "",
+    cell: (info) => {
+      const vendor = info.row.original;
+      const meta = info.table.options.meta;
+      return (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => meta?.onApprove?.(vendor.vendorID)}
+        >
+          Approve
+        </Button>
+      );
+    },
   },
 ];
 
