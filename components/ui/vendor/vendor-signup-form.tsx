@@ -64,6 +64,7 @@ export function VendorSignupForm() {
   const [storeslug, setStoreSlug] = useState("");
   const [description, setDescription] = useState("");
   const [countryOpen, setCountryOpen] = useState(false);
+  const [error, setError] = useState("");
 
   const {
     control,
@@ -149,11 +150,12 @@ export function VendorSignupForm() {
         : error instanceof Error
           ? error.message
           : undefined;
-      toast.error(
+      const displayMessage =
         typeof message === "string" && message.trim()
           ? message
-          : "Could not register your vendor account. Please try again.",
-      );
+          : "Could not register your vendor account. Please try again.";
+      setError(displayMessage);
+      toast.error(displayMessage);
     }
   }
 
@@ -205,6 +207,11 @@ export function VendorSignupForm() {
             </div>
           </header>
 
+          {error ? (
+            <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </p>
+          ) : null}
           <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
             <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
               <div className="space-y-5">

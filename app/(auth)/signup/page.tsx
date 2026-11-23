@@ -43,6 +43,7 @@ export default function CustomerSignupPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
   const {
     register,
     handleSubmit,
@@ -67,6 +68,11 @@ export default function CustomerSignupPage() {
         router.push(`/verify-otp/${values.email}`);
       } else {
         const message = result.data.message ?? result.data.error;
+        setError(
+          typeof message === "string" && message.trim()
+            ? message
+            : "Couldn't create your account. Please check your details and try again.",
+        );
         toast.error("Couldn't create your account.", {
           description:
             typeof message === "string" && message.trim()
@@ -83,6 +89,11 @@ export default function CustomerSignupPage() {
       };
       const message =
         apiError.response?.data?.message ?? apiError.response?.data?.error;
+      setError(
+        typeof message === "string" && message.trim()
+          ? message
+          : "An Error Occured, Please try again.",
+      );
       toast.error("Couldn't create your account.", {
         description:
           typeof message === "string" && message.trim() ? message
@@ -97,6 +108,9 @@ export default function CustomerSignupPage() {
         <h1 className="text-[30px] font-normal leading-9 tracking-tight">
           Create account
         </h1>
+        {error ? (
+          <p className="pt-2 text-sm text-red-600">{error}</p>
+        ) : null}
         <form
           className="mt-5 space-y-4"
           noValidate

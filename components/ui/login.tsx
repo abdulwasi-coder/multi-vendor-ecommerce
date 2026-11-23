@@ -67,11 +67,14 @@ export default function LoginFunction() {
         return;
       }
       router.push(returnTo ?? "/");
-    } catch (error:any) {
-      console.log(error)
-      if(error.reponse){
-        setError(error.response.data.message)
-      }
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ??
+        error?.response?.data?.error ??
+        (error?.response
+          ? `Request failed with status ${error.response.status}`
+          : "Something went wrong. Please try again.");
+      setError(typeof message === "string" ? message : "Sign in failed. Please try again.");
     }
   }
 
