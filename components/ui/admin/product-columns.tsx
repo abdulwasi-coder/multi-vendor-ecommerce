@@ -39,7 +39,9 @@ export const adminProductColumns: ColumnDef<
     id: "image",
     header: "Image",
     cell: (info) => {
-      const image = info.row.original.images?.[0];
+      const image =
+        info.row.original.images?.[0]?.publicId ??
+        info.row.original.images?.[0]?.cloudinaryId;
       return image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img

@@ -559,7 +559,7 @@ export interface AdminProduct {
   vendorId?: string;
   businessName?: string;
   PhoneNumber?: string;
-  images?: string[];
+  images?: { publicId?: string; cloudinaryId?: string }[];
 }
 
 export interface AdminProductPage {
