@@ -23,6 +23,7 @@ declare module "@tanstack/table-core" {
     onView?: (category: TData) => void;
     onDelete?: (id: string) => void;
     onApprove?: (vendorId: string) => void;
+    onApproveVendor?: (vendor: TData, userId: string) => void;
   }
 }
 

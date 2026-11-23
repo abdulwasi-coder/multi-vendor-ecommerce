@@ -630,3 +630,136 @@ export async function prefetchAdminProducts(
     adminProductsQueryOptions(page, limit, search, status, cookieHeader),
   );
 }
+
+export interface AdminVendorUser {
+  _id?: string;
+  email?: string;
+  name?: string;
+}
+
+export interface AdminVendor {
+  _id: string;
+  name?: string;
+  companyName?: string;
+  storeSlug?: string;
+  lastName?: string;
+  country?: string;
+  mobilenumber?: string;
+  storeDescription?: string;
+  status?: "pending" | "inactive" | "suspended" | "active" | string;
+  createdAt?: string;
+  userid?: AdminVendorUser | string | null;
+}
+
+export interface AdminVendorsPage {
+  success: boolean;
+  currentPage: number;
+  totalPages: number;
+  totalVendors: number;
+  vendors: AdminVendor[];
+}
+
+export const adminVendorsQueryKey = (page: number, limit: number, status: string) =>
+  ["admin-vendors", page, limit, status] as const;
+
+function adminVendorsQueryOptions(
+  page: number,
+  limit: number,
+  status: string,
+  cookieHeader?: string,
+) {
+  return {
+    queryKey: adminVendorsQueryKey(page, limit, status),
+    queryFn: async ({
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof adminVendorsQueryKey>>) => {
+      const response = await api.get<AdminVendorsPage>("/admin/getVendors", {
+        params: {
+          page,
+          limit,
+          ...(status ? { status } : {}),
+        },
+        signal,
+        headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+      });
+      return response.data;
+    },
+    staleTime: ADMIN_PRODUCTS_STALE_TIME,
+  };
+}
+
+export function useAdminVendors(page: number, limit: number, status = "") {
+  return useQuery(adminVendorsQueryOptions(page, limit, status));
+}
+
+export interface AdminUser {
+  _id: string;
+  name?: string;
+  email?: string;
+  role?: string;
+  isEmailVerified?: boolean;
+  created_at?: string;
+}
+
+export interface AdminUsersPage {
+  success: boolean;
+  currentPage: number;
+  totalPages: number;
+  totalUsers: number;
+  users: AdminUser[];
+}
+
+export const adminUsersQueryKey = (page: number, limit: number, search: string) =>
+  ["admin-users", page, limit, search] as const;
+
+function adminUsersQueryOptions(
+  page: number,
+  limit: number,
+  search: string,
+  cookieHeader?: string,
+) {
+  return {
+    queryKey: adminUsersQueryKey(page, limit, search),
+    queryFn: async ({
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof adminUsersQueryKey>>) => {
+      const response = await api.get<AdminUsersPage>("/admin/getAllUsers", {
+        params: {
+          page,
+          limit,
+          ...(search.trim() ? { search: search.trim() } : {}),
+        },
+        signal,
+        headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+      });
+      return response.data;
+    },
+    staleTime: ADMIN_PRODUCTS_STALE_TIME,
+  };
+}
+
+export function useAdminUsers(page: number, limit: number, search = "") {
+  return useQuery(adminUsersQueryOptions(page, limit, search));
+}
+
+export function useApproveVendor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      vendorId,
+      userId,
+    }: {
+      vendorId: string;
+      userId: string;
+    }) => {
+      const response = await api.post<{ success: boolean; message?: string }>(
+        `/admin/approaveVendor/${vendorId}`,
+        { userId },
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-vendors"] });
+    },
+  });
+}
