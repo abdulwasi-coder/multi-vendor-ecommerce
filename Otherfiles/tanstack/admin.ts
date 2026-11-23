@@ -548,3 +548,85 @@ export function useApproveVendorPayout() {
     },
   });
 }
+
+export interface AdminProduct {
+  _id: string;
+  name?: string;
+  price?: number;
+  stock?: number;
+  status?: string;
+  createdAt?: string;
+  vendorId?: string;
+  businessName?: string;
+  PhoneNumber?: string;
+  images?: string[];
+}
+
+export interface AdminProductPage {
+  success: boolean;
+  totalProducts: number;
+  totalPages: number;
+  currentPage: number;
+  products: AdminProduct[];
+}
+
+export const adminProductsQueryKey = (
+  page: number,
+  limit: number,
+  search: string,
+  status: string,
+) => ["admin-products", page, limit, search, status] as const;
+
+const ADMIN_PRODUCTS_STALE_TIME = 30_000;
+
+function adminProductsQueryOptions(
+  page: number,
+  limit: number,
+  search: string,
+  status: string,
+  cookieHeader?: string,
+) {
+  return {
+    queryKey: adminProductsQueryKey(page, limit, search, status),
+    queryFn: async ({
+      signal,
+    }: QueryFunctionContext<
+      ReturnType<typeof adminProductsQueryKey>
+    >) => {
+      const response = await api.get<AdminProductPage>("/admin/GetProducts", {
+        params: {
+          page,
+          limit,
+          ...(search.trim() ? { search: search.trim() } : {}),
+          ...(status ? { status } : {}),
+        },
+        signal,
+        headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+      });
+      return response.data;
+    },
+    staleTime: ADMIN_PRODUCTS_STALE_TIME,
+  };
+}
+
+export function useAdminProducts(
+  page: number,
+  limit: number,
+  search = "",
+  status = "",
+) {
+  return useQuery(adminProductsQueryOptions(page, limit, search, status));
+}
+
+export async function prefetchAdminProducts(
+  queryClient: QueryClient,
+  page: number,
+  limit: number,
+  cookieHeader?: string,
+  search = "",
+  status = "",
+) {
+  await queryClient.prefetchQuery(
+    adminProductsQueryOptions(page, limit, search, status, cookieHeader),
+  );
+}
