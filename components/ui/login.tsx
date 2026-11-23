@@ -41,6 +41,7 @@ export default function LoginFunction() {
   });
 
   async function onSubmit(values: FormValues) {
+    setError("");
     try {
       const response = await api.post(
         "/authentication/login",

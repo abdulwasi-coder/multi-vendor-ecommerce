@@ -54,6 +54,7 @@ export default function CustomerSignupPage() {
   });
 
   async function onSubmit(values: SignupFormValues) {
+    setError("");
     try {
       const result = await api.post("/authentication/createAccount", {
         name: values.name,

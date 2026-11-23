@@ -120,6 +120,7 @@ export function VendorSignupForm() {
   }
 
   async function onSubmit(data: VendorSignupInput) {
+    setError("");
     try {
       const multipartPayload = new FormData();
       multipartPayload.append("name", data.name);
