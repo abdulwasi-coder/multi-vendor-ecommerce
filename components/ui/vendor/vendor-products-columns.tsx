@@ -28,14 +28,25 @@ export const vendorProductColumns: ColumnDef<DataTableFeatures, VendorProduct>[]
       header: "Product",
       cell: ({ row }) => {
         const product = row.original;
+        const imageUrl =
+          product.images?.[0]?.publicId ?? product.images?.[0]?.cloudinaryId;
         return (
           <Link
             href={`/vendor/products/${product._id}`}
             className="group flex min-w-56 items-center gap-3"
           >
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-lg border bg-muted/70 text-muted-foreground">
-              <Package className="size-5" />
-            </div>
+            {imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={imageUrl}
+                alt={product.name}
+                className="size-11 shrink-0 rounded-lg border object-cover"
+              />
+            ) : (
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-lg border bg-muted/70 text-muted-foreground">
+                <Package className="size-5" />
+              </div>
+            )}
             <span>
               <span className="block font-medium group-hover:underline">
                 {product.name}

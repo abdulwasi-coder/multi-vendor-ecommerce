@@ -157,6 +157,7 @@ function adminDashboardQueryOptions(
       return response.data;
     },
     staleTime: ADMIN_DASHBOARD_STALE_TIME,
+    placeholderData: keepPreviousData,
   };
 }
 
@@ -229,6 +230,7 @@ function adminPendingVendorsQueryOptions(
       return response.data;
     },
     staleTime: ADMIN_PENDING_VENDORS_STALE_TIME,
+    placeholderData: keepPreviousData,
   };
 }
 
@@ -300,6 +302,7 @@ function vendorBalanceLedgerQueryOptions(
       return response.data;
     },
     staleTime: ADMIN_VENDOR_LEDGER_STALE_TIME,
+    placeholderData: keepPreviousData,
   };
 }
 
@@ -382,6 +385,7 @@ function adminOrderFeedQueryOptions(
       return response.data;
     },
     staleTime: ADMIN_ORDER_FEED_STALE_TIME,
+    placeholderData: keepPreviousData,
   };
 }
 
@@ -606,6 +610,7 @@ function adminProductsQueryOptions(
       return response.data;
     },
     staleTime: ADMIN_PRODUCTS_STALE_TIME,
+    placeholderData: keepPreviousData,
   };
 }
 
@@ -685,6 +690,7 @@ function adminVendorsQueryOptions(
       return response.data;
     },
     staleTime: ADMIN_PRODUCTS_STALE_TIME,
+    placeholderData: keepPreviousData,
   };
 }
 
@@ -735,6 +741,7 @@ function adminUsersQueryOptions(
       return response.data;
     },
     staleTime: ADMIN_PRODUCTS_STALE_TIME,
+    placeholderData: keepPreviousData,
   };
 }
 

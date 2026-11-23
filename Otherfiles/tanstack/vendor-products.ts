@@ -17,6 +17,7 @@ export interface VendorProduct {
   discount: number;
   sku: string;
   status: "archieved" | "banned" | "active" | "inactive";
+  images?: { publicId?: string; cloudinaryId?: string }[];
 }
 
 export interface VendorProductSummary {
